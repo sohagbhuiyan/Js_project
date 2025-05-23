@@ -106,7 +106,7 @@ function App() {
           <Route path="/cc-builder" element={<CCBuilderPage />} />
           <Route path="/cc-builder/:ccBuilderId/item-details" element={<CComponentProductsPageCC />} />
           <Route path="/cc-builder/item/:itemId/details" element={<CCItemDetailsByItemPage />} />
-          <Route path="/cc-builder/item-details/:id" element={<CCPartView />} />
+          <Route path="/cc-builder/item-details/:name" element={<CCPartView />} />
           <Route path="/brand/:id/products" element={<BrandProductPage />} />
           <Route path="/branch" element={<Branch />} />
 

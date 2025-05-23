@@ -66,7 +66,7 @@ const ProductDetails = () => {
         </h2>
         {currentProduct ? (
           <div className="text-sm md:text-lg space-y-1">
-            <p><strong>Brand:</strong> {currentProduct.brand.brandname|| currentProduct.catagory.name}</p>
+            <p><strong>Brand:</strong> {currentProduct.brand?.brandname|| currentProduct.catagory.name}</p>
             <p><strong>Model:</strong> {currentProduct.name}</p>
             <p><strong>Product ID:</strong> {currentProduct.productid}</p>
             <p><strong>Specification:</strong> {currentProduct.specification}</p>
