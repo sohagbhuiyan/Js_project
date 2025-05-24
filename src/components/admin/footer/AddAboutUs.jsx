@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -24,10 +23,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const AddAboutUs = () => {
   const [formData, setFormData] = useState({
-    id: '',
     mission: '',
     vision: '',
     achievements: '',
@@ -38,25 +38,50 @@ const AddAboutUs = () => {
   const [fetchId, setFetchId] = useState('');
 
   const dispatch = useDispatch();
-  const { aboutUsEntries, selectedAboutUs, loading, error, successMessage } = useSelector((state) => state.aboutUs);
-  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
+  const navigate = useNavigate();
+  const { aboutUsEntries = [], selectedAboutUs, loading, error, successMessage } = useSelector((state) => state.aboutUs || {});
+  const { token, role } = useSelector((state) => state.auth || {});
 
-  // Clear error/success messages after 5 seconds
+  // Redirect non-admins
   useEffect(() => {
-    if (error || successMessage) {
+    if (role !== 'admin') {
+      navigate('/');
+    }
+  }, [role, navigate]);
+
+  // Fetch all About Us entries on component mount
+  useEffect(() => {
+    dispatch(getAllAboutUs());
+  }, [dispatch]);
+
+  // Clear error/success messages after 5 seconds and show toasts
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        duration: 5000,
+        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+      });
       const timer = setTimeout(() => {
         dispatch(clearAboutUsError());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+    if (successMessage) {
+      toast.success(successMessage, {
+        duration: 5000,
+        style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+      });
+      const timer = setTimeout(() => {
         dispatch(clearAboutUsSuccess());
       }, 5000);
       return () => clearTimeout(timer);
     }
   }, [error, successMessage, dispatch]);
 
-  // Pre-fill form when selectedAboutUs changes
+  // Pre-fill form when selectedAboutUs changes (edit mode)
   useEffect(() => {
     if (selectedAboutUs) {
       setFormData({
-        id: selectedAboutUs.id || '',
         mission: selectedAboutUs.mission || '',
         vision: selectedAboutUs.vision || '',
         achievements: selectedAboutUs.achievements || '',
@@ -80,48 +105,102 @@ const AddAboutUs = () => {
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const handleFetchById = () => {
-    if (fetchId && token) {
-      dispatch(getAboutUsById(fetchId));
+  const handleFetchById = async () => {
+    if (!fetchId) {
+      setErrors({ ...errors, fetch: 'About Us ID is required' });
+      toast.error('Please enter an About Us ID', {
+        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+      });
+      return;
+    }
+    const result = await dispatch(getAboutUsById(fetchId));
+    if (getAboutUsById.fulfilled.match(result)) {
+      toast.success(`Fetched About Us #${fetchId} for editing`, {
+        style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+      });
       setFetchId('');
     } else {
-      setErrors({ ...errors, fetch: 'About Us ID and authentication token are required' });
+      toast.error(result.payload || 'Failed to fetch About Us', {
+        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+      });
     }
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      if (!token) {
-        setErrors({ ...errors, auth: 'Authentication token missing' });
-        return;
-      }
-      if (formData.id) {
-        // Update existing About Us
-        dispatch(updateAboutUs({ id: formData.id, formData }));
-      } else {
-        // Save new About Us
-        dispatch(saveAboutUs(formData));
-      }
-      setFormData({ id: '', mission: '', vision: '', achievements: '', brandbusinesspartners: '', description: '' });
-      dispatch(clearSelectedAboutUs());
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast.error('Please fill all required fields', {
+        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+      });
+      return;
     }
-  };
-
-  const handleDelete = (id) => {
-    if (token) {
-      dispatch(deleteAboutUs(id));
-    } else {
+    if (!token) {
       setErrors({ ...errors, auth: 'Authentication token missing' });
+      toast.error('Authentication token missing', {
+        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+      });
+      return;
+    }
+
+    let result;
+    if (selectedAboutUs) {
+      // Update existing About Us
+      result = await dispatch(updateAboutUs({ id: selectedAboutUs.id, formData }));
+      if (updateAboutUs.fulfilled.match(result)) {
+        toast.success(`About Us #${selectedAboutUs.id} updated successfully`, {
+          style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+        });
+      } else {
+        toast.error(result.payload || 'Failed to update About Us', {
+          style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+        });
+        return; // Prevent form reset on failure
+      }
+    } else {
+      // Save new About Us
+      result = await dispatch(saveAboutUs(formData));
+      if (saveAboutUs.fulfilled.match(result)) {
+        toast.success('About Us added successfully', {
+          style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+        });
+      } else {
+        toast.error(result.payload || 'Failed to save About Us', {
+          style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+        });
+        return; // Prevent form reset on failure
+      }
+    }
+
+    // Reset form and clear edit mode only on success
+    setFormData({ mission: '', vision: '', achievements: '', brandbusinesspartners: '', description: '' });
+    dispatch(clearSelectedAboutUs());
+  };
+
+  const handleDelete = async (id) => {
+    const result = await dispatch(deleteAboutUs(id));
+    if (deleteAboutUs.fulfilled.match(result)) {
+      toast.success(`About Us #${id} deleted successfully`, {
+        style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+      });
+    } else {
+      toast.error(result.payload || 'Failed to delete About Us', {
+        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
+      });
     }
   };
 
   const handleRefresh = () => {
     dispatch(getAllAboutUs());
+    toast.success('Refreshed About Us entries', {
+      style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+    });
   };
 
   const handleClearForm = () => {
-    setFormData({ id: '', mission: '', vision: '', achievements: '', brandbusinesspartners: '', description: '' });
+    setFormData({ mission: '', vision: '', achievements: '', brandbusinesspartners: '', description: '' });
     dispatch(clearSelectedAboutUs());
+    toast.success('Form cleared', {
+      style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+    });
   };
 
   const SkeletonCard = () => (
@@ -142,10 +221,8 @@ const AddAboutUs = () => {
       {/* Form Section */}
       <div className="max-w-2xl mx-auto mb-10 p-6 bg-white rounded-lg shadow-xl">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          {formData.id ? 'Update About Us' : 'Add New About Us'}
+          {selectedAboutUs ? `Edit About Us #${selectedAboutUs.id}` : 'Add New About Us'}
         </h2>
-        {error && <Alert severity="error" className="mb-4">{error}</Alert>}
-        {successMessage && <Alert severity="success" className="mb-4">{successMessage}</Alert>}
         {errors.auth && <Alert severity="error" className="mb-4">{errors.auth}</Alert>}
         <div className="space-y-4">
           <div className="flex gap-4">
@@ -224,7 +301,7 @@ const AddAboutUs = () => {
               fullWidth
               className="py-3"
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : formData.id ? 'Update About Us' : 'Save About Us'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : selectedAboutUs ? 'Update About Us' : 'Save About Us'}
             </Button>
             <Button
               variant="outlined"

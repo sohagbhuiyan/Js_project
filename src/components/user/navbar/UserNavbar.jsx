@@ -88,7 +88,7 @@ const UserNavbar = () => {
   };
 
   return (
-    <div className="sticky top-0 z-[90] flex flex-col w-full bg-[#CF212B]">
+    <div className="sticky top-0 z-[99] flex flex-col w-full bg-[#CF212B]">
       {/* TopBar - hide/show on scroll for desktop */}
       <div
         className={`bg-[#CF212B] text-white transition-all duration-300 ease-in-out
@@ -99,7 +99,7 @@ const UserNavbar = () => {
 
       {/* Sticky Logo, SearchBar, NavIcons */}
       <div className="bg-[#CF212B] text-white shadow-md transition-all duration-300 z-[100]">
-        <div className="flex items-center justify-between px-4 py-2 md:py-3 md:px-6 lg:px-12">
+        <div className="flex items-center justify-between px-4 py-2 md:py-2 md:px-6 lg:px-12">
           {/* Hamburger for mobile */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -112,7 +112,7 @@ const UserNavbar = () => {
           <div className="flex flex-1 items-center justify-between md:justify-center gap-3 md:gap-12 lg:gap-16">
             <img
               src={logo}
-              className="h-6 md:h-9 lg:h-10 cursor-pointer"
+              className="h-6 md:h-8 lg:h-10 cursor-pointer"
               onClick={() => {
                 window.location.href = '/';
                 closeAllDropdowns();

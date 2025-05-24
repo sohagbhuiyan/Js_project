@@ -25,7 +25,7 @@ const Layout = () => {
         {/* Main content area */}
         <div className="flex-1 flex flex-col ">
           {/* Top Navbar */}
-          <div className="bg-gray-900 text-white p-4 sticky top-0">
+          <div className="bg-gray-900 text-white p-3 sticky top-0">
             <AdminNavbar />
           </div>
           {/* Outlet renders admin protected routes */}

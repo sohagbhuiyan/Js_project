@@ -14,11 +14,11 @@ const DesktopMenu = ({ menuItems }) => {
   const columnClass = remainingItems.length > 6 ? "grid-cols-3" : "grid-cols-2";
 
   return (
-    <div className="hidden md:flex items-center justify-center space-x-4 px-4 py-3 font-medium text-sm text-white bg-[#CF212B] relative z-50">
+    <div className="hidden md:flex items-center justify-center space-x-4 px-4 py-2 font-medium text-sm text-white bg-[#CF212B] relative z-40">
       {/* Home Menu Item */}
       <div className="relative cursor-pointer group">
         <Link to="/" className="flex items-center hover:text-gray-300">
-          <FaHome className="mr-1" /> Home
+          <FaHome className="mr-1" />
         </Link>
       </div>
 

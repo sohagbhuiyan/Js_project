@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser, clearError } from "../../../store/authSlice";
+import { loginUser, fetchProfile, clearError } from "../../../store/authSlice";
 import { useNavigate } from "react-router-dom";
 import { TextField, Button, Box, Typography, Container, Paper, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -19,9 +19,11 @@ const Login = () => {
 
   useEffect(() => {
     if (token) {
+      // Fetch profile data immediately after successful login
+      dispatch(fetchProfile());
       navigate("/");
     }
-  }, [token, navigate]);
+  }, [token, navigate, dispatch]);
 
   useEffect(() => {
     if (authError) {
@@ -41,12 +43,10 @@ const Login = () => {
     const result = await dispatch(loginUser(formData));
 
     if (loginUser.fulfilled.match(result)) {
-      
-      navigate("/");
-          toast.success("Login successfully", {
-            duration: 3000,
-            style: { background: "#10B981", color: "#FFFFFF", fontWeight: "bold" },
-          });
+      toast.success("Login successfully", {
+        duration: 3000,
+        style: { background: "#10B981", color: "#FFFFFF", fontWeight: "bold" },
+      });
     } else if (loginUser.rejected.match(result)) {
       setLocalError(result.payload || "Login failed");
     }
@@ -96,9 +96,8 @@ const Login = () => {
           </Link>
         </Typography>
       </Paper>
-    
+      <Toaster />
     </Container>
-    
   );
 };
 

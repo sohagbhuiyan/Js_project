@@ -9,9 +9,15 @@ export const saveAboutUs = createAsyncThunk(
     try {
       const state = getState();
       const token = state.auth.token || localStorage.getItem('authToken');
+      const role = state.auth.role || localStorage.getItem('authRole');
+
       if (!token) {
         return rejectWithValue('No authentication token found.');
       }
+      if (role !== 'admin') {
+        return rejectWithValue('Admin access required.');
+      }
+
       const response = await axios.post(`${API_BASE_URL}/api/aboutus/save`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -31,7 +37,7 @@ export const getAllAboutUs = createAsyncThunk(
   'aboutUs/getAllAboutUs',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/aboutus/get/`);
+      const response = await axios.get(`${API_BASE_URL}/api/aboutus/get`);
       return response.data;
     } catch (error) {
       console.error('Fetch About Us error:', error.response?.data);
@@ -47,9 +53,15 @@ export const getAboutUsById = createAsyncThunk(
     try {
       const state = getState();
       const token = state.auth.token || localStorage.getItem('authToken');
+      const role = state.auth.role || localStorage.getItem('authRole');
+
       if (!token) {
         return rejectWithValue('No authentication token found.');
       }
+      if (role !== 'admin') {
+        return rejectWithValue('Admin access required.');
+      }
+
       const response = await axios.get(`${API_BASE_URL}/api/aboutus/get/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -70,9 +82,15 @@ export const updateAboutUs = createAsyncThunk(
     try {
       const state = getState();
       const token = state.auth.token || localStorage.getItem('authToken');
+      const role = state.auth.role || localStorage.getItem('authRole');
+
       if (!token) {
         return rejectWithValue('No authentication token found.');
       }
+      if (role !== 'admin') {
+        return rejectWithValue('Admin access required.');
+      }
+
       const response = await axios.put(`${API_BASE_URL}/api/aboutus/updete/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -94,9 +112,15 @@ export const deleteAboutUs = createAsyncThunk(
     try {
       const state = getState();
       const token = state.auth.token || localStorage.getItem('authToken');
+      const role = state.auth.role || localStorage.getItem('authRole');
+
       if (!token) {
         return rejectWithValue('No authentication token found.');
       }
+      if (role !== 'admin') {
+        return rejectWithValue('Admin access required.');
+      }
+
       await axios.delete(`${API_BASE_URL}/api/aboutus/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -192,21 +216,22 @@ const aboutUsSlice = createSlice({
         state.error = action.payload;
       })
       // Delete About Us
-      .addCase(deleteAboutUs.pending, (state, action) => {
+      .addCase(deleteAboutUs.pending, (state) => {
         state.loading = true;
         state.error = null;
-        // Optimistic update: remove entry from state immediately
-        state.aboutUsEntries = state.aboutUsEntries.filter((entry) => entry.id !== action.meta.arg);
+        state.successMessage = null;
       })
-      .addCase(deleteAboutUs.fulfilled, (state) => {
+      .addCase(deleteAboutUs.fulfilled, (state, action) => {
         state.loading = false;
+        state.aboutUsEntries = state.aboutUsEntries.filter((entry) => entry.id !== action.payload);
         state.successMessage = 'About Us deleted successfully!';
       })
       .addCase(deleteAboutUs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        // Rollback optimistic update by refetching entries
+        // Refetch entries to restore state
         state.aboutUsEntries = [];
+        // Optionally dispatch getAllAboutUs to restore state
       });
   },
 });
