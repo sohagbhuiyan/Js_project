@@ -1,138 +1,261 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Box,
   Typography,
-  TextField,
-  MenuItem,
   Slider,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
   Grid,
   Card,
   CardContent,
   CardMedia,
+  Button,
   CircularProgress,
+  Divider,
+  Drawer,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import axios from "axios";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { API_BASE_URL } from "../../../store/api";
+
+const priceRange = [0, 360000];
+const warrantyOptions = [0, 1, 2]; // Assuming warranty in years (0 = No warranty, 1 = 1 year, 2 = 2 years)
+
+const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  "& .MuiDrawer-paper": {
+    width: 300,
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[3],
+    [theme.breakpoints.down("sm")]: {
+      width: 250,
+    },
+  },
+}));
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[3],
+  transition: "transform 0.2s",
+  "&:hover": {
+    transform: "scale(1.02)",
+  },
+}));
+
+const StyledSidebar = styled(Box)(({ theme }) => ({
+  width: 150,
+  paddingRight: theme.spacing(3),
+  marginLeft: "-5rem",
+  padding: "4px 15px",
+  border : `0.5px solid ${theme.palette.grey[400]}`,
+  borderRight: `1px solid ${theme.palette.grey[400]}`,
+  [theme.breakpoints.down("md")]: {
+    display: "none",
+  },
+}));
 
 const FilteredProducts = () => {
-  const [brandname, setBrandname] = useState("Hp");
-  const [productName, setProductName] = useState("");
-  const [regularPrice, setRegularPrice] = useState(1000);
+  const [minPrice, setMinPrice] = useState(priceRange[0]);
+  const [maxPrice, setMaxPrice] = useState(priceRange[1]);
+  const [selectedWarranties, setSelectedWarranties] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const brandOptions = ["Hp", "Dell", "Asus", "Acer"];
+  // Reset filters
+  const resetFilters = () => {
+    setMinPrice(priceRange[0]);
+    setMaxPrice(priceRange[1]);
+    setSelectedWarranties([]);
+  };
 
+  // Fetch filtered products using ccBuilder API
   useEffect(() => {
-    const fetchFiltered = async () => {
-      setLoading(true);
-      try {
-        let url = `http://75.119.134.82:6161/api/productDetails/filter?brandname=${brandname}`;
-        if (productName) url += `&productName=${productName}`;
-        if (regularPrice) url += `&regularPrice=${regularPrice}`;
-        const res = await axios.get(url);
-        setProducts(res.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const delayDebounce = setTimeout(() => {
+      const fetchFiltered = async () => {
+        setLoading(true);
+        try {
+          let query = `regularprice=${minPrice}-${maxPrice}`;
+          if (selectedWarranties.length > 0) {
+            query += `&warranty=${selectedWarranties.join(",")}`;
+          }
 
-    fetchFiltered();
-  }, [brandname, productName, regularPrice]);
+          const res = await axios.get(
+            `${API_BASE_URL}/api/ccbuilder/items/filter?${query}`
+          );
+          setProducts(res.data);
+        } catch (err) {
+          console.error("Fetch error:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  return (
-    <Box sx={{ maxWidth: "1200px", mx: "auto", px: 2, py: 4 }}>
+      fetchFiltered();
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [minPrice, maxPrice, selectedWarranties]);
+
+  // Handle warranty checkbox changes
+  const handleWarrantyChange = (warranty) => {
+    setSelectedWarranties((prev) =>
+      prev.includes(warranty)
+        ? prev.filter((w) => w !== warranty)
+        : [...prev, warranty]
+    );
+  };
+
+  // Toggle mobile drawer
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  // Sidebar content
+  const drawerContent = (
+    <Box>
       <Box
         sx={{
-          mb: 4,
-          p: 3,
-          borderRadius: 2,
-          boxShadow: 2,
-          backgroundColor: "#f9f9f9",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
         }}
       >
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          🔍 Filter Products
+        <Typography variant="h6" fontWeight="bold">
+          Filter
         </Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              select
-              fullWidth
-              label="Brand Name"
-              value={brandname}
-              onChange={(e) => setBrandname(e.target.value)}
-            >
-              {brandOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Product Name"
-              fullWidth
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <Typography gutterBottom>Regular Price: ≤ ${regularPrice}</Typography>
-            <Slider
-              value={regularPrice}
-              onChange={(e, newValue) => setRegularPrice(newValue)}
-              min={50}
-              max={3000}
-              step={50}
-              valueLabelDisplay="auto"
-            />
-          </Grid>
-        </Grid>
+        <Button
+          variant="text"
+          color="primary"
+          onClick={resetFilters}
+          sx={{ textTransform: "none" }}
+        >
+          Clear
+        </Button>
       </Box>
 
-      {loading ? (
-        <Box textAlign="center" mt={5}>
-          <CircularProgress />
-        </Box>
-      ) : products.length === 0 ? (
-        <Typography textAlign="center" color="text.secondary" mt={4}>
-          No products found.
+      <Divider sx={{ my: 2 }} />
+
+      <Box mb={3}>
+        <Typography fontWeight="bold" mb={1}>
+          Price Range
         </Typography>
-      ) : (
-        <Grid container spacing={3}>
-          {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <Card sx={{ borderRadius: 2, boxShadow: 2 }}>
-                {product.imagea && (
+        <Slider
+          value={[minPrice, maxPrice]}
+          onChange={(e, newVal) => {
+            setMinPrice(newVal[0]);
+            setMaxPrice(newVal[1]);
+          }}
+          min={priceRange[0]}
+          max={priceRange[1]}
+          step={5000}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(value) => `$${value}`}
+        />
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="caption">${minPrice}</Typography>
+          <Typography variant="caption">${maxPrice}</Typography>
+        </Box>
+      </Box>
+
+      <Divider sx={{ my: 2 }} />
+
+      <Typography fontWeight="bold" mb={1}>
+        Warranty
+      </Typography>
+      <FormGroup>
+        {warrantyOptions.map((warranty) => (
+          <FormControlLabel
+            key={warranty}
+            control={
+              <Checkbox
+                checked={selectedWarranties.includes(warranty)}
+                onChange={() => handleWarrantyChange(warranty)}
+              />
+            }
+            label={warranty === 0 ? "No Warranty" : `${warranty} Year${warranty > 1 ? "s" : ""}`}
+          />
+        ))}
+      </FormGroup>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: "flex", p: { xs: 1, md: 0 } }}>
+      {/* Mobile Filter Button */}
+      <Box sx={{ display: { xs: "block", md: "none" }, mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<FilterListIcon />}
+          onClick={handleDrawerToggle}
+          sx={{ textTransform: "none" }}
+        >
+          Filters
+        </Button>
+      </Box>
+
+      {/* Sidebar for Desktop */}
+      <StyledSidebar>
+        {drawerContent}
+      </StyledSidebar>
+
+      {/* Mobile Drawer */}
+      <StyledDrawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true, // Better performance on mobile
+        }}
+        sx={{ display: { xs: "block", md: "none" } }}
+      >
+        {drawerContent}
+      </StyledDrawer>
+
+      {/* Product View */}
+      <Box sx={{ flexGrow: 1, pl: { md: 2 } }}>
+        {loading ? (
+          <Box textAlign="center" mt={10}>
+            <CircularProgress />
+          </Box>
+        ) : products.length === 0 ? (
+          <Typography textAlign="center" mt={5} variant="h6">
+            No products found.
+          </Typography>
+        ) : (
+          <Grid container spacing={2}>
+            {products.map((product) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                <StyledCard>
                   <CardMedia
                     component="img"
-                    height="180"
-                    image={`http://75.119.134.82:6161/images/${product.imagea}`}
-                    alt={product.productName}
+                    height="100"
+                    image={`${API_BASE_URL}/images/${product.imagea || "default.jpg"}`}
+                    alt={product.name}
+                    onError={(e) => {
+                      e.target.src = "/fallback.png"; // Fallback if image not found
+                    }}
                   />
-                )}
-                <CardContent>
-                  <Typography variant="h6" fontWeight="bold">
-                    {product.productName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Brand: {product.brandname}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Price: ${product.regularPrice}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+                  <CardContent>
+                    <Typography variant="h6" fontWeight="bold" noWrap>
+                      {product.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Price: ${product.regularprice}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Warranty: {product.warranty === 0 ? "No Warranty" : `${product.warranty} Year${product.warranty > 1 ? "s" : ""}`}
+                    </Typography>
+                  </CardContent>
+                </StyledCard>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Box>
     </Box>
   );
 };

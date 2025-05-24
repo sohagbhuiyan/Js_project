@@ -11,7 +11,7 @@ import { fetchCategoriesAndProducts } from '../../../store/categorySlice';
 
 const UserNavbar = () => {
   const dispatch = useDispatch();
-  const { categoriesWithSub, error } = useSelector((state) => state.categories);
+  const { categoriesWithSub, loading, error } = useSelector((state) => state.categories);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,7 +88,7 @@ const UserNavbar = () => {
   };
 
   return (
-    <div className="sticky top-0 z-[90] flex flex-col w-full">
+    <div className="sticky top-0 z-[90] flex flex-col w-full bg-[#CF212B]">
       {/* TopBar - hide/show on scroll for desktop */}
       <div
         className={`bg-[#CF212B] text-white transition-all duration-300 ease-in-out
@@ -98,8 +98,8 @@ const UserNavbar = () => {
       </div>
 
       {/* Sticky Logo, SearchBar, NavIcons */}
-      <div className="bg-[#CF212B] text-white shadow-md transition-all duration-300 z-50">
-        <div className="flex items-center justify-between px-5 py-2 md:py-1 md:px-6 lg:px-12">
+      <div className="bg-[#CF212B] text-white shadow-md transition-all duration-300 z-[100]">
+        <div className="flex items-center justify-between px-4 py-2 md:py-3 md:px-6 lg:px-12">
           {/* Hamburger for mobile */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -109,10 +109,10 @@ const UserNavbar = () => {
           </button>
 
           {/* Logo + Search + NavIcons */}
-          <div className="flex flex-1 items-center justify-center gap-3 px-2 md:gap-15">
+          <div className="flex flex-1 items-center justify-between md:justify-center gap-3 md:gap-12 lg:gap-16">
             <img
               src={logo}
-              className="h-6 md:h-9.5 cursor-pointer"
+              className="h-6 md:h-9 lg:h-10 cursor-pointer"
               onClick={() => {
                 window.location.href = '/';
                 closeAllDropdowns();
@@ -120,7 +120,9 @@ const UserNavbar = () => {
               alt="Techno shop"
             />
 
-            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <div className="flex-1 max-w-md mx-2 md:mx-4">
+              <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            </div>
 
             <NavIcons
               variant="desktop"
@@ -136,14 +138,20 @@ const UserNavbar = () => {
 
         {/* DesktopMenu - hide/show on scroll */}
         <div
-          className={`transition-all duration-300 ease-in-out
+          className={`transition-all duration-300 ease-in-out bg-[#CF212B]
           ${showTopBarMenu ? 'opacity-100 max-h-[400px]' : 'opacity-0 max-h-0 overflow-hidden'}`}
         >
-          <DesktopMenu menuItems={categoriesWithSub} />
+          {loading ? (
+            <div className="text-center text-white py-2">Loading...</div>
+          ) : error ? (
+            <div className="text-center text-yellow-300 py-2">Error: {error}</div>
+          ) : (
+            <DesktopMenu menuItems={categoriesWithSub} />
+          )}
         </div>
       </div>
 
-      {/* Mobile Menu - always sticky and visible */}
+      {/* Mobile Menu - slide-in from left */}
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => {
@@ -154,15 +162,17 @@ const UserNavbar = () => {
       />
 
       {/* Mobile Bottom Icons */}
-      <NavIcons
-        variant="mobile"
-        activeDropdown={activeDropdown}
-        toggleDropdown={toggleDropdown}
-        cartDropdownOpen={cartDropdownOpen}
-        toggleCartDropdown={toggleCartDropdown}
-        cartCount={cartCount}
-        closeAllDropdowns={closeAllDropdowns}
-      />
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#CF212B] text-white shadow-md z-[100]">
+        <NavIcons
+          variant="mobile"
+          activeDropdown={activeDropdown}
+          toggleDropdown={toggleDropdown}
+          cartDropdownOpen={cartDropdownOpen}
+          toggleCartDropdown={toggleCartDropdown}
+          cartCount={cartCount}
+          closeAllDropdowns={closeAllDropdowns}
+        />
+      </div>
     </div>
   );
 };

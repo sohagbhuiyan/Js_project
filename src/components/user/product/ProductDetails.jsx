@@ -49,8 +49,8 @@ const ProductDetails = () => {
             key={tab}
             className={`px-4 py-2 cursor-pointer ${
               activeTab === tab
-                ? "border-b-2 border-red-400 text-white"
-                : "text-gray-200"
+                ? "border-b-2 border-red-400 text-red-200"
+                : "text-gray-100"
             }`}
             onClick={() => handleScroll(tab)}
           >

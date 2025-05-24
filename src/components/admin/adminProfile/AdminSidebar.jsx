@@ -102,7 +102,7 @@ const AdminSidebar = () => {
 
         <li>
           <Link
-            to="/admin/products/view-categories"
+            to="/admin/products/update-categories"
             className={`flex items-center p-2 rounded-md ${
               isActive("admin/products/view-categories")
                 ? "bg-gray-700 text-blue-400"

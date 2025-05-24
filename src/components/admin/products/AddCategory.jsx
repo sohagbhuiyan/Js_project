@@ -1,28 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategory, addItem, fetchCategories } from '../../../store/categorySlice';
+import { addCategory, addProduct, addItem, fetchCategories, fetchProductsByCategory, clearProducts, fetchCategoriesAndProducts } from '../../../store/categorySlice';
 
 const AddCategory = () => {
-  
   const dispatch = useDispatch();
-  const { items: categories } = useSelector((state) => state.categories);
-
+  const { items: categories, products, error } = useSelector((state) => state.categories);
   const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
   const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
-  
-  // console.log('Role --> ', userRole, '\nToken -->', token);
 
   const [categoryName, setCategoryName] = useState('');
   const [categorySuccess, setCategorySuccess] = useState('');
   const [categoryError, setCategoryError] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [productCategoryId, setProductCategoryId] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productSuccess, setProductSuccess] = useState('');
+  const [productError, setProductError] = useState('');
+  const [itemCategoryId, setItemCategoryId] = useState('');
+  const [itemProductId, setItemProductId] = useState('');
   const [itemName, setItemName] = useState('');
   const [itemSuccess, setItemSuccess] = useState('');
   const [itemError, setItemError] = useState('');
 
   useEffect(() => {
     dispatch(fetchCategories());
+    return () => {
+      dispatch(clearProducts());
+    };
   }, [dispatch]);
+
+  useEffect(() => {
+    if (itemCategoryId) {
+      dispatch(fetchProductsByCategory(itemCategoryId));
+    } else {
+      dispatch(clearProducts());
+    }
+  }, [itemCategoryId, dispatch]);
 
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
@@ -35,6 +47,7 @@ const AddCategory = () => {
         setCategorySuccess('Category (Menu) added successfully!');
         setCategoryName('');
         dispatch(fetchCategories());
+        dispatch(fetchCategoriesAndProducts());
       } else {
         setCategoryError('Failed to add category.');
       }
@@ -44,12 +57,46 @@ const AddCategory = () => {
     }
   };
 
+  const handleProductSubmit = async (e) => {
+    e.preventDefault();
+    setProductSuccess('');
+    setProductError('');
+
+    if (!productCategoryId || !productName) {
+      setProductError('All fields are required.');
+      return;
+    }
+
+    try {
+      const resultAction = await dispatch(
+        addProduct({
+          productName,
+          categoryId: productCategoryId,
+          token,
+          categories,
+        })
+      );
+
+      if (resultAction.meta.requestStatus === 'fulfilled') {
+        setProductSuccess('Product added successfully!');
+        setProductName('');
+        setProductCategoryId('');
+        dispatch(fetchCategoriesAndProducts());
+      } else {
+        setProductError(resultAction.payload || 'Failed to add product.');
+      }
+    } catch (err) {
+      setProductError('Failed to add product.');
+      console.error('Error:', err);
+    }
+  };
+
   const handleItemSubmit = async (e) => {
     e.preventDefault();
     setItemSuccess('');
     setItemError('');
 
-    if (!selectedCategoryId || !itemName) {
+    if (!itemCategoryId || !itemProductId || !itemName) {
       setItemError('All fields are required.');
       return;
     }
@@ -57,17 +104,21 @@ const AddCategory = () => {
     try {
       const resultAction = await dispatch(
         addItem({
-          itemName,
-          categoryId: selectedCategoryId,
           token,
+          itemName,
+          categoryId: itemCategoryId,
+          productId: itemProductId,
           categories,
+          products,
         })
       );
 
       if (resultAction.meta.requestStatus === 'fulfilled') {
         setItemSuccess('Item (Submenu) added successfully!');
         setItemName('');
-        setSelectedCategoryId('');
+        setItemCategoryId('');
+        setItemProductId('');
+        dispatch(fetchCategoriesAndProducts());
       } else {
         setItemError(resultAction.payload || 'Failed to add item.');
       }
@@ -100,18 +151,17 @@ const AddCategory = () => {
                 Add Category
               </button>
             </form>
-
             {categorySuccess && <p className="text-green-600 mt-4">{categorySuccess}</p>}
             {categoryError && <p className="text-red-600 mt-4">{categoryError}</p>}
           </div>
 
-          {/* Add Item (Submenu) Form */}
+          {/* Add Product Form */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Add New Item (Submenu under Menu)</h2>
-            <form onSubmit={handleItemSubmit} className="space-y-4">
+            <h2 className="text-2xl font-bold mb-6">Add New Product (Under Category)</h2>
+            <form onSubmit={handleProductSubmit} className="space-y-4">
               <select
-                value={selectedCategoryId}
-                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                value={productCategoryId}
+                onChange={(e) => setProductCategoryId(e.target.value)}
                 required
                 className="border rounded w-full p-2"
               >
@@ -122,7 +172,56 @@ const AddCategory = () => {
                   </option>
                 ))}
               </select>
+              <input
+                type="text"
+                placeholder="Enter Product Name"
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                required
+                className="border rounded w-full p-2"
+              />
+              <button
+                type="submit"
+                className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
+              >
+                Add Product
+              </button>
+            </form>
+            {productSuccess && <p className="text-green-600 mt-4">{productSuccess}</p>}
+            {productError && <p className="text-red-600 mt-4">{productError}</p>}
+          </div>
 
+          {/* Add Item (Submenu) Form */}
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Add New Item (Submenu under Category and Product)</h2>
+            <form onSubmit={handleItemSubmit} className="space-y-4">
+              <select
+                value={itemCategoryId}
+                onChange={(e) => setItemCategoryId(e.target.value)}
+                required
+                className="border rounded w-full p-2"
+              >
+                <option value="">Select Category</option>
+                {categories?.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={itemProductId}
+                onChange={(e) => setItemProductId(e.target.value)}
+                required
+                disabled={!itemCategoryId}
+                className="border rounded w-full p-2 disabled:bg-gray-100"
+              >
+                <option value="">Select Product</option>
+                {products?.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                ))}
+              </select>
               <input
                 type="text"
                 placeholder="Enter Item (Submenu) Name"
@@ -131,7 +230,6 @@ const AddCategory = () => {
                 required
                 className="border rounded w-full p-2"
               />
-
               <button
                 type="submit"
                 className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
@@ -139,9 +237,9 @@ const AddCategory = () => {
                 Add Item
               </button>
             </form>
-
             {itemSuccess && <p className="text-green-600 mt-4">{itemSuccess}</p>}
             {itemError && <p className="text-red-600 mt-4">{itemError}</p>}
+            {error && <p className="text-red-600 mt-4">{error}</p>}
           </div>
         </>
       ) : (

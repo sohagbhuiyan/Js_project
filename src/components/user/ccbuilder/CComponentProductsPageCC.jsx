@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { fetchCCItemDetailsByBuilderId, clearCCBError } from "../../../store/ccbuilderSlice";
 import { Box, Typography, CircularProgress, Alert, Button } from "@mui/material";
 import CCItemDetailsCard from "./CCItemDetailsCard";
+import FilteredProducts from "../body/FilteredProducts";
 
 const CComponentProductsPageCC = () => {
   const dispatch = useDispatch();
@@ -51,6 +52,7 @@ const CComponentProductsPageCC = () => {
           No item details found for this builder.
         </Typography>
       ) : (
+     
         <Box
           sx={{
             display: "grid",
@@ -59,6 +61,7 @@ const CComponentProductsPageCC = () => {
             px: { xs: 1, md: 5 },
           }}
         >
+          <FilteredProducts />
           {itemDetails.map((detail) => (
             <CCItemDetailsCard
               key={detail.id}

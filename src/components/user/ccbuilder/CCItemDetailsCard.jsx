@@ -7,6 +7,7 @@ import { addToCartAsync } from "../../../store/cartSlice";
 import { addToCompare } from "../../../store/compareSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { API_BASE_URL } from "../../../store/api";
+import FilteredProducts from "../body/FilteredProducts";
 
 const FALLBACK_IMAGE = "/images/placeholder.png";
 
@@ -141,7 +142,9 @@ const CCItemDetailsCard = ({
 
   return (
     <>
+      
       <Link to={`/cc-builder/item-details/${id}`} className="block" onClick={handleProductClick}>
+      
         <div
           className={`border border-gray-400 rounded-lg p-3 shadow-md hover:shadow-xl transition-all duration-400 bg-white relative ${
             isHovered ? "md:scale-105" : "scale-100"
