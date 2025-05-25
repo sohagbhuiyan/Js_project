@@ -81,7 +81,7 @@ export const deleteMedia = createAsyncThunk(
       if (!token) {
         return rejectWithValue('No authentication token found.');
       }
-      await axios.delete(`${API_BASE_URL}/api/media/Delete/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/media/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

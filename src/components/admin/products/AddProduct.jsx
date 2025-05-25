@@ -10,14 +10,19 @@ import {
   InputLabel,
   Select,
   Avatar,
+  Alert,
 } from '@mui/material';
 import { addProductDetails } from '../../../store/productSlice';
+import { fetchItemnameByProduct } from '../../../store/categorySlice';
 import { API_BASE_URL } from '../../../store/api';
 
 const AddProduct = () => {
   const dispatch = useDispatch();
   const { loading, error, successMessage } = useSelector((state) => state.products);
-  const token = useSelector((state) => state.auth.token) || localStorage.getItem("authToken");
+  const { productItems, loading: categoryLoading, error: categoryError } = useSelector(
+    (state) => state.categories
+  );
+  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
 
   const [formState, setFormState] = useState({
     productid: '',
@@ -30,7 +35,8 @@ const AddProduct = () => {
     specification: '',
     catagory: { id: '' },
     product: { id: '' },
-    brand: { id: '' }, // Added brand field
+    brand: { id: '' },
+    productitemname: { id: '' }, // Added for mega-menu item
   });
 
   const [imagea, setImageA] = useState(null);
@@ -41,7 +47,7 @@ const AddProduct = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [brands, setBrands] = useState([]); // Added brands state
+  const [brands, setBrands] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +55,7 @@ const AddProduct = () => {
         const [catRes, prodRes, brandsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/api/catagories/get`),
           fetch(`${API_BASE_URL}/api/Product/getall`),
-          fetch(`${API_BASE_URL}/api/brands/get/all`), // Fetch brands
+          fetch(`${API_BASE_URL}/api/brands/get/all`),
         ]);
 
         const catData = await catRes.json();
@@ -67,6 +73,14 @@ const AddProduct = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (formState.product.id) {
+      dispatch(fetchItemnameByProduct(formState.product.id));
+    } else {
+      dispatch({ type: 'categories/clearProductItems' });
+    }
+  }, [formState.product.id, dispatch]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -75,18 +89,26 @@ const AddProduct = () => {
         ...prev,
         catagory: { id: value },
         product: { id: '' },
+        productitemname: { id: '' },
       }));
       const filtered = products.filter((prod) => prod.catagory?.id === parseInt(value));
       setFilteredProducts(filtered);
+      dispatch({ type: 'categories/clearProductItems' });
     } else if (name === 'product.id') {
       setFormState((prev) => ({
         ...prev,
         product: { id: value },
+        productitemname: { id: '' },
       }));
-    } else if (name === 'brand.id') { // Handle brand selection
+    } else if (name === 'brand.id') {
       setFormState((prev) => ({
         ...prev,
         brand: { id: value },
+      }));
+    } else if (name === 'productitemname.id') {
+      setFormState((prev) => ({
+        ...prev,
+        productitemname: { id: value },
       }));
     } else {
       setFormState((prev) => ({
@@ -128,9 +150,17 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formState.catagory.id || !formState.product.id || !formState.productitemname.id) {
+      alert('Category, product, and mega-menu item are required.');
+      return;
+    }
+
     try {
       const formDataObject = {
-        productDetails: formState,
+        productDetails: {
+          ...formState,
+          productitemname: { id: parseInt(formState.productitemname.id) }, // Ensure ID is integer
+        },
         imagea,
         imageb,
         imagec,
@@ -138,8 +168,28 @@ const AddProduct = () => {
 
       await dispatch(addProductDetails({ formDataObject, token })).unwrap();
       alert('Product added successfully!');
+      setFormState({
+        productid: '',
+        name: '',
+        quantity: '',
+        regularprice: '',
+        specialprice: '',
+        title: '',
+        details: '',
+        specification: '',
+        catagory: { id: '' },
+        product: { id: '' },
+        brand: { id: '' },
+        productitemname: { id: '' },
+      });
+      setImageA(null);
+      setImageB(null);
+      setImageC(null);
+      setMainImagePreview(null);
+      setAdditionalImagesPreviews([null, null]);
     } catch (error) {
       console.error('Error adding product:', error);
+      alert('Failed to add product: ' + (error || 'Unknown error'));
     }
   };
 
@@ -149,9 +199,24 @@ const AddProduct = () => {
       onSubmit={handleSubmit}
       sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600, mx: 'auto', p: 2 }}
     >
-      <Typography variant="h5" fontWeight={600}>Add Product</Typography>
-      <TextField name="productid" label="Product ID" onChange={handleChange} required />
-      <TextField name="name" label="Product Name" onChange={handleChange} required />
+      <Typography variant="h5" fontWeight={600}>
+        Add Product
+      </Typography>
+
+      <TextField
+        name="productid"
+        label="Product ID"
+        value={formState.productid}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="name"
+        label="Product Name"
+        value={formState.name}
+        onChange={handleChange}
+        required
+      />
 
       <FormControl fullWidth required>
         <InputLabel>Category (Menu)</InputLabel>
@@ -163,12 +228,14 @@ const AddProduct = () => {
         >
           <MenuItem value="">-- Select Category --</MenuItem>
           {categories.map((cat) => (
-            <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+            <MenuItem key={cat.id} value={cat.id}>
+              {cat.name}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      <FormControl fullWidth>
+      <FormControl fullWidth required>
         <InputLabel>Product (Submenu)</InputLabel>
         <Select
           name="product.id"
@@ -178,12 +245,32 @@ const AddProduct = () => {
           disabled={filteredProducts.length === 0}
         >
           <MenuItem value="">
-            {filteredProducts.length === 0
-              ? '-- No Submenu Available --'
-              : '-- Select Product (Submenu) --'}
+            {filteredProducts.length === 0 ? '-- No Submenu Available --' : '-- Select Product (Submenu) --'}
           </MenuItem>
           {filteredProducts.map((prod) => (
-            <MenuItem key={prod.id} value={prod.id}>{prod.name}</MenuItem>
+            <MenuItem key={prod.id} value={prod.id}>
+              {prod.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth required>
+        <InputLabel>Item Name (Mega-menu)</InputLabel>
+        <Select
+          name="productitemname.id"
+          value={formState.productitemname.id}
+          onChange={handleChange}
+          label="Item Name (Mega-menu)"
+          disabled={!formState.product.id || productItems.length === 0}
+        >
+          <MenuItem value="">
+            {productItems.length === 0 ? '-- No Mega-menu Available --' : '-- Select Item Name (Mega-menu) --'}
+          </MenuItem>
+          {productItems.map((item) => (
+            <MenuItem key={item.id} value={item.id}>
+              {item.productitemname}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -198,19 +285,65 @@ const AddProduct = () => {
         >
           <MenuItem value="">-- Select Brand --</MenuItem>
           {brands.map((brand) => (
-            <MenuItem key={brand.id} value={brand.id}>{brand.brandname}</MenuItem>
+            <MenuItem key={brand.id} value={brand.id}>
+              {brand.brandname}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      <TextField name="quantity" type="number" label="Quantity" onChange={handleChange} required />
-      <TextField name="regularprice" type="number" label="Regular Price" onChange={handleChange} required />
-      <TextField name="specialprice" type="number" label="Special Price" onChange={handleChange} required />
-      <TextField name="title" label="Title" onChange={handleChange} required />
-      <TextField name="details" label="Details" fullWidth multiline rows={4} required onChange={handleChange} />
-      <TextField name="specification" label="Specification" fullWidth multiline required rows={3} onChange={handleChange} />
+      <TextField
+        name="quantity"
+        type="number"
+        label="Quantity"
+        value={formState.quantity}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="regularprice"
+        type="number"
+        label="Regular Price"
+        value={formState.regularprice}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="specialprice"
+        type="number"
+        label="Special Price"
+        value={formState.specialprice}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="title"
+        label="Title"
+        value={formState.title}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="details"
+        label="Details"
+        fullWidth
+        multiline
+        rows={4}
+        value={formState.details}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="specification"
+        label="Specification"
+        fullWidth
+        multiline
+        rows={3}
+        value={formState.specification}
+        onChange={handleChange}
+        required
+      />
 
-      {/* Image A (Main) Upload */}
       <Box>
         <Typography variant="subtitle1">Image A (Main)</Typography>
         {mainImagePreview && (
@@ -222,7 +355,6 @@ const AddProduct = () => {
         </Button>
       </Box>
 
-      {/* Image B & C (Gallery) Uploads */}
       {[1, 2].map((index) => (
         <Box key={index}>
           <Typography variant="subtitle1">Image {index} (Gallery)</Typography>
@@ -235,23 +367,18 @@ const AddProduct = () => {
           )}
           <Button component="label" variant="outlined">
             Upload Image {index}
-            <input
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={(e) => handleImageChange(e, index)}
-              required
-            />
+            <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} required />
           </Button>
         </Box>
       ))}
 
-      <Button type="submit" variant="contained" color="primary" disabled={loading}>
-        {loading ? 'Uploading...' : 'Add Product'}
+      <Button type="submit" variant="contained" color="primary" disabled={loading || categoryLoading}>
+        {loading || categoryLoading ? 'Uploading...' : 'Add Product'}
       </Button>
 
-      {error && <Typography color="error">Error: {error}</Typography>}
-      {successMessage && <Typography color="success.main">{successMessage}</Typography>}
+      {error && <Alert severity="error">Error: {error}</Alert>}
+      {categoryError && <Alert severity="error">Error: {categoryError}</Alert>}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
     </Box>
   );
 };

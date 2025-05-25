@@ -13,7 +13,18 @@ export const fetchAllProductItems = createAsyncThunk(
     }
   }
 );
-
+//Ftech all itemname by product 
+export const fetchItemnameByProduct = createAsyncThunk(
+  'categories/fetchItemnameByProduct',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`${API_BASE_URL}/api/item/findbyproductid/get/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Fetching category failed');
+    }
+  }
+); 
 // Existing Thunks (unchanged except for addProduct and updateProduct)
 export const fetchCategories = createAsyncThunk('categories/fetch', async () => {
   const response = await api.get(`${API_BASE_URL}/api/catagories/get`);
@@ -340,6 +351,19 @@ const categorySlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchAllProductItems.rejected, (state, action) => {
+        state.error = action.payload || 'Failed to fetch product items';
+        state.loading = false;
+      })
+      //add case all item by product
+        .addCase(fetchItemnameByProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchItemnameByProduct.fulfilled, (state, action) => {
+        state.productItems = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchItemnameByProduct.rejected, (state, action) => {
         state.error = action.payload || 'Failed to fetch product items';
         state.loading = false;
       })

@@ -32,7 +32,7 @@ export const fetchCartItemsAsync = createAsyncThunk(
     const state = getState();
     const token = state.auth.token || localStorage.getItem('authToken');
     const userId = state.auth.profile?.id;
-
+    console.log("id and token: ", userId, token)
     if (!userId || !token) {
       return rejectWithValue('User not authenticated');
     }
@@ -46,8 +46,11 @@ export const fetchCartItemsAsync = createAsyncThunk(
           },
         }
       );
+
+      console.log("here is the response: ", response)
       return response.data || [];
     } catch (error) {
+      console.log("Failed", error)
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch cart items');
     }
   },
@@ -66,6 +69,7 @@ export const fetchCartItemsAsync = createAsyncThunk(
 export const addToCartAsync = createAsyncThunk(
   'cart/addToCartAsync',
   async ({ productDetailsId, quantity, name, price, imagea }, { getState, rejectWithValue }) => {
+   
     const state = getState();
     const token = state.auth.token || localStorage.getItem('authToken');
     const profile = state.auth.profile;
@@ -76,6 +80,7 @@ export const addToCartAsync = createAsyncThunk(
     }
 
     try {
+      console.log("top \n\n\n", `${API_BASE_URL}/api/productdetails/AddTocart/save?userId=${userId}&productDetailsId=${productDetailsId}&quantity=${quantity}`)
       const response = await axios.post(
         `${API_BASE_URL}/api/productdetails/AddTocart/save?userId=${userId}&productDetailsId=${productDetailsId}&quantity=${quantity}`,
         {},
@@ -85,8 +90,10 @@ export const addToCartAsync = createAsyncThunk(
           },
         }
       );
+      console.log("bottom")
       return { ...response.data, name, price, imagea };
     } catch (error) {
+      console.log("error", error)
       return rejectWithValue(error.response?.data?.message || 'Failed to add to cart');
     }
   }
@@ -95,16 +102,17 @@ export const addToCartAsync = createAsyncThunk(
 // Async thunk for removing from cart
 export const removeFromCartAsync = createAsyncThunk(
   'cart/removeFromCartAsync',
-  async ({ cartId, productId, productName }, { getState, rejectWithValue }) => {
+  async ({ id, productId, productName }, { getState, rejectWithValue }) => {
     const state = getState();
     const token = state.auth.token || localStorage.getItem('authToken');
+    console.log("sohag");
 
     if (!token) {
       return rejectWithValue('No authentication token found');
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/addcart/remove/${cartId}`, {
+      await axios.delete(`${API_BASE_URL}/api/addcart/remove/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -200,7 +208,7 @@ const cartSlice = createSlice({
       .addCase(fetchCartItemsAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.items = action.payload.map((item) => ({
-          cartId: item.cartId,
+          cartId: item.id,
           productId: item.productDetails?.id || item.productDetailsId,
           name: item.productDetails?.name || 'Unknown Product',
           price: item.productDetails?.specialprice || item.productDetails?.regularprice || 0,
@@ -222,15 +230,15 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(addToCartAsync.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         const newItem = action.payload;
         const localItem = {
-          cartId: newItem.cartId,
+          cartId: newItem.id || newItem.cartId, // Adjust based on backend response
           productId: newItem.productDetailsId || newItem.productId,
-          name: newItem.name || 'Unknown Product',
+          name: newItem.name || "Unknown Product",
           price: newItem.price || 0,
           quantity: newItem.quantity || 1,
-          imagea: newItem.imagea || '',
+          imagea: newItem.imagea || "",
         };
 
         const existingItem = state.items.find((item) => item.productId === localItem.productId);

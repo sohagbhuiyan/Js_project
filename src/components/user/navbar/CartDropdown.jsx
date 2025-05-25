@@ -25,6 +25,8 @@ export const CartDropdown = ({ isOpen, onClose, position = 'desktop', cartIconRe
   const displayedItems = cartItems.slice(0, 5);
   const hasMoreItems = cartItems.length > 5;
 
+  console.log(displayedItems);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -46,6 +48,7 @@ export const CartDropdown = ({ isOpen, onClose, position = 'desktop', cartIconRe
 
   const handleRemove = (cartId, productId, event) => {
     event.stopPropagation();
+    console.log("remove\n\n\n\n\n\n\n\n", profile, token, cartId)
     if (profile?.id && token && cartId) {
       dispatch(removeFromCartAsync({ cartId, productId }));
     } else {

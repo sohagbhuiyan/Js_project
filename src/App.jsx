@@ -76,6 +76,7 @@ function App() {
 
   useEffect(() => {
     if (profile?.id && profile?.email && token) {
+      console.log("\n\n\n\n\n HERE");
       dispatch(fetchCartItemsAsync());
     } else {
       dispatch(initializeCart({ auth: { profile } }));
