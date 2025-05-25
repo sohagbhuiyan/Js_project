@@ -42,6 +42,36 @@ export const fetchCCBuilderById = createAsyncThunk(
   }
 );
 
+// Async thunk to add a PC part to the cart
+export const addCCPartToCartAsync = createAsyncThunk(
+  "ccBuilder/addCCPartToCartAsync",
+  async ({ pcforpartadd_id, quantity, name, price, imagea }, { getState, rejectWithValue }) => {
+    const state = getState();
+    const token = state.auth.token || localStorage.getItem("authToken");
+    const profile = state.auth.profile;
+    const userId = profile?.id;
+
+    if (!token || !profile?.email || !userId) {
+      return { pcforpartadd_id, quantity, name, price, imagea, isGuest: true };
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/pcforpart/AddToCart/save/pcpart?userId=${userId}&pcforpartadd_id=${pcforpartadd_id}&quantity=${quantity}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return { ...response.data, name, price, imagea };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to add PC part to cart");
+    }
+  }
+);
+
 // Async thunk to fetch all CC items
 export const fetchCCItems = createAsyncThunk(
   "ccBuilder/fetchCCItems",
@@ -373,6 +403,36 @@ export const addCCItemDetails = createAsyncThunk(
   }
 );
 
+// Async thunk to add a CC item to the cart
+export const addCCItemToCartAsync = createAsyncThunk(
+  "ccBuilder/addCCItemToCartAsync",
+  async ({ CCItemBulderId, quantity, name, price, imagea }, { getState, rejectWithValue }) => {
+    const state = getState();
+    const token = state.auth.token || localStorage.getItem("authToken");
+    const profile = state.auth.profile;
+    const userId = profile?.id;
+
+    if (!token || !profile?.email || !userId) {
+      return { CCItemBulderId, quantity, name, price, imagea, isGuest: true };
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/CCItemBuilder/AddToCart/save?userId=${userId}&CCItemBulderId=${CCItemBulderId}&quantity=${quantity}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return { ...response.data, name, price, imagea };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to add CC item to cart");
+    }
+  }
+);
+
 const ccbuilderSlice = createSlice({
   name: "ccBuilder",
   initialState: {
@@ -596,6 +656,20 @@ const ccbuilderSlice = createSlice({
       .addCase(addCCItemDetails.rejected, (state, action) => {
         state.loading.itemDetails = false;
         state.error.itemDetails = action.payload;
+      })
+      // Add CC Item to Cart
+      .addCase(addCCItemToCartAsync.pending, (state) => {
+        state.loading.cart = true;
+        state.error.cart = null;
+        state.successMessage.cart = null;
+      })
+      .addCase(addCCItemToCartAsync.fulfilled, (state, ) => {
+        state.loading.cart = false;
+        state.successMessage.cart = "CC item added to cart successfully!";
+      })
+      .addCase(addCCItemToCartAsync.rejected, (state, action) => {
+        state.loading.cart = false;
+        state.error.cart = action.payload;
       });
   },
 });

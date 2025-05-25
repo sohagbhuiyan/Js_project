@@ -43,8 +43,8 @@ const RelatedProduct = ({ categoryId }) => {
   if (error) return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
-    <div className="px-2 py-4">
-      <p className="text-lg md:text-xl font-semibold bg-gray-100 p-3 rounded-t-md text-gray-800">
+    <div className="px-2 py-3">
+      <p className="text-lg md:text-xl font-semibold bg-gray-100 p-2 rounded-t-md text-gray-800">
         Related Products
       </p>
       <hr className="mb-4 border-gray-300" />

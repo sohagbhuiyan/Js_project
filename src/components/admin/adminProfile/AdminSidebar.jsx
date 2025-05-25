@@ -148,7 +148,19 @@ const AdminSidebar = () => {
             <AddBoxSharp className="mr-2" /> Add Branch
           </Link>
         </li>
-                  <li>
+                 <li>
+          <Link
+            to="/admin/add-media"
+            className={`flex items-center p-2 rounded-md ${
+              isActive("admin/add-media")
+                ? "bg-gray-700 text-blue-400"
+                : "hover:text-gray-400"
+            }`}
+          >
+            <AddBoxSharp className="mr-2" /> Add Media
+          </Link>
+        </li>
+        <li>
           <Link
             to="/admin/add-aboutus"
             className={`flex items-center p-2 rounded-md ${

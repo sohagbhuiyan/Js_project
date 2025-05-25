@@ -394,3 +394,86 @@ const AddAboutUs = () => {
 };
 
 export default AddAboutUs;
+// import { useEffect, useState } from 'react';
+// import { useDispatch, useSelector } from 'react-redux';
+// import {
+//   createAboutUs, fetchAboutUsById, updateAboutUs, deleteAboutUs, fetchAllAboutUs, clearSelected
+// } from '../../../store/aboutUsSlice';
+
+// const AddAboutUs = () => {
+//   const dispatch = useDispatch();
+//   const { selected, items } = useSelector(state => state.aboutUs);
+//   const token = localStorage.getItem("token");
+
+//   const [form, setForm] = useState({
+//     mission: '',
+//     vision: '',
+//     achievements: '',
+//     brandbusinesspartners: '',
+//     description: ''
+//   });
+
+//   useEffect(() => {
+//     dispatch(fetchAllAboutUs());
+//   }, [dispatch]);
+
+//   useEffect(() => {
+//     if (selected) {
+//       setForm(selected);
+//     }
+//   }, [selected]);
+
+//   const handleChange = (e) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   const handleSubmit = () => {
+//     if (form.id) {
+//       dispatch(updateAboutUs({ id: form.id, data: form, token }));
+//     } else {
+//       dispatch(createAboutUs({ data: form, token }));
+//     }
+//     setForm({ mission: '', vision: '', achievements: '', brandbusinesspartners: '', description: '' });
+//     dispatch(clearSelected());
+//   };
+
+//   const handleEdit = (id) => {
+//     dispatch(fetchAboutUsById(id));
+//   };
+
+//   const handleDelete = (id) => {
+//     dispatch(deleteAboutUs({ id, token }));
+//   };
+
+//   return (
+//     <div className="p-4 max-w-xl mx-auto space-y-4">
+//       <h2 className="text-xl font-semibold">Add / Update About Us</h2>
+//       {['mission', 'vision', 'achievements', 'brandbusinesspartners', 'description'].map(field => (
+//         <input
+//           key={field}
+//           name={field}
+//           value={form[field] || ''}
+//           onChange={handleChange}
+//           placeholder={field}
+//           className="w-full border p-2 rounded"
+//         />
+//       ))}
+//       <button onClick={handleSubmit} className="bg-blue-600 text-white px-4 py-2 rounded">
+//         {form.id ? "Update" : "Save"}
+//       </button>
+
+//       <hr />
+//       <h3 className="text-lg font-medium">All About Us Entries</h3>
+//       {items.map(item => (
+//         <div key={item.id} className="border p-2 rounded mb-2">
+//           <p><strong>Mission:</strong> {item.mission}</p>
+//           <p><strong>Vision:</strong> {item.vision}</p>
+//           <button onClick={() => handleEdit(item.id)} className="text-yellow-600 mr-2">Edit</button>
+//           <button onClick={() => handleDelete(item.id)} className="text-red-600">Delete</button>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
+
+// export default AddAboutUs;

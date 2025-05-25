@@ -1,13 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api, { API_BASE_URL } from './api';
 
-// Fetch Categories
+// Fetch All Product Items for Dropdown
+export const fetchAllProductItems = createAsyncThunk(
+  'categories/fetchAllProductItems',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`${API_BASE_URL}/api/product/items/get`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Fetching product items failed');
+    }
+  }
+);
+
+// Existing Thunks (unchanged except for addProduct and updateProduct)
 export const fetchCategories = createAsyncThunk('categories/fetch', async () => {
   const response = await api.get(`${API_BASE_URL}/api/catagories/get`);
   return response.data;
 });
 
-// Fetch Category by ID
 export const fetchCategoryById = createAsyncThunk(
   'categories/fetchCategoryById',
   async (id, { rejectWithValue }) => {
@@ -20,7 +32,6 @@ export const fetchCategoryById = createAsyncThunk(
   }
 );
 
-// Fetch Products by Category
 export const fetchProductsByCategory = createAsyncThunk(
   'categories/fetchProductsByCategory',
   async (categoryId, { rejectWithValue }) => {
@@ -33,7 +44,6 @@ export const fetchProductsByCategory = createAsyncThunk(
   }
 );
 
-// Fetch Product by ID
 export const fetchProductById = createAsyncThunk(
   'categories/fetchProductById',
   async (id, { rejectWithValue }) => {
@@ -46,7 +56,6 @@ export const fetchProductById = createAsyncThunk(
   }
 );
 
-// Fetch Product Item by ID
 export const fetchProductItemById = createAsyncThunk(
   'categories/fetchProductItemById',
   async (id, { rejectWithValue }) => {
@@ -59,7 +68,6 @@ export const fetchProductItemById = createAsyncThunk(
   }
 );
 
-// Add Category with token
 export const addCategory = createAsyncThunk(
   'categories/add',
   async ({ name, token }, { rejectWithValue }) => {
@@ -68,9 +76,7 @@ export const addCategory = createAsyncThunk(
         `${API_BASE_URL}/api/catagories/save`,
         { name },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       return response.data;
@@ -80,7 +86,6 @@ export const addCategory = createAsyncThunk(
   }
 );
 
-// Update Category with token
 export const updateCategory = createAsyncThunk(
   'categories/updateCategory',
   async ({ id, name, token }, { rejectWithValue }) => {
@@ -89,9 +94,7 @@ export const updateCategory = createAsyncThunk(
         `${API_BASE_URL}/api/catagories/update/${id}`,
         { name },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       return response.data;
@@ -101,10 +104,10 @@ export const updateCategory = createAsyncThunk(
   }
 );
 
-// Add Product with token
+// Modified Add Product to Include productitemname
 export const addProduct = createAsyncThunk(
   'categories/addProduct',
-  async ({ productName, categoryId, token, categories }, { rejectWithValue }) => {
+  async ({ productName, categoryId, productitemname, token, categories }, { rejectWithValue }) => {
     try {
       const selectedCategory = categories.find((cat) => String(cat.id) === String(categoryId));
       if (!selectedCategory) {
@@ -114,15 +117,14 @@ export const addProduct = createAsyncThunk(
       const productData = {
         name: productName,
         catagory: { id: selectedCategory.id },
+        productitemname, // Include productitemname in the payload
       };
 
       const response = await api.post(
         `${API_BASE_URL}/api/Product/save`,
         productData,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -133,10 +135,10 @@ export const addProduct = createAsyncThunk(
   }
 );
 
-// Update Product with token
+// Modified Update Product to Include productitemname
 export const updateProduct = createAsyncThunk(
   'categories/updateProduct',
-  async ({ id, name, categoryId, token, categories }, { rejectWithValue }) => {
+  async ({ id, name, categoryId, productitemname, token, categories }, { rejectWithValue }) => {
     try {
       const selectedCategory = categories.find((cat) => String(cat.id) === String(categoryId));
       if (!selectedCategory) {
@@ -146,15 +148,14 @@ export const updateProduct = createAsyncThunk(
       const productData = {
         name,
         catagory: { id: selectedCategory.id },
+        productitemname, // Include productitemname in the payload
       };
 
       const response = await api.put(
         `${API_BASE_URL}/api/Product/update/${id}`,
         productData,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -165,7 +166,6 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
-// Add Item (Product Item) with token
 export const addItem = createAsyncThunk(
   'categories/addItem',
   async ({ itemName, categoryId, productId, token, categories, products }, { rejectWithValue }) => {
@@ -187,9 +187,7 @@ export const addItem = createAsyncThunk(
         `${API_BASE_URL}/api/product/items/save`,
         itemData,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -200,7 +198,6 @@ export const addItem = createAsyncThunk(
   }
 );
 
-// Update Item (Product Item) with token
 export const updateProductItem = createAsyncThunk(
   'categories/updateProductItem',
   async ({ id, itemName, categoryId, productId, token, categories, products }, { rejectWithValue }) => {
@@ -222,9 +219,7 @@ export const updateProductItem = createAsyncThunk(
         `${API_BASE_URL}/api/product/items/update/${id}`,
         itemData,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -235,7 +230,6 @@ export const updateProductItem = createAsyncThunk(
   }
 );
 
-// Fetch Categories, Products, and Items for Mega Menu
 export const fetchCategoriesAndProducts = createAsyncThunk(
   'categories/fetchCategoriesAndProducts',
   async (_, { rejectWithValue }) => {
@@ -283,6 +277,7 @@ const categorySlice = createSlice({
   initialState: {
     items: [], // Categories
     products: [], // Products for selected category
+    productItems: [], // All product items for dropdown
     categoriesWithSub: [], // Mega menu data
     selectedCategory: null, // Single category
     selectedProduct: null, // Single product
@@ -293,6 +288,9 @@ const categorySlice = createSlice({
   reducers: {
     clearProducts: (state) => {
       state.products = [];
+    },
+    clearProductItems: (state) => {
+      state.productItems = [];
     },
     clearSelectedCategory: (state) => {
       state.selectedCategory = null;
@@ -332,6 +330,18 @@ const categorySlice = createSlice({
       })
       .addCase(fetchProductItemById.rejected, (state, action) => {
         state.error = action.payload || 'Failed to fetch product item';
+      })
+      .addCase(fetchAllProductItems.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllProductItems.fulfilled, (state, action) => {
+        state.productItems = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAllProductItems.rejected, (state, action) => {
+        state.error = action.payload || 'Failed to fetch product items';
+        state.loading = false;
       })
       .addCase(addCategory.fulfilled, (state, action) => {
         state.items.push(action.payload);
@@ -383,5 +393,5 @@ const categorySlice = createSlice({
   },
 });
 
-export const { clearProducts, clearSelectedCategory, clearSelectedProduct, clearSelectedProductItem } = categorySlice.actions;
+export const { clearProducts, clearProductItems, clearSelectedCategory, clearSelectedProduct, clearSelectedProductItem } = categorySlice.actions;
 export default categorySlice.reducer;

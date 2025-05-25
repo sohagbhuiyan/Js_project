@@ -78,7 +78,7 @@ const AddCategory = () => {
       );
 
       if (resultAction.meta.requestStatus === 'fulfilled') {
-        setProductSuccess('Product added successfully!');
+        setProductSuccess('Submenu added on category successfully!');
         setProductName('');
         setProductCategoryId('');
         dispatch(fetchCategoriesAndProducts());
@@ -114,7 +114,7 @@ const AddCategory = () => {
       );
 
       if (resultAction.meta.requestStatus === 'fulfilled') {
-        setItemSuccess('Item (Submenu) added successfully!');
+        setItemSuccess('Item (Mega-menu) added successfully!');
         setItemName('');
         setItemCategoryId('');
         setItemProductId('');
@@ -134,6 +134,7 @@ const AddCategory = () => {
         <>
           {/* Add Category Form */}
           <div>
+            <h1 className='text-center text-2xl font-bold mb-4 text-blue-600'>Add Category Section</h1>
             <h2 className="text-2xl font-bold mb-6">Add New Category (Menu)</h2>
             <form onSubmit={handleCategorySubmit} className="space-y-4">
               <input
@@ -146,7 +147,7 @@ const AddCategory = () => {
               />
               <button
                 type="submit"
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
               >
                 Add Category
               </button>
@@ -157,7 +158,7 @@ const AddCategory = () => {
 
           {/* Add Product Form */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Add New Product (Under Category)</h2>
+            <h2 className="text-2xl font-bold mb-6">Add New Submenu (Under Category)</h2>
             <form onSubmit={handleProductSubmit} className="space-y-4">
               <select
                 value={productCategoryId}
@@ -174,7 +175,7 @@ const AddCategory = () => {
               </select>
               <input
                 type="text"
-                placeholder="Enter Product Name"
+                placeholder="Enter submenu Name"
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
                 required
@@ -182,7 +183,7 @@ const AddCategory = () => {
               />
               <button
                 type="submit"
-                className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
+                className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
               >
                 Add Product
               </button>
@@ -193,7 +194,7 @@ const AddCategory = () => {
 
           {/* Add Item (Submenu) Form */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Add New Item (Submenu under Category and Product)</h2>
+            <h2 className="text-2xl font-bold mb-6">Add New Item (Meag menu) </h2>
             <form onSubmit={handleItemSubmit} className="space-y-4">
               <select
                 value={itemCategoryId}
@@ -215,7 +216,7 @@ const AddCategory = () => {
                 disabled={!itemCategoryId}
                 className="border rounded w-full p-2 disabled:bg-gray-100"
               >
-                <option value="">Select Product</option>
+                <option value="">Select Submenu</option>
                 {products?.map((product) => (
                   <option key={product.id} value={product.id}>
                     {product.name}
@@ -224,7 +225,7 @@ const AddCategory = () => {
               </select>
               <input
                 type="text"
-                placeholder="Enter Item (Submenu) Name"
+                placeholder="Enter Item (Mega-menu) Name"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
                 required

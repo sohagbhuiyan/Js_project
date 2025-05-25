@@ -41,7 +41,6 @@ import Collections from './components/user/body/collection/Collections';
 import PCBuilder from './components/admin/systemBuild/PCBuilder';
 import PCBuilderPage from './components/user/pcbuilder/PCBuilderPage';
 import ComponentProductsPage from './components/user/pcbuilder/ComponentProductsPage';
-// import ViewCategories from './components/admin/products/UpdateCategories';
 import ViewSystemBuilder from './components/admin/systemBuild/ViewSystemBuilder';
 import CheckoutPage from './components/user/product/CheckOutPage';
 import OrderConfirmation from './components/user/product/OrderConfirmation';
@@ -68,8 +67,8 @@ import CCItemsDetailsAdd from './components/admin/systemBuild/CCItemsDetailsAdd'
 import CComponentProductsPageCC from './components/user/ccbuilder/CComponentProductsPageCC'
 import CCItemDetailsByItemPage from './components/user/ccbuilder/CCItemDetailsByItemPage';
 import CCPartView from './components/user/ccbuilder/CCPartView';
-// import UpdateCategories from './components/admin/products/UpdateMeagaMenu';
 import UpdateMeagaMenu from './components/admin/products/UpdateMeagaMenu';
+import AddMedia from './components/admin/footer/AddMedia';
 
 function App() { 
   const dispatch = useDispatch();
@@ -137,6 +136,7 @@ function App() {
             <Route path="/admin/view-profile" element={<AdminProfileView />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/add-branch" element={<AddBranch />} />
+            <Route path="/admin/add-media" element={<AddMedia />} />
             <Route path="/admin/add-aboutus" element={<AddAboutUs />} /> 
             <Route path="admin/products/add-category" element={<AddCategory />} />
             <Route path="/admin/products/update-categories" element={<UpdateMeagaMenu />} />

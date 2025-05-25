@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHeroImages } from '../../../store/heroSlice';
 import { Box, CircularProgress, Alert, IconButton } from '@mui/material';
-import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 
 const FALLBACK_IMAGE = '/images/placeholder.png';
 
@@ -24,16 +23,6 @@ const HeroSection = () => {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
-
-  const handlePrevSet = () => {
-    setCurrentSetIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    setCurrentSlideIndex(0); // Reset slide index when changing sets
-  };
-
-  const handleNextSet = () => {
-    setCurrentSetIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    setCurrentSlideIndex(0); // Reset slide index when changing sets
-  };
 
   if (loading) {
     return (
@@ -167,7 +156,7 @@ const HeroSection = () => {
               alt="Hero Image D"
               style={{
                 width: '100%',
-                height: '100%',
+                height: '94%',
                 objectFit: 'cover',
                 borderRadius: '5px',
               }}

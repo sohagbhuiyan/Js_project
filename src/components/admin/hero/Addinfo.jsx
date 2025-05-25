@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { saveInfo, fetchInfo, clearInfoError, clearInfoSuccess } from '../../../store/infoSlice';
+import { saveInfo, fetchInfo, updateInfo, clearInfoError, clearInfoSuccess } from '../../../store/infoSlice';
 import {
   Box,
   Typography,
@@ -14,10 +14,11 @@ import {
   TextField,
 } from '@mui/material';
 
-const AddInfo = () => {
+const AddInfo = ({ serviceId = null }) => {
   const dispatch = useDispatch();
   const { loading, error, successMessage, info } = useSelector((state) => state.info);
   const [formData, setFormData] = useState({
+    id: '',
     emi: '',
     support: '',
     payment: '',
@@ -26,13 +27,18 @@ const AddInfo = () => {
 
   // Fetch existing info on mount
   useEffect(() => {
-    dispatch(fetchInfo());
-  }, [dispatch]);
+    if (serviceId) {
+      dispatch(fetchInfo(serviceId)); // Fetch specific service feature by ID
+    } else {
+      dispatch(fetchInfo()); // Fetch all and use first item
+    }
+  }, [dispatch, serviceId]);
 
   // Populate form with existing info if available
   useEffect(() => {
     if (info) {
       setFormData({
+        id: info.id || '',
         emi: info.emi || '',
         support: info.support || '',
         payment: info.payment || '',
@@ -44,9 +50,10 @@ const AddInfo = () => {
   // Clear success message after 3 seconds
   useEffect(() => {
     if (successMessage) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         dispatch(clearInfoSuccess());
       }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [successMessage, dispatch]);
 
@@ -60,7 +67,13 @@ const AddInfo = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(saveInfo(formData));
+    if (formData.id) {
+      // Update existing service feature
+      dispatch(updateInfo({ id: formData.id, infoData: formData }));
+    } else {
+      // Save new service feature
+      dispatch(saveInfo(formData));
+    }
   };
 
   return (
@@ -87,7 +100,7 @@ const AddInfo = () => {
             color="primary"
             sx={{ textAlign: 'center', mb: 2 }}
           >
-           Added Service Feature Info
+            {formData.id ? 'Update Service Feature' : 'Add Service Feature'}
           </Typography>
         }
         sx={{ pb: 0 }}
@@ -126,7 +139,7 @@ const AddInfo = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Save Info'}
+              {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : formData.id ? 'Update Info' : 'Save Info'}
             </Button>
             {error && (
               <Fade in={Boolean(error)}>

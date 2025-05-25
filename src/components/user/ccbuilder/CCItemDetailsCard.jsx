@@ -8,6 +8,7 @@ import { addToCompare } from "../../../store/compareSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { API_BASE_URL } from "../../../store/api";
 import FilteredProducts from "../body/FilteredProducts";
+import { addCCItemToCartAsync } from "../../../store/ccbuilderSlice";
 
 const FALLBACK_IMAGE = "/images/placeholder.png";
 
@@ -84,23 +85,16 @@ const CCItemDetailsCard = ({
     callback(e);
     if (isMobile) setShowMobileIcons(false);
   };
-
   const handleAddToCart = handleIconAction(() => {
     dispatch(
-      addToCartAsync({
-        productDetailsId: id,
+      addCCItemToCartAsync({
+        CCItemBulderId: id,
         quantity: 1,
         name,
         price: currentPrice,
         imagea: imagea ? `${API_BASE_URL}/images/${imagea}` : FALLBACK_IMAGE,
       })
-    )
-      .then(() => {
-        toast.success("Added to cart!", { position: "top-right" });
-      })
-      .catch(() => {
-        // Error toast is handled in the useEffect above
-      });
+    );
   });
 
   const handleAddToWishlist = handleIconAction(() => {

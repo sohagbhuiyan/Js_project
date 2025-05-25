@@ -37,7 +37,7 @@ export const getAllAboutUs = createAsyncThunk(
   'aboutUs/getAllAboutUs',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/aboutus/get`);
+      const response = await axios.get(`${API_BASE_URL}/api/aboutus/get`); // all get of about us section
       return response.data;
     } catch (error) {
       console.error('Fetch About Us error:', error.response?.data);
@@ -62,7 +62,7 @@ export const getAboutUsById = createAsyncThunk(
         return rejectWithValue('Admin access required.');
       }
 
-      const response = await axios.get(`${API_BASE_URL}/api/aboutus/get/${id}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/aboutus/get/${id}`, { // about us get by id
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -238,3 +238,73 @@ const aboutUsSlice = createSlice({
 
 export const { clearAboutUsError, clearAboutUsSuccess, clearSelectedAboutUs } = aboutUsSlice.actions;
 export default aboutUsSlice.reducer;
+
+
+// features/aboutus/aboutUsSlice.js
+// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+// import axios from 'axios';
+
+// const BASE_URL = "http://75.119.134.82:6161/api/aboutus";
+
+// // Async Thunks
+// export const createAboutUs = createAsyncThunk('aboutUs/create', async ({ data, token }) => {
+//   const response = await axios.post(`${BASE_URL}/save`, data, {
+//     headers: { Authorization: `Bearer ${token}` }
+//   });
+//   return response.data;
+// });
+
+// export const fetchAllAboutUs = createAsyncThunk('aboutUs/fetchAll', async () => {
+//   const response = await axios.get(`${BASE_URL}/get`);
+//   return response.data;
+// });
+
+// export const fetchAboutUsById = createAsyncThunk('aboutUs/fetchById', async (id) => {
+//   const response = await axios.get(`${BASE_URL}/get/${id}`);
+//   return response.data;
+// });
+
+// export const updateAboutUs = createAsyncThunk('aboutUs/update', async ({ id, data, token }) => {
+//   const response = await axios.put(`${BASE_URL}/updete/${id}`, data, {
+//     headers: { Authorization: `Bearer ${token}` }
+//   });
+//   return response.data;
+// });
+
+// export const deleteAboutUs = createAsyncThunk('aboutUs/delete', async ({ id, token }) => {
+//   await axios.delete(`${BASE_URL}/delete/${id}`, {
+//     headers: { Authorization: `Bearer ${token}` }
+//   });
+//   return id;
+// });
+
+// // Slice
+// const aboutUsSlice = createSlice({
+//   name: 'aboutUs',
+//   initialState: {
+//     items: [],
+//     selected: null,
+//     status: 'idle',
+//     error: null
+//   },
+//   reducers: {
+//     clearSelected: (state) => {
+//       state.selected = null;
+//     }
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(fetchAllAboutUs.fulfilled, (state, action) => {
+//         state.items = action.payload;
+//       })
+//       .addCase(fetchAboutUsById.fulfilled, (state, action) => {
+//         state.selected = action.payload;
+//       })
+//       .addCase(deleteAboutUs.fulfilled, (state, action) => {
+//         state.items = state.items.filter(item => item.id !== action.payload);
+//       });
+//   }
+// });
+
+// export const { clearSelected } = aboutUsSlice.actions;
+// export default aboutUsSlice.reducer;
