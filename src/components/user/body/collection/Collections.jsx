@@ -8,6 +8,7 @@ const Collections = () => {
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get("category") || "";
   const productParam = searchParams.get("product") || "";
+  const itemParam = searchParams.get("item") || ""; // Added for productItem
   const searchParam = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(searchParam);
 
@@ -23,8 +24,12 @@ const Collections = () => {
     setSearchQuery(searchParam);
   }, [searchParam]);
 
-  // Filter products based on category, product, or search
+  // Filter products based on category, product, item, or search
   const filteredProducts = products.filter((product) => {
+    // If itemParam exists, filter by productItem
+    if (itemParam) {
+      return product.productItem?.toLowerCase() === itemParam.toLowerCase();
+    }
     // If productParam exists, filter by product.product?.name
     if (productParam) {
       return (
@@ -42,7 +47,8 @@ const Collections = () => {
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.catagory?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.product?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.title?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+        product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.productItem?.productitemname.toLowerCase().includes(searchQuery.toLowerCase()) // Added productItem to search
       );
     }
     // If no params, show all products
@@ -66,10 +72,11 @@ const Collections = () => {
               name={product.name}
               regularprice={product.regularprice}
               specialprice={product.specialprice}
-              brandname = {product.brand?.brandname}
+              brandname={product.brand?.brandname}
               title={product.title}
               details={product.details}
               specification={product.specification}
+              productitemname={product.productItem?.productitemname}
             />
           ))
         ) : (
@@ -81,4 +88,3 @@ const Collections = () => {
 };
 
 export default Collections;
-

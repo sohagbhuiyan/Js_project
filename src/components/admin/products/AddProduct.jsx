@@ -13,17 +13,14 @@ import {
   Alert,
 } from '@mui/material';
 import { addProductDetails } from '../../../store/productSlice';
-import { fetchItemnameByProduct } from '../../../store/categorySlice';
 import { API_BASE_URL } from '../../../store/api';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const AddProduct = () => {
   const dispatch = useDispatch();
   const { loading, error, successMessage } = useSelector((state) => state.products);
-  const { productItems, loading: categoryLoading, error: categoryError } = useSelector(
-    (state) => state.categories
-  );
   const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
-
+  const navigate = useNavigate(); 
   const [formState, setFormState] = useState({
     productid: '',
     name: '',
@@ -33,10 +30,11 @@ const AddProduct = () => {
     title: '',
     details: '',
     specification: '',
+    warranty: 0,
     catagory: { id: '' },
     product: { id: '' },
     brand: { id: '' },
-    productitemname: { id: '' }, // Added for mega-menu item
+    productItem: { id: '' }, // Changed from productitemname to productItem
   });
 
   const [imagea, setImageA] = useState(null);
@@ -48,23 +46,27 @@ const AddProduct = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [productItems, setProductItems] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, prodRes, brandsRes] = await Promise.all([
+        const [catRes, prodRes, brandsRes, itemsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/api/catagories/get`),
           fetch(`${API_BASE_URL}/api/Product/getall`),
           fetch(`${API_BASE_URL}/api/brands/get/all`),
+          fetch(`${API_BASE_URL}/api/product/items/get`),
         ]);
 
         const catData = await catRes.json();
         const prodData = await prodRes.json();
         const brandsData = await brandsRes.json();
+        const itemsData = await itemsRes.json();
 
         setCategories(catData);
         setProducts(prodData);
         setBrands(brandsData);
+        setProductItems(itemsData);
       } catch (err) {
         console.error('Failed to fetch data:', err);
       }
@@ -75,11 +77,22 @@ const AddProduct = () => {
 
   useEffect(() => {
     if (formState.product.id) {
-      dispatch(fetchItemnameByProduct(formState.product.id));
+      const fetchProductItems = async () => {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/api/item/findbyproductid/get/${formState.product.id}`
+          );
+          const data = await response.json();
+          setProductItems(data);
+        } catch (err) {
+          console.error('Failed to fetch product items:', err);
+        }
+      };
+      fetchProductItems();
     } else {
-      dispatch({ type: 'categories/clearProductItems' });
+      setProductItems([]);
     }
-  }, [formState.product.id, dispatch]);
+  }, [formState.product.id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,26 +102,26 @@ const AddProduct = () => {
         ...prev,
         catagory: { id: value },
         product: { id: '' },
-        productitemname: { id: '' },
+        productItem: { id: '' },
       }));
       const filtered = products.filter((prod) => prod.catagory?.id === parseInt(value));
       setFilteredProducts(filtered);
-      dispatch({ type: 'categories/clearProductItems' });
+      setProductItems([]);
     } else if (name === 'product.id') {
       setFormState((prev) => ({
         ...prev,
         product: { id: value },
-        productitemname: { id: '' },
+        productItem: { id: '' },
       }));
     } else if (name === 'brand.id') {
       setFormState((prev) => ({
         ...prev,
         brand: { id: value },
       }));
-    } else if (name === 'productitemname.id') {
+    } else if (name === 'productItem.id') {
       setFormState((prev) => ({
         ...prev,
-        productitemname: { id: value },
+        productItem: { id: value },
       }));
     } else {
       setFormState((prev) => ({
@@ -150,8 +163,8 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formState.catagory.id || !formState.product.id || !formState.productitemname.id) {
-      alert('Category, product, and mega-menu item are required.');
+    if (!formState.catagory.id || !formState.product.id || !formState.productItem.id) {
+      alert('Category, product, and product item are required.');
       return;
     }
 
@@ -159,7 +172,7 @@ const AddProduct = () => {
       const formDataObject = {
         productDetails: {
           ...formState,
-          productitemname: { id: parseInt(formState.productitemname.id) }, // Ensure ID is integer
+          productItem: { id: parseInt(formState.productItem.id) }, // Ensure ID is integer
         },
         imagea,
         imageb,
@@ -177,16 +190,18 @@ const AddProduct = () => {
         title: '',
         details: '',
         specification: '',
+        warranty: 0,
         catagory: { id: '' },
         product: { id: '' },
         brand: { id: '' },
-        productitemname: { id: '' },
+        productItem: { id: '' },
       });
       setImageA(null);
       setImageB(null);
       setImageC(null);
       setMainImagePreview(null);
       setAdditionalImagesPreviews([null, null]);
+      navigate("/admin/products/add-product")
     } catch (error) {
       console.error('Error adding product:', error);
       alert('Failed to add product: ' + (error || 'Unknown error'));
@@ -256,20 +271,20 @@ const AddProduct = () => {
       </FormControl>
 
       <FormControl fullWidth required>
-        <InputLabel>Item Name (Mega-menu)</InputLabel>
+        <InputLabel>Product Item (Mega-menu)</InputLabel>
         <Select
-          name="productitemname.id"
-          value={formState.productitemname.id}
+          name="productItem.id"
+          value={formState.productItem.id}
           onChange={handleChange}
-          label="Item Name (Mega-menu)"
+          label="Product Item (Mega-menu)"
           disabled={!formState.product.id || productItems.length === 0}
         >
           <MenuItem value="">
-            {productItems.length === 0 ? '-- No Mega-menu Available --' : '-- Select Item Name (Mega-menu) --'}
+            {productItems.length === 0 ? '-- No Mega-menu Available --' : '-- Select Product Item (Mega-menu) --'}
           </MenuItem>
           {productItems.map((item) => (
             <MenuItem key={item.id} value={item.id}>
-              {item.productitemname}
+              {item.productitemname || item.name}
             </MenuItem>
           ))}
         </Select>
@@ -343,6 +358,14 @@ const AddProduct = () => {
         onChange={handleChange}
         required
       />
+      <TextField
+        name="warranty"
+        type="number"
+        label="Warranty (Months)"
+        value={formState.warranty}
+        onChange={handleChange}
+        required
+      />
 
       <Box>
         <Typography variant="subtitle1">Image A (Main)</Typography>
@@ -372,12 +395,11 @@ const AddProduct = () => {
         </Box>
       ))}
 
-      <Button type="submit" variant="contained" color="primary" disabled={loading || categoryLoading}>
-        {loading || categoryLoading ? 'Uploading...' : 'Add Product'}
+      <Button type="submit" variant="contained" color="primary" disabled={loading}>
+        {loading ? 'Uploading...' : 'Add Product'}
       </Button>
 
       {error && <Alert severity="error">Error: {error}</Alert>}
-      {categoryError && <Alert severity="error">Error: {categoryError}</Alert>}
       {successMessage && <Alert severity="success">{successMessage}</Alert>}
     </Box>
   );

@@ -69,6 +69,7 @@ import CCItemDetailsByItemPage from './components/user/ccbuilder/CCItemDetailsBy
 import CCPartView from './components/user/ccbuilder/CCPartView';
 import UpdateMeagaMenu from './components/admin/products/UpdateMeagaMenu';
 import AddMedia from './components/admin/footer/AddMedia';
+import AddContactUs from './components/admin/footer/AddContactUs';
 
 function App() { 
   const dispatch = useDispatch();
@@ -139,6 +140,7 @@ function App() {
             <Route path="/admin/add-branch" element={<AddBranch />} />
             <Route path="/admin/add-media" element={<AddMedia />} />
             <Route path="/admin/add-aboutus" element={<AddAboutUs />} /> 
+            <Route path="/admin/add-contact-us" element={<AddContactUs />} /> 
             <Route path="admin/products/add-category" element={<AddCategory />} />
             <Route path="/admin/products/update-categories" element={<UpdateMeagaMenu />} />
             <Route path="/admin/products/view-product" element={<ViewProduct />} />

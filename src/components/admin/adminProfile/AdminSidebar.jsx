@@ -172,6 +172,19 @@ const AdminSidebar = () => {
             <AddBoxSharp className="mr-2" /> About Us Add
           </Link>
         </li>
+        {/* add contact us */}
+        <li>
+          <Link
+            to="/admin/add-contact-us"
+            className={`flex items-center p-2 rounded-md ${
+              isActive("/admin/add-contact-us")
+                ? "bg-gray-700 text-blue-400"
+                : "hover:text-gray-400"
+            }`}
+          >
+            <AddBoxSharp className="mr-2" /> Add Contact US
+          </Link>
+        </li>
         {/* Orders */}
         <li>
           <Link

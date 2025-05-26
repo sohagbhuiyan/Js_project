@@ -55,7 +55,7 @@ const BrandProductPage = () => {
       ) : (
         <p className="text-center text-gray-500 col-span-full">No products found for this brand</p>
       )}
-      <Link to="/brands" className="mt-4 inline-block text-blue-600 hover:underline">
+      <Link to="/brand" className="mt-4 inline-block text-blue-600 hover:underline">
         Back to Brands
       </Link>
     </div>

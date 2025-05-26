@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaLaptop,
@@ -20,6 +20,8 @@ import {
   FaNetworkWired,
   FaTools,
   FaBatteryFull,
+  FaChevronDown,
+  FaChevronUp,
 } from "react-icons/fa";
 import { fetchCategoriesAndProducts } from "../../../store/categorySlice";
 
@@ -68,6 +70,8 @@ const getCategoryIcon = (categoryName) => {
 const AllCategories = () => {
   const dispatch = useDispatch();
   const { categoriesWithSub, loading, error } = useSelector((state) => state.categories);
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [expandedProducts, setExpandedProducts] = useState({});
 
   useEffect(() => {
     dispatch(fetchCategoriesAndProducts());
@@ -75,19 +79,35 @@ const AllCategories = () => {
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching categories and products:", error);
+      console.error("Error fetching categories, products, and items:", error);
     }
   }, [error]);
 
+  // Toggle category expansion
+  const toggleCategory = (categoryId) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+  };
+
+  // Toggle product expansion
+  const toggleProduct = (productId) => {
+    setExpandedProducts((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 ">
+      <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
         All Categories
       </h1>
 
       {error && (
         <div className="text-center text-red-600 font-semibold mb-6">
-          Failed to load categories. Please try again later.
+          Failed to load categories, products, or items. Please try again later.
         </div>
       )}
 
@@ -119,31 +139,82 @@ const AllCategories = () => {
                 key={index}
                 className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300"
               >
-                <Link
-                  to={category.path}
-                  className="flex items-center gap-2 text-xl font-semibold text-blue-800 hover:text-blue-600 transition-colors duration-200"
+                <div
+                  className="flex items-center justify-between gap-2 text-xl font-semibold text-blue-800 hover:text-blue-600 transition-colors duration-200 cursor-pointer"
+                  onClick={() => toggleCategory(category.id)}
                 >
-                  <span className="text-blue-600">{getCategoryIcon(category.name)}</span>
-                  {category.name}
-                </Link>
-                <div className="mt-4 space-y-2">
-                  {category.subMenu
-                    .filter((subItem) => subItem.name && subItem.path)
-                    .map((subItem, subIndex) => (
-                      <Link
-                        key={subIndex}
-                        to={subItem.path}
-                        className="block text-md text-gray-800 hover:text-blue-600 hover:bg-gray-50 px-2 py-1 rounded-md transition-colors duration-200"
-                      >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  {category.subMenu.length === 0 && (
-                    <p className="text-sm text-gray-500 italic">
-                      No items available in this category.
-                    </p>
+                  <Link
+                    to={category.path}
+                    className="flex items-center gap-2"
+                    onClick={(e) => e.stopPropagation()} // Prevent toggle when clicking link
+                  >
+                    <span className="text-blue-600">{getCategoryIcon(category.name)}</span>
+                    {category.name}
+                  </Link>
+                  {category.products.length > 0 && (
+                    <span>
+                      {expandedCategories[category.id] ? (
+                        <FaChevronUp size={16} />
+                      ) : (
+                        <FaChevronDown size={16} />
+                      )}
+                    </span>
                   )}
                 </div>
+                {expandedCategories[category.id] && (
+                  <div className="mt-4 space-y-2">
+                    {category.products.length === 0 ? (
+                      <p className="text-sm text-gray-500 italic">
+                        No products available in this category.
+                      </p>
+                    ) : (
+                      category.products.map((product, prodIndex) => (
+                        <div key={prodIndex} className="ml-4">
+                          <div
+                            className="flex items-center justify-between text-md font-medium text-gray-800 hover:text-blue-600 hover:bg-gray-50 px-2 py-1 rounded-md transition-colors duration-200 cursor-pointer"
+                            onClick={() => toggleProduct(product.id)}
+                          >
+                            <Link
+                              to={product.path}
+                              className="block"
+                              onClick={(e) => e.stopPropagation()} // Prevent toggle when clicking link
+                            >
+                              {product.name}
+                            </Link>
+                            {product.items.length > 0 && (
+                              <span>
+                                {expandedProducts[product.id] ? (
+                                  <FaChevronUp size={14} />
+                                ) : (
+                                  <FaChevronDown size={14} />
+                                )}
+                              </span>
+                            )}
+                          </div>
+                          {expandedProducts[product.id] && (
+                            <div className="ml-4 mt-2 space-y-1">
+                              {product.items.length === 0 ? (
+                                <p className="text-sm text-gray-500 italic">
+                                  No items available for this product.
+                                </p>
+                              ) : (
+                                product.items.map((item, itemIndex) => (
+                                  <Link
+                                    key={itemIndex}
+                                    to={item.path}
+                                    className="block text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 px-2 py-1 rounded-md transition-colors duration-200"
+                                  >
+                                    {item.name}
+                                  </Link>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             ))
           )}

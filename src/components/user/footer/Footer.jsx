@@ -1,5 +1,6 @@
 import { FaFacebook, FaTwitter, FaInstagram, } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import ContactUs from "./ContactUs";
 
 const Footer = () => {
   return (
@@ -46,15 +47,8 @@ const Footer = () => {
           <p className="cursor-pointer hover:text-gray-400">Service Center</p>
         </Link>
       </div>
-    </div>
-          <div className="text-xs md:text-sm text-center md:text-left mb-10 md:mb-2 ">
-            <h3 className="font-semibold">Contact Us</h3>
-            <p>42/6 Ram Babu Rd, Mymensingh-2200, Bangladesh</p>
-            <p>+88 01762691654</p>
-            <p>info@technoshop.com</p>
-            <p>TECHNO SHOP</p>
-            <p>Saturday – Thursday 09 AM – 08 PM</p>
-          </div>
+        </div>
+           <ContactUs/>
         </div>
       </div>
     </footer>
