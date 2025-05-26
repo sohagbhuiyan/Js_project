@@ -341,7 +341,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { createSelector } from 'reselect';
 import { API_BASE_URL } from './api';
+
 
 // Helper functions for local storage
 const getUserEmail = (state) => state.auth?.profile?.email || 'guest';
@@ -357,6 +359,13 @@ const removeCartForUser = (state) => {
   const email = getUserEmail(state);
   localStorage.removeItem(`cart_${email}`);
 };
+
+// Selectors for memoized state access
+const selectCartState = (state) => state.cart;
+export const selectCartItems = createSelector([selectCartState], (cart) => cart.items);
+export const selectCartCount = createSelector([selectCartState], (cart) => cart.count);
+export const selectCartStatus = createSelector([selectCartState], (cart) => cart.status);
+export const selectCartError = createSelector([selectCartState], (cart) => cart.error);
 
 // Async thunk for fetching cart items
 export const fetchCartItemsAsync = createAsyncThunk(
@@ -604,8 +613,8 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartQuantityAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const { cartId, quantity } = action.payload;
-        const item = state.items.find((item) => item.cartId === cartId);
+        const { id, quantity } = action.payload;
+        const item = state.items.find((item) => item.cartId === id);
         if (item) {
           item.quantity = quantity;
           state.count = state.items.reduce((acc, item) => acc + item.quantity, 0);
