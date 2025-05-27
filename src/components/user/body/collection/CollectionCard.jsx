@@ -40,6 +40,24 @@ const CollectionCard = ({
       .format(amount)
       .replace(/(\d+)/, "Tk $1");
 
+  // Function to format specification string as a list
+  const formatSpecification = (spec) => {
+    if (!spec) return <p className="text-sm text-gray-600">No specifications available.</p>;
+    const pairs = spec.split(',').map(item => item.trim());
+    return (
+      <ul className="text-sm text-gray-600 list-disc pl-5">
+        {pairs.map((pair, index) => {
+          const [key, value] = pair.split(':').map(part => part.trim());
+          return (
+            <li key={index}>
+              <strong>{key}</strong>: {value}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
   useEffect(() => {
     const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
     checkIsMobile();
@@ -194,10 +212,8 @@ const CollectionCard = ({
             <h3 className="text-sm font-semibold text-gray-700 truncate">{name}</h3>
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[2rem]">{category}</p>
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{title}</p>
-            {productitemname && (
-              <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{productitemname}</p>
-            )}
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{product}</p>
+            {/* {formatSpecification(specification)} */}
             <div className="flex flex-col items-center justify-center">
               <span className="text-sm font-bold text-gray-900">{formatPrice(currentPrice)}</span>
               {hasDiscount && (
@@ -241,13 +257,13 @@ const CollectionCard = ({
                       )}
                     </p>
                     <p className="text-sm text-gray-600">{category}</p>
-                    {productItem && <p className="text-sm text-gray-600">{productItem}</p>}
+                    {productitemname && <p className="text-sm text-gray-600">{productitemname}</p>}
                   </div>
 
                   {specification && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-gray-900">Specifications</h3>
-                      <p className="text-sm text-gray-600 whitespace-pre-line">{specification}</p>
+                      {formatSpecification(specification)}
                     </div>
                   )}
                 </div>

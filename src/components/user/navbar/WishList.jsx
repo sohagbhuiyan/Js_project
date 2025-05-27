@@ -1,25 +1,21 @@
-// components/navigation/WishlistDropdown.jsx
-import { FaHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
+import { FaHeart, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromWishlist } from "../../../store/wishlistSlice";
-import { addToCart } from "../../../store/cartSlice";
+import { initializeWishlist, removeFromWishlist } from "../../../store/wishlistSlice";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
-const Wishlist = ({ isOpen, isMobile, onClose }) => {  // Added onClose prop
+const Wishlist = ({ isOpen, isMobile, onClose }) => {
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.wishlist.items);
-  const cartItems = useSelector((state) => state.cart.items);
+  const user = useSelector((state) => state.auth.user);
 
-  const handleAddToCart = (product, e) => {
-    e.stopPropagation();
-    if (!cartItems.some(item => item.id === product.id)) {
-      dispatch(addToCart({ ...product, quantity: 1 }));
-    }
-  };
+  useEffect(() => {
+    dispatch(initializeWishlist({ userId: user?.id }));
+  }, [dispatch, user]);
 
   const handleRemove = (id, e) => {
     e.stopPropagation();
-    dispatch(removeFromWishlist(id));
+    dispatch(removeFromWishlist({ id, userId: user?.id }));
   };
 
   if (!isOpen) return null;
@@ -38,8 +34,8 @@ const Wishlist = ({ isOpen, isMobile, onClose }) => {  // Added onClose prop
           <FaHeart className="text-red-500 mr-2" />
           Wishlist ({wishlistItems.length})
         </h3>
-        <button 
-          onClick={onClose}  // Added close handler
+        <button
+          onClick={onClose}
           className="p-1 hover:bg-gray-200 rounded-full"
         >
           <FaTimes className="text-lg cursor-pointer text-gray-600" />
@@ -50,16 +46,22 @@ const Wishlist = ({ isOpen, isMobile, onClose }) => {  // Added onClose prop
       ) : (
         wishlistItems.map((product) => (
           <div key={product.id} className="flex items-center py-2 border-b border-gray-300">
-            <Link to={`/product/${product.name}`} className="flex-1 flex items-center hover:bg-gray-50 p-1 rounded">
-              <img src={product.image} alt={product.name} className="w-10 h-10 object-cover rounded-md mr-1.5" />
+            <Link to={`/product/${product.id}`} className="flex-1 flex items-center hover:bg-gray-50 p-1 rounded">
+              <img
+                src={product.imagea || "/placeholder-image.jpg"}
+                alt={product.title || product.name}
+                className="w-10 h-10 object-cover rounded-md mr-1.5"
+              />
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium truncate">{product.name}</h4>
-                <p className="text-sm text-gray-600">${product.price}</p>
+                <h4 className="font-medium truncate">{product.title || product.name}</h4>
+                <p className="text-sm text-gray-600">
+                  Tk {product.specialprice || product.regularprice || "N/A"}
+                </p>
               </div>
             </Link>
             <div className="flex items-center ml-1 space-x-2">
               <button
-                onClick={(e) => handleRemove(product.name, e)}
+                onClick={(e) => handleRemove(product.id, e)}
                 className="p-1 rounded-md text-red-600 hover:bg-red-100"
               >
                 <FaTimes className="text-sm" />

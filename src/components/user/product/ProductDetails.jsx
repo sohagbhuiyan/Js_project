@@ -6,7 +6,7 @@ import QuestionAnswer from "./QuestionAnswer";
 import ReviewForm from "./ReviewForm";
 
 const ProductDetails = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("specifications");
 
@@ -37,6 +37,21 @@ const ProductDetails = () => {
     }
   };
 
+  // Function to format specification string
+  const formatSpecification = (spec) => {
+    if (!spec) return "No specifications available.";
+    const pairs = spec.split(',').map(item => item.trim());
+    return pairs.map((pair, index) => {
+      const [key, value] = pair.split(':').map(part => part.trim());
+      return (
+        <span key={index}>
+          <strong>{key}</strong>: {value}
+          {index < pairs.length - 1 ? ', ' : ''}
+        </span>
+      );
+    });
+  };
+
   if (loading) return <p className="p-4">Loading...</p>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
@@ -60,18 +75,18 @@ const ProductDetails = () => {
       </div>
 
       {/* Product Specifications */}
-      <section ref={sectionsRef.specifications} className=" py-6">
-      <h2 className="text-md md:text-xl font-bold bg-gray-300 w-fit p-1">
-      Specifications
+      <section ref={sectionsRef.specifications} className="py-6">
+        <h2 className="text-md md:text-xl font-bold bg-gray-300 w-fit p-1">
+          Specifications
         </h2>
         {currentProduct ? (
           <div className="text-sm md:text-lg space-y-1">
+            <p><strong>Title:</strong> {currentProduct.title}</p>
             <p><strong>Model:</strong> {currentProduct.name}</p>
             <p><strong>Category:</strong> {currentProduct.catagory.name}</p>
-            <p><strong>item:</strong> {currentProduct.productItem?.productitemname || "items"}</p> 
-            <p><strong>Brand:</strong> {currentProduct.brand?.brandname|| currentProduct.catagory.name}</p>
-            <p><strong>Product ID:</strong> {currentProduct.productid}</p>
-            <p><strong>Specification:</strong> {currentProduct.specification}</p>
+            <p><strong>Item:</strong> {currentProduct.productItem?.productitemname || "items"}</p>
+            <p><strong>Brand:</strong> {currentProduct.brand?.brandname || currentProduct.catagory.name}</p>
+            <p><strong>Specification:</strong> {formatSpecification(currentProduct.specification)}</p>
           </div>
         ) : (
           <p>No product data found.</p>

@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders, updateOrderStatus } from "../../../store/orderSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { FaPhoneAlt } from "react-icons/fa";
+import Barcode from 'react-barcode';
+
 
 const OrderManagement = () => {
   const dispatch = useDispatch();
@@ -215,101 +217,96 @@ const OrderManagement = () => {
       </div>
 
       {/* Order Details Modal */}
-      {selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-auto">
-            <div className="px-6 py-4 border-b flex justify-between items-center">
-              <h3 className="text-xl font-semibold">Order Details - #{selectedOrder.id}</h3>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ×
-              </button>
+ {selectedOrder && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-auto print:max-h-screen print:overflow-visible print:shadow-none print:rounded-none">
+      {/* Header */}
+      <div className="px-6 py-4 border-b flex flex-col md:flex-row justify-between">
+        {/* Customer Info */}
+        <div className="text-sm space-y-1">
+          <h3 className="text-xl font-semibold">Customer Information</h3>
+          <p><span className="font-medium">Name:</span> {selectedOrder.user?.name || "Guest"}</p>
+          <p><span className="font-medium">Email:</span> {selectedOrder.user?.email}</p>
+          <p><span className="font-medium">Phone:</span> {selectedOrder.user?.phoneNo || "N/A"}</p>
+          <p><span className="font-medium">Address:</span> {selectedOrder.address}, {selectedOrder.upazila}, {selectedOrder.districts}</p>
+        </div>
+
+        {/* Shop Info */}
+        <div className="text-right text-sm space-y-1">
+          <h3 className="text-xl font-semibold">JS Computer</h3>
+          <p>Invoice No: <span className="font-medium">{`JC${new Date().getFullYear()}${new Date().getMonth()+1}${new Date().getDate()}${selectedOrder.id}`}</span></p>
+   
+          <div className="mt-2">
+            <Barcode value={`JC-${selectedOrder.id}`} height={30} width={1.5} fontSize={12} />
+          </div>
+        </div>
+      </div>
+
+      {/* Order Body */}
+      <div className="p-6 grid gap-6 grid-cols-1 md:grid-cols-2">
+        {/* Product Info */}
+        <div className="space-y-2 text-sm">
+          <h4 className="font-bold text-lg">Product Information</h4>
+          <p><span className="font-medium">Product ID:</span> {selectedOrder.productDetails?.productid}</p>
+          <p><span className="font-medium">Name:</span> {selectedOrder.productDetails?.name}</p>
+          <p><span className="font-medium">Category:</span> {selectedOrder.productDetails?.catagory?.name || "N/A"}</p>
+          <p><span className="font-medium">Specification:</span> {selectedOrder.productDetails?.specification}</p>
+        </div>
+
+        {/* Pricing Info */}
+        <div className="space-y-2 text-sm">
+          <h4 className="font-bold text-lg">Pricing Details</h4>
+          <p><span className="font-medium">Unit Price:</span> ৳{(selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice)?.toLocaleString()}</p>
+          <p><span className="font-medium">Quantity:</span> {selectedOrder.quantity}</p>
+          <p><span className="font-medium">Total Price:</span> ৳{(selectedOrder.quantity * (selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice))?.toLocaleString()}</p>
+          <p><span className="font-medium">Status:</span> <span className={`px-2 py-1 rounded text-sm ${getStatusColor(selectedOrder.status)}`}>{selectedOrder.status || "Pending"}</span></p>
+        </div>
+
+        {/* Product Details */}
+        <div className="md:col-span-2 space-y-2 mt-4">
+          <h4 className="font-medium text-lg">Product Details</h4>
+          <p className="text-gray-700 whitespace-pre-line">{selectedOrder.productDetails?.details}</p>
+        </div>
+
+        {/* Price Comparison */}
+        <div className="md:col-span-2">
+          <div className="border-t pt-4 text-sm">
+            <div className="flex justify-between mb-1">
+              <span>Regular Price:</span>
+              <span>৳{selectedOrder.productDetails?.regularprice?.toLocaleString()}</span>
             </div>
-
-            <div className="p-6 grid gap-4 md:grid-cols-2">
-              {/* Customer Information */}
-              <div className="space-y-2 text-sm">
-                <h4 className="font-medium text-lg">Customer Information</h4>
-                <p><span className="font-medium">Name:</span> {selectedOrder.user?.name || "Guest"}</p>
-                <p><span className="font-medium">Email:</span> {selectedOrder.user?.email}</p>
-                {selectedOrder.user?.phoneNo && (
-                  <p><span className="font-medium">Phone:</span> {selectedOrder.user.phoneNo}</p>
-                )}
-              </div>
-
-              {/* Shipping Information */}
-              <div className="space-y-2 text-sm">
-                <h4 className="font-medium text-lg">Shipping Information</h4>
-                <p><span className="font-medium">Address:</span> {selectedOrder.address}</p>
-                <p><span className="font-medium">Upazila:</span> {selectedOrder.upazila}</p>
-                <p><span className="font-medium">District:</span> {selectedOrder.districts}</p>
-                <p><span className="font-medium">Order Date:</span> {new Date(selectedOrder.requestdate).toLocaleString()}</p>
-              </div>
-
-              {/* Product Information */}
-              <div className="space-y-2 text-sm">
-                <h4 className="font-bold text-lg">Product Information</h4>
-                <p><span className="font-medium">Product ID:</span> {selectedOrder.productDetails?.productid}</p>
-                <p><span className="font-medium">Name:</span> {selectedOrder.productDetails?.name}</p>
-                <p><span className="font-medium">Category:</span> {selectedOrder.productDetails?.catagory?.name || "N/A"}</p>
-              </div>
-
-              {/* Pricing Details */}
-              <div className="space-y-2 text-sm">
-                <h4 className="font-bold text-lg">Pricing Details</h4>
-                <p><span className="font-medium">Unit Price:</span> ৳{(selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice)?.toLocaleString()}</p>
-                <p><span className="font-medium">Quantity:</span> {selectedOrder.quantity}</p>
-                <p><span className="font-medium">Total Price:</span> ৳{(selectedOrder.quantity * (selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice))?.toLocaleString()}</p>
-                <p><span className="font-medium">Status:</span> <span className={`px-2 py-1 rounded text-sm ${getStatusColor(selectedOrder.status)}`}>{selectedOrder.status || "pending"}</span></p>
-                <p><span className="font-medium">Order Date:</span> {formatDate(selectedOrder.requestdate)}</p>
-              </div>
-
-              {/* Product Specifications */}
-              <div className="md:col-span-2 space-y-2">
-                <h4 className="font-medium text-lg">Product Specifications</h4>
-                <p className="text-gray-600">{selectedOrder.productDetails?.details}</p>
-                <p className="text-gray-600">{selectedOrder.productDetails?.specification}</p>
-              </div>
-
-              {/* Price Comparison */}
-              <div className="md:col-span-2">
-                <div className="border-t pt-4">
-                  <div className="flex justify-between mb-2">
-                    <span>Regular Price:</span>
-                    <span>৳{(selectedOrder.productDetails?.regularprice)?.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <span>Special Price:</span>
-                    <span>৳{(selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice)?.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between font-bold">
-                    <span>Total Paid:</span>
-                    <span>৳{(selectedOrder.quantity * (selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice))?.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
+            <div className="flex justify-between mb-1">
+              <span>Special Price:</span>
+              <span>৳{(selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice)?.toLocaleString()}</span>
             </div>
-
-            <div className="px-6 py-4 border-t flex justify-end gap-4">
-              <button
-                onClick={() => window.print()}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
-              >
-                <FiPrinter className="w-5 h-5" />
-                Print Invoice
-              </button>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-              >
-                Close
-              </button>
+            <div className="flex justify-between font-bold text-base">
+              <span>Total Paid:</span>
+              <span>৳{(selectedOrder.quantity * (selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice))?.toLocaleString()}</span>
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="px-6 py-4 border-t flex justify-end gap-4 print:hidden">
+        <button
+          onClick={() => window.print()}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+        >
+          <FiPrinter className="w-5 h-5" />
+          Print Invoice
+        </button>
+        <button
+          onClick={() => setSelectedOrder(null)}
+          className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
        <Toaster position="top-right" />
     </div>
      
