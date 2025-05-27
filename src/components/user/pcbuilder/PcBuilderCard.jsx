@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { FaShoppingCart, FaExchangeAlt, FaHeart, FaEye, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist } from "../../../store/wishlistSlice";
-import { addToCartAsync } from "../../../store/cartSlice";
 import { addToCompare } from "../../../store/compareSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { API_BASE_URL } from "../../../store/api";
-import { addPCPartToCartAsync } from "../../../store/pcbuilderSlice";
+import { addPCPartToCartAsync } from "../../../store/cartSlice";
+
 
 const FALLBACK_IMAGE = "/images/placeholder.png";
 
@@ -80,16 +80,16 @@ const PcBuilderCard = ({
     if (isMobile) setShowMobileIcons(false);
   };
 const handleAddToCart = handleIconAction(() => {
-    dispatch(
-      addPCPartToCartAsync({
-        pcforpartadd_id: id, // Changed from productDetailsId to pcforpartadd_id
-        quantity: 1,
-        name,
-        price: currentPrice,
-        imagea: imagea ? `${API_BASE_URL}/images/${imagea}` : FALLBACK_IMAGE,
-      })
-    );
-  });
+  dispatch(
+    addPCPartToCartAsync({
+      pcforpartadd_id: id,
+      quantity: 1,
+      name,
+      price: currentPrice,
+      imagea: imagea ? `${API_BASE_URL}/images/${imagea}` : FALLBACK_IMAGE,
+    })
+  );
+});
 
   const handleAddToWishlist = handleIconAction(() => {
     if (!authState.user) {

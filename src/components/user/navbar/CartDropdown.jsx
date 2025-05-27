@@ -147,11 +147,11 @@ export const CartDropdown = ({ isOpen, onClose, position = 'desktop', cartIconRe
         {items.length === 0 ? (
           <p className="text-center text-gray-500">Your cart is empty</p>
         ) : (
-          displayedItems.map((item) => (
-            <div
-              key={item.productId}
-              className="group relative flex items-center justify-between p-2 border-b border-gray-200"
-            >
+        displayedItems.map((item) => (
+          <div
+            key={item.cartId} // Use cartId instead of productId
+            className="group relative flex items-center justify-between p-2 border-b border-gray-200"
+          >
               <Link
                 to={`/product/${item.productId}`}
                 className="absolute inset-0 z-10"

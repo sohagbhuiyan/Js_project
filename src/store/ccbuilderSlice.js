@@ -42,36 +42,6 @@ export const fetchCCBuilderById = createAsyncThunk(
   }
 );
 
-// Async thunk to add a PC part to the cart
-export const addCCPartToCartAsync = createAsyncThunk(
-  "ccBuilder/addCCPartToCartAsync",
-  async ({ pcforpartadd_id, quantity, name, price, imagea }, { getState, rejectWithValue }) => {
-    const state = getState();
-    const token = state.auth.token || localStorage.getItem("authToken");
-    const profile = state.auth.profile;
-    const userId = profile?.id;
-
-    if (!token || !profile?.email || !userId) {
-      return { pcforpartadd_id, quantity, name, price, imagea, isGuest: true };
-    }
-
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/pcforpart/AddToCart/save/pcpart?userId=${userId}&pcforpartadd_id=${pcforpartadd_id}&quantity=${quantity}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return { ...response.data, name, price, imagea };
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to add PC part to cart");
-    }
-  }
-);
-
 // Async thunk to fetch all CC items
 export const fetchCCItems = createAsyncThunk(
   "ccBuilder/fetchCCItems",

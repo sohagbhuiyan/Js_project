@@ -121,7 +121,7 @@ const CartPage = () => {
         <div className="space-y-4">
           {items.map((item) => (
             <div
-              key={item.productId}
+              key={item.cartId}
               className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-white"
             >
               <div className="flex items-center space-x-4">

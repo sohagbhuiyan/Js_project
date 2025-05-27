@@ -162,37 +162,6 @@ export const addPCPart = createAsyncThunk(
     }
   }
 );
-
-// Async thunk to add a PC part to the cart
-export const addPCPartToCartAsync = createAsyncThunk(
-  "pcBuilder/addPCPartToCartAsync",
-  async ({ pcforpartadd_id, quantity, name, price, imagea }, { getState, rejectWithValue }) => {
-    const state = getState();
-    const token = state.auth.token || localStorage.getItem("authToken");
-    const profile = state.auth.profile;
-    const userId = profile?.id;
-
-    if (!token || !profile?.email || !userId) {
-      return { pcforpartadd_id, quantity, name, price, imagea, isGuest: true };
-    }
-
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/pcforpart/AddToCart/save/pcpart?userId=${userId}&pcforpartadd_id=${pcforpartadd_id}&quantity=${quantity}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return { ...response.data, name, price, imagea };
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to add PC part to cart");
-    }
-  }
-);
-
 const pcbuilderSlice = createSlice({
   name: "pcBuilder",
   initialState: {
@@ -300,20 +269,6 @@ const pcbuilderSlice = createSlice({
         state.loading.part = false;
         state.error.part = action.payload;
       })
-      // addPCPartToCartAsync
-      .addCase(addPCPartToCartAsync.pending, (state) => {
-        state.loading.part = true;
-        state.error.part = null;
-        state.successMessage.part = null;
-      })
-      .addCase(addPCPartToCartAsync.fulfilled, (state, action) => {
-        state.loading.part = false;
-        state.successMessage.part = "PC part added to cart successfully!";
-      })
-      .addCase(addPCPartToCartAsync.rejected, (state, action) => {
-        state.loading.part = false;
-        state.error.part = action.payload;
-      });
   },
 });
 
