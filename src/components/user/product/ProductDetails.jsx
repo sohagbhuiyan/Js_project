@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchProductById } from "../../../store/productSlice";
+import { fetchProductDetailsById } from "../../../store/productSlice";
 import QuestionAnswer from "./QuestionAnswer";
 import ReviewForm from "./ReviewForm";
 
@@ -23,7 +23,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchProductById(id));
+      dispatch(fetchProductDetailsById(id));
     }
   }, [dispatch, id]);
 

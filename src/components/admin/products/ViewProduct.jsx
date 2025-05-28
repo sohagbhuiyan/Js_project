@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts, fetchProductById } from '../../../store/productSlice';
+import { fetchProducts, fetchProductDetailsById } from '../../../store/productSlice';
 import { 
   Box, 
   Typography, 
@@ -27,7 +27,7 @@ const ViewProduct = () => {
   }, [dispatch]);
 
   const handleProductIdClick = (name) => {
-    dispatch(fetchProductById(name)).then((result) => {
+    dispatch(fetchProductDetailsById(name)).then((result) => {
       if (result.meta.requestStatus === 'fulfilled') {
         setSelectedProduct(result.payload);
       }

@@ -18,8 +18,8 @@ export const fetchProducts = createAsyncThunk(
     }
   }
 );
-// Add this to your productSlice.js
 
+// Async thunk to fetch related products
 export const fetchRelatedProducts = createAsyncThunk(
   'products/fetchRelatedByCategory',
   async (categoryId, { rejectWithValue }) => {
@@ -35,7 +35,6 @@ export const fetchRelatedProducts = createAsyncThunk(
     }
   }
 );
-
 
 // Async thunk to add product
 export const addProductDetails = createAsyncThunk(
@@ -57,11 +56,9 @@ export const addProductDetails = createAsyncThunk(
         formData,
         { 
           headers: {
-          //  'Content-Type': 'multipart/form-data' ,
-           Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           } 
         }
-        
       );
       return { 
         ...response.data,
@@ -75,7 +72,7 @@ export const addProductDetails = createAsyncThunk(
 );
 
 // Async thunk to fetch single product
-export const fetchProductById = createAsyncThunk(
+export const fetchProductDetailsById = createAsyncThunk(
   'products/fetchById',
   async (id, { rejectWithValue }) => {
     try {
@@ -89,14 +86,14 @@ export const fetchProductById = createAsyncThunk(
 
 const productSlice = createSlice({
   name: 'products',
-initialState: {
-  products: [],
-  currentProduct: null,
-  relatedProducts: [],
-  loading: false,
-  error: null,
-  successMessage: null,
-},
+  initialState: {
+    products: [],
+    currentProduct: null,
+    relatedProducts: [],
+    loading: false,
+    error: null,
+    successMessage: null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -108,19 +105,18 @@ initialState: {
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload.map(product => ({
-            ...product,
-            imagea: product.imagea ? `${API_BASE_URL}/images/${product.imagea}` : '',
-            imageb: product.imageb ? `${API_BASE_URL}/images/${product.imageb}` : '',
-            imagec: product.imagec ? `${API_BASE_URL}/images/${product.imagec}` : '',
-            regularprice: Number(product.regularprice),
-            specialprice: Number(product.specialprice)
+          ...product,
+          imagea: product.imagea ? `${API_BASE_URL}/images/${product.imagea}` : null,
+          imageb: product.imageb ? `${API_BASE_URL}/images/${product.imageb}` : null,
+          imagec: product.imagec ? `${API_BASE_URL}/images/${product.imagec}` : null,
+          regularprice: Number(product.regularprice),
+          specialprice: Number(product.specialprice)
         }));
-    })
+      })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      
       // Add Product
       .addCase(addProductDetails.pending, (state) => {
         state.loading = true;
@@ -130,27 +126,37 @@ initialState: {
       .addCase(addProductDetails.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = action.payload;
-        state.products.push(action.payload);
+        state.products.push({
+          ...action.payload,
+          imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
+          imageb: action.payload.imageb ? `${API_BASE_URL}/images/${action.payload.imageb}` : null,
+          imagec: action.payload.imagec ? `${API_BASE_URL}/images/${action.payload.imagec}` : null,
+        });
       })
       .addCase(addProductDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      //fetch product by Id (single product)
-      .addCase(fetchProductById.pending, (state) => {
+      // Fetch product by ID (single product)
+      .addCase(fetchProductDetailsById.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.currentProduct = null;
       })
-      .addCase(fetchProductById.fulfilled, (state, action) => {
+      .addCase(fetchProductDetailsById.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentProduct = action.payload;
+        state.currentProduct = {
+          ...action.payload,
+          imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
+          imageb: action.payload.imageb ? `${API_BASE_URL}/images/${action.payload.imageb}` : null,
+          imagec: action.payload.imagec ? `${API_BASE_URL}/images/${action.payload.imagec}` : null,
+        };
       })
-      .addCase(fetchProductById.rejected, (state, action) => {
+      .addCase(fetchProductDetailsById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-       // Fetch related products by category
+      // Fetch related products by category
       .addCase(fetchRelatedProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -158,10 +164,10 @@ initialState: {
       .addCase(fetchRelatedProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.relatedProducts = action.payload.map(product => ({
-        ...product,
-        imagea: product.imagea ? `${API_BASE_URL}/images/${product.imagea}` : '',
-        imageb: product.imageb ? `${API_BASE_URL}/images/${product.imageb}` : '',
-        imagec: product.imagec ? `${API_BASE_URL}/images/${product.imagec}` : '',
+          ...product,
+          imagea: product.imagea ? `${API_BASE_URL}/images/${product.imagea}` : null,
+          imageb: product.imageb ? `${API_BASE_URL}/images/${product.imageb}` : null,
+          imagec: product.imagec ? `${API_BASE_URL}/images/${product.imagec}` : null,
         }));
       })
       .addCase(fetchRelatedProducts.rejected, (state, action) => {
