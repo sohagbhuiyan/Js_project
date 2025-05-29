@@ -1,11 +1,14 @@
-
-// src/components/ProductView.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
-import { fetchProductById } from "../../../store/productSlice";
-import { API_BASE_URL } from "../../../store/api";
+import { fetchProductDetailsById } from "../../../store/productSlice";
+import {
+  Box,
+  Button,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 
 const ProductView = () => {
   const { id } = useParams();
@@ -14,143 +17,212 @@ const ProductView = () => {
   const { currentProduct, loading, error } = useSelector((state) => state.products);
   const { user, profile, token } = useSelector((state) => state.auth);
   const [quantity, setQuantity] = useState(1);
-  const [mainImage, setMainImage] = useState("");
+  const [mainImage, setMainImage] = useState("/images/fallback.jpg");
   const [zoomStyle, setZoomStyle] = useState({ display: "none" });
 
+  // Fetch product details
   useEffect(() => {
     if (id) {
-      dispatch(fetchProductById(id));
+      dispatch(fetchProductDetailsById(id));
     }
   }, [dispatch, id]);
 
+  // Set main image when currentProduct changes
   useEffect(() => {
     if (currentProduct?.imagea) {
-      setMainImage(`${API_BASE_URL}/images/${currentProduct.imagea}`);
+      setMainImage(currentProduct.imagea);
+    } else {
+      setMainImage("/images/fallback.jpg");
     }
   }, [currentProduct]);
 
-  const increaseQuantity = () => setQuantity(quantity + 1);
-  const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
+  // Memoize gallery images to prevent recalculation on every render
+  const galleryImages = useMemo(() => {
+    if (!currentProduct) return [];
+    return [
+      currentProduct.imagea,
+      currentProduct.imageb,
+      currentProduct.imagec,
+    ]
+      .filter(Boolean)
+      .map((img) => img || "/images/fallback.jpg");
+  }, [currentProduct]);
 
-  const handleMouseMove = (e) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.pageX - left) / width) * 100;
-    const y = ((e.pageY - top) / height) * 100;
+  // Memoize quantity handlers
+  const increaseQuantity = useCallback(() => setQuantity((prev) => prev + 1), []);
+  const decreaseQuantity = useCallback(
+    () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)),
+    []
+  );
 
-    setZoomStyle({
-      backgroundImage: `url(${mainImage})`,
-      backgroundSize: "200%",
-      backgroundPosition: `${x}% ${y}%`,
-      display: "block",
-    });
-  };
+  // Memoize mouse move handler
+  const handleMouseMove = useCallback(
+    (e) => {
+      const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+      const x = ((e.pageX - left) / width) * 100;
+      const y = ((e.pageY - top) / height) * 100;
 
-  const handleMouseLeave = () => setZoomStyle({ display: "none" });
+      setZoomStyle({
+        backgroundImage: `url(${mainImage})`,
+        backgroundSize: "200%",
+        backgroundPosition: `${x}% ${y}%`,
+        display: "block",
+      });
+    },
+    [mainImage]
+  );
 
-  const handlePlaceOrderClick = () => {
+  // Memoize mouse leave handler
+  const handleMouseLeave = useCallback(() => {
+    setZoomStyle({ display: "none" });
+  }, []);
+
+  // Memoize place order handler
+  const handlePlaceOrderClick = useCallback(() => {
     if (!user?.id || !profile?.email || !token) {
       toast.error("Please log in to place an order.", { duration: 1000 });
       navigate("/login", { state: { from: `/product/${id}` } });
       return;
     }
-    // Navigate to checkout page with product and quantity
     navigate("/checkout", { state: { product: currentProduct, quantity } });
-  };
+  }, [user, profile, token, currentProduct, quantity, navigate, id]);
 
-  if (loading) return <div className="text-center py-4">Loading...</div>;
-  if (error) return <div className="text-center text-red-500 py-4">Error: {error}</div>;
-  if (!currentProduct) return <h2 className="text-center text-xl mt-6">Product Not Found</h2>;
-
-  const galleryImages = [
-    currentProduct.imagea ? `${API_BASE_URL}/images/${currentProduct.imagea}` : null,
-    currentProduct.imageb ? `${API_BASE_URL}/images/${currentProduct.imageb}` : null,
-    currentProduct.imagec ? `${API_BASE_URL}/images/${currentProduct.imagec}` : null,
-  ].filter(Boolean);
+  // Render loading, error, or not found states
+  if (loading)
+    return (
+      <Box sx={{ textAlign: "center", py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  if (error)
+    return (
+      <Typography color="error" sx={{ textAlign: "center", py: 4 }}>
+        Error: {error}
+      </Typography>
+    );
+  if (!currentProduct)
+    return (
+      <Typography variant="h5" sx={{ textAlign: "center", mt: 6 }}>
+        Product Not Found
+      </Typography>
+    );
 
   return (
-    <div className="p-8 flex flex-col md:flex-row-reverse gap-10">
+    <Box sx={{ p: 4, display: "flex", flexDirection: { xs: "column", md: "row-reverse" }, gap: 4 }}>
       {/* Product Details */}
-      <div className="flex-col px-6 md:px-10 md:flex-1">
-        <h2 className="text-md md:text-2xl font-bold">{currentProduct.name}</h2>
-        <p className="text-xs md:text-sm text-gray-600">Product ID: {currentProduct.productid}</p>
-        <p className="md:text-lg text-sm font-bold text-red-700 mt-2">
+      <Box sx={{ flex: 1, px: { xs: 2, md: 4 } }}>
+        <Typography variant="h6" fontWeight="bold">
+          {currentProduct.name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Product ID: {currentProduct.productid}
+        </Typography>
+        <Typography variant="h6" color="error" fontWeight="bold" sx={{ mt: 1 }}>
           Special Price: Tk {currentProduct.specialprice}
-        </p>
-        <p className="text-sm md:text-md font-bold text-gray-600 mt-2">
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
           Regular Price: Tk {currentProduct.regularprice}
-        </p>
+        </Typography>
         {currentProduct.specialprice < currentProduct.regularprice && (
-          <p className="text-purple-600 text-xs md:text-sm">
+          <Typography variant="body2" color="secondary" sx={{ mt: 1 }}>
             Save Tk {currentProduct.regularprice - currentProduct.specialprice} on online order
-          </p>
+          </Typography>
         )}
-        <h3 className="mt-4 font-semibold text-md md:text-lg">Quick Overview</h3>
-        <ul className="list-disc pl-6 text-xs md:text-sm text-gray-600">
+        <Typography variant="h6" fontWeight="medium" sx={{ mt: 2 }}>
+          Quick Overview
+        </Typography>
+        <ul className="list-disc pl-6 text-sm text-gray-600">
           {currentProduct.details &&
             currentProduct.details.split(", ").map((detail, index) => (
               <li key={index}>{detail}</li>
             ))}
         </ul>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            className="bg-gray-300 text-xs md:text-sm px-3 py-1 rounded"
-            onClick={decreaseQuantity}
-            disabled={loading}
-          >
-            -
-          </button>
-          <span>{quantity}</span>
-          <button
-            className="bg-gray-300 text-xs md:text-sm px-3 py-1 rounded"
-            onClick={increaseQuantity}
-            disabled={loading}
-          >
-            +
-          </button>
-          <button
-            className="bg-green-600 hover:bg-green-700 cursor-pointer text-xs md:text-md font-medium text-white px-3 py-2 rounded"
+        <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={decreaseQuantity}
+              disabled={loading}
+            >
+              -
+            </Button>
+            <Typography>{quantity}</Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={increaseQuantity}
+              disabled={loading}
+            >
+              +
+            </Button>
+          </Box>
+          <Button
+            variant="contained"
+            color="success"
             onClick={handlePlaceOrderClick}
             disabled={loading}
+            sx={{ px: 3, py: 1 }}
           >
             {loading ? "Processing..." : "Proceed to Checkout"}
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
 
       {/* Product Images */}
-      <div className="flex flex-col-reverse items-center sm:px-6 md:flex-row gap-4 sm:gap-8">
-        <div className="flex flex-row md:flex-col gap-2 sm:gap-3 px-2 md:px-4 mt-4 md:mt-0">
+      <Box sx={{ display: "flex", flexDirection: { xs: "column-reverse", md: "row" }, gap: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "row", md: "column" }, gap: 1, px: 1 }}>
           {galleryImages.map((img, index) => (
             <img
               key={index}
               src={img}
               alt={`thumbnail-${index}`}
-              className="w-12 h-12 sm:w-16 sm:h-16 border border-gray-500 cursor-pointer object-cover"
+              className="w-12 h-12 sm:w-16 sm:h-16 border border-gray-300 cursor-pointer object-cover"
               onMouseEnter={() => setMainImage(img)}
               onClick={() => setMainImage(img)}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/images/fallback.jpg";
+              }}
             />
           ))}
-        </div>
-        <div
-          className="relative w-40 h-40 sm:w-96 sm:h-96 border border-gray-400 overflow-hidden flex-1"
+        </Box>
+        <Box
+          sx={{
+            position: "relative",
+            width: { xs: "160px", sm: "300px" },
+            height: { xs: "160px", sm: "300px" },
+            border: "1px solid #ccc",
+            overflow: "hidden",
+          }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
           <img
             src={mainImage}
-            alt={currentProduct.name}
-            className="w-full h-full object-contain"
+            alt={currentProduct.name || "Product"}
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "/placeholder-image.jpg";
+              e.target.src = "/images/fallback.jpg";
             }}
           />
-          <div className="absolute top-0 left-0 w-full h-full cursor-zoom-in" style={zoomStyle} />
-        </div>
-      </div>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              cursor: "zoom-in",
+            }}
+            style={zoomStyle}
+          />
+        </Box>
+      </Box>
 
       <Toaster />
-    </div>
+    </Box>
   );
 };
 

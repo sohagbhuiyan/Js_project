@@ -1,22 +1,22 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { fetchProducts } from '../../../store/productSlice';
-import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Avatar,
+import { fetchProducts, fetchProductDetailsById } from '../../../store/productSlice';
+import { 
+  Box, 
+  Typography, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Avatar, 
   CircularProgress,
   Link,
   Button,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const ViewProduct = () => {
   const dispatch = useDispatch();
@@ -24,7 +24,7 @@ const ViewProduct = () => {
   const { products, loading, error } = useSelector((state) => state.products);
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProductDetailsById());
   }, [dispatch]);
 
   const handleProductIdClick = (id) => {
@@ -33,6 +33,12 @@ const ViewProduct = () => {
 
   const handleAddProduct = () => {
     navigate('/admin/products/add-product');
+  const handleProductIdClick = (name) => {
+    dispatch(fetchProductDetailsById(name)).then((result) => {
+      if (result.meta.requestStatus === 'fulfilled') {
+        setSelectedProduct(result.payload);
+      }
+    });
   };
 
   return (
