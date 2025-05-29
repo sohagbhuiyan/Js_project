@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import toast, { Toaster } from 'react-hot-toast';
-import { cartOrderPlace, clearOrderError } from '../../../store/orderSlice';
-import { API_BASE_URL } from '../../../store/api';
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import toast, { Toaster } from "react-hot-toast";
+import { cartOrderPlace, clearOrderError } from "../../../store/orderSlice";
+import { API_BASE_URL } from "../../../store/api";
 
 const CartCheckoutPage = () => {
   const location = useLocation();
@@ -11,11 +11,11 @@ const CartCheckoutPage = () => {
   const dispatch = useDispatch();
   const { user, profile, token } = useSelector((state) => state.auth);
   const { loading, error } = useSelector((state) => state.order);
-  const { cartItems, cartTotal } = location.state || {};
+  const { cartItems, cartTotal } = location.state || { cartItems: [], cartTotal: 0 };
   const [orderForm, setOrderForm] = useState({
-    districts: '',
-    upazila: '',
-    address: '',
+    districts: "",
+    upazila: "",
+    address: "",
   });
   const [districts, setDistricts] = useState([]);
   const [upazilas, setUpazilas] = useState([]);
@@ -25,16 +25,16 @@ const CartCheckoutPage = () => {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!user?.id || !profile?.email || !token) {
-      toast.error('Please log in to place an order.', { duration: 2000 });
-      navigate('/login', { state: { from: location.pathname } });
+      toast.error("Please log in to place an order.", { duration: 2000 });
+      navigate("/login", { state: { from: location.pathname } });
     }
   }, [user, profile, token, navigate, location.pathname]);
 
   // Validate cart items
   useEffect(() => {
     if (!cartItems || cartItems.length === 0) {
-      toast.error('No items in cart for checkout.', { duration: 2000 });
-      navigate('/cart');
+      toast.error("No items in cart for checkout.", { duration: 2000 });
+      navigate("/cart");
     }
   }, [cartItems, navigate]);
 
@@ -49,32 +49,32 @@ const CartCheckoutPage = () => {
     const fetchDistricts = async () => {
       setLoadingDistricts(true);
       try {
-        const cachedDistricts = JSON.parse(localStorage.getItem('districts') || '[]');
+        const cachedDistricts = JSON.parse(localStorage.getItem("districts") || "[]");
         if (cachedDistricts.length > 0) {
           setDistricts(cachedDistricts);
           return;
         }
 
-        const response = await fetch('https://sohojapi.vercel.app/api/districts', {
+        const response = await fetch("https://sohojapi.vercel.app/api/districts", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!response.ok) throw new Error('Failed to fetch districts');
+        if (!response.ok) throw new Error("Failed to fetch districts");
         const data = await response.json();
         const districtsData = (Array.isArray(data) ? data : data.data || []).sort((a, b) =>
           a.name.localeCompare(b.name)
         );
         setDistricts(districtsData);
-        localStorage.setItem('districts', JSON.stringify(districtsData));
+        localStorage.setItem("districts", JSON.stringify(districtsData));
         if (districtsData.length === 0) {
-          toast.warn('No districts available.', { duration: 2000 });
+          toast.warn("No districts available.", { duration: 2000 });
         }
       } catch (error) {
-        const cachedDistricts = JSON.parse(localStorage.getItem('districts') || '[]');
+        const cachedDistricts = JSON.parse(localStorage.getItem("districts") || "[]");
         if (cachedDistricts.length > 0) {
           setDistricts(cachedDistricts);
-          toast.warn('Using cached districts.', { duration: 2000 });
+          toast.warn("Using cached districts.", { duration: 2000 });
         } else {
-          toast.error('Failed to load districts.', { duration: 2000 });
+          toast.error("Failed to load districts.", { duration: 2000 });
         }
       } finally {
         setLoadingDistricts(false);
@@ -90,7 +90,7 @@ const CartCheckoutPage = () => {
         setLoadingUpazilas(true);
         try {
           const cachedUpazilas = JSON.parse(
-            localStorage.getItem(`upazilas_${orderForm.districts}`) || '[]'
+            localStorage.getItem(`upazilas_${orderForm.districts}`) || "[]"
           );
           if (cachedUpazilas.length > 0) {
             setUpazilas(cachedUpazilas);
@@ -101,7 +101,7 @@ const CartCheckoutPage = () => {
             `https://sohojapi.vercel.app/api/upzilas/${orderForm.districts}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          if (!response.ok) throw new Error('Failed to fetch upazilas');
+          if (!response.ok) throw new Error("Failed to fetch upazilas");
           const data = await response.json();
           const upazilasData = (Array.isArray(data) ? data : data.data || []).sort((a, b) =>
             a.name.localeCompare(b.name)
@@ -109,17 +109,17 @@ const CartCheckoutPage = () => {
           setUpazilas(upazilasData);
           localStorage.setItem(`upazilas_${orderForm.districts}`, JSON.stringify(upazilasData));
           if (upazilasData.length === 0) {
-            toast.warn('No upazilas available for selected district.', { duration: 2000 });
+            toast.warn("No upazilas available for selected district.", { duration: 2000 });
           }
         } catch (error) {
           const cachedUpazilas = JSON.parse(
-            localStorage.getItem(`upazilas_${orderForm.districts}`) || '[]'
+            localStorage.getItem(`upazilas_${orderForm.districts}`) || "[]"
           );
           if (cachedUpazilas.length > 0) {
             setUpazilas(cachedUpazilas);
-            toast.warn('Using cached upazilas.', { duration: 2000 });
+            toast.warn("Using cached upazilas.", { duration: 2000 });
           } else {
-            toast.error('Failed to load upazilas.', { duration: 2000 });
+            toast.error("Failed to load upazilas.", { duration: 2000 });
           }
         } finally {
           setLoadingUpazilas(false);
@@ -128,7 +128,7 @@ const CartCheckoutPage = () => {
       fetchUpazilas();
     } else {
       setUpazilas([]);
-      setOrderForm((prev) => ({ ...prev, upazila: '' }));
+      setOrderForm((prev) => ({ ...prev, upazila: "" }));
     }
   }, [orderForm.districts, token]);
 
@@ -152,123 +152,83 @@ const CartCheckoutPage = () => {
     );
   };
 
-  // const handleFormSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!orderForm.districts || !orderForm.upazila || !orderForm.address) {
-  //     toast.error('Please fill in all required fields.', { duration: 2000 });
-  //     return;
-  //   }
-
-  //   const orderPayload = {
-  //     userId: user.id,
-  //     items: cartItems.map((item) => ({
-  //       type: item.type || 'ProductDetails', // Distinguish item type
-  //       quantity: item.quantity,
-  //       productDetails: {
-  //         id: item.productId,
-  //         productid: item.productId,
-  //         name: item.name,
-  //         regularprice: item.price,
-  //         specialprice: item.price,
-  //         imagea: item.imagea,
-  //       },
-  //       productid: item.productId,
-  //       productname: item.name,
-  //     })),
-  //     districts: districts.find((d) => d.id === orderForm.districts)?.name || orderForm.districts,
-  //     upazila: upazilas.find((u) => u.id === orderForm.upazila)?.name || orderForm.upazila,
-  //     address: orderForm.address,
-  //     requestDate: new Date().toISOString(),
-  //     status: 'pending',
-  //     price: calculateTotal(),
-  //   };
-
-  //   try {
-  //     const result = await dispatch(cartOrderPlace(orderPayload)).unwrap();
-  //     toast.success('Order placed successfully!', {
-  //       duration: 3000,
-  //       style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
-  //     });
-  //     navigate('/')
-  //     navigate('/order-confirmation', {
-  //       state: { order: { ...orderPayload, orderId: result.orderId || result.id || 'N/A' } },
-  //     });
-  //   } catch (error) {
-  //     // Error is handled by the useEffect above
-  //   }
-  // };
-
   const handleFormSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!orderForm.districts || !orderForm.upazila || !orderForm.address) {
-    toast.error('Please fill in all required fields.', { duration: 2000 });
-    return;
-  }
+    if (!orderForm.districts || !orderForm.upazila || !orderForm.address) {
+      toast.error("Please fill in all required fields.", { duration: 2000 });
+      return;
+    }
 
-  const orderPayload = {
-    userId: user.id,
-    items: cartItems.map((item) => ({
-      type: item.type || 'ProductDetails',
-      quantity: item.quantity,
-      productDetails: {
-        id: item.productId,
-        productid: item.productId,
+    const orderPayload = {
+      districts: districts.find((d) => d.id === orderForm.districts)?.name || orderForm.districts,
+      upazila: upazilas.find((u) => u.id === orderForm.upazila)?.name || orderForm.upazila,
+      address: orderForm.address,
+      items: cartItems.map((item) => ({
+        productId: item.productId,
         name: item.name,
-        regularprice: item.price,
-        specialprice: item.price,
+        price: parseFloat(item.price),
+        specialprice: parseFloat(item.specialprice) || parseFloat(item.price),
+        quantity: parseInt(item.quantity),
         imagea: item.imagea,
-      },
-      productid: item.productId,
-      productname: item.name,
-    })),
-    districts: districts.find((d) => d.id === orderForm.districts)?.name || orderForm.districts,
-    upazila: upazilas.find((u) => u.id === orderForm.upazila)?.name || orderForm.upazila,
-    address: orderForm.address,
-    requestDate: new Date().toISOString(),
-    status: 'pending',
-    price: calculateTotal(),
+        ccBuilder: item.ccBuilder || { id: 1, name: "CCBuildersa" },
+        item: item.item || {
+          id: item.productId,
+          name: item.name,
+          ccBuilder: { id: 1, name: "CCBuildersa" },
+        },
+      })),
+      price: calculateTotal(),
+      requestDate: new Date().toISOString(),
+      status: "PENDING",
+    };
+
+    try {
+      const result = await dispatch(cartOrderPlace(orderPayload)).unwrap();
+      toast.success("Order placed successfully!", {
+        duration: 3000,
+        style: { background: "#10B981", color: "#FFFFFF", fontWeight: "bold" },
+      });
+
+      // Construct order object for confirmation page
+      const orderForConfirmation = {
+        id: result.id || "N/A",
+        name: profile.name || "Guest",
+        email: profile.email,
+        phoneNo: profile.phoneNo || "Not provided",
+        districts: orderPayload.districts,
+        upazila: orderPayload.upazila,
+        address: orderPayload.address,
+        requestdate: result.requestdate || orderPayload.requestDate,
+        status: result.status || "PENDING",
+        price: parseFloat(orderPayload.price),
+        user: {
+          id: user.id,
+          name: profile.name || "Guest",
+          email: profile.email,
+          phoneNo: profile.phoneNo || "Not provided",
+        },
+        ccBuilderItemDitelsList: orderPayload.items.map((item) => ({
+          id: item.productId,
+          name: item.name,
+          regularprice: item.price,
+          specialprice: item.specialprice || item.price,
+          quantity: item.quantity,
+          imagea: item.imagea,
+          ccBuilder: item.ccBuilder,
+          item: item.item,
+        })),
+      };
+
+        navigate("/cart-order-confirmation", {
+          state: { order: orderForConfirmation },
+        });
+    } catch (error) {
+      // Error is handled by the useEffect above
+    }
   };
 
-  try {
-    const result = await dispatch(cartOrderPlace(orderPayload)).unwrap();
-    toast.success('Order placed successfully!', {
-      duration: 3000,
-      style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
-    });
-    navigate('/order-confirmation', {
-      state: {
-        order: {
-          id: result.id || 'N/A',
-          name: profile.name || 'Guest',
-          email: profile.email,
-          phoneNo: profile.phoneNo || 'Not provided',
-          productid: 'Multiple',
-          productname: 'Multiple Items',
-          quantity: 0, // API doesn't use quantity for cart orders
-          price: parseFloat(orderPayload.price),
-          districts: orderPayload.districts,
-          upazila: orderPayload.upazila,
-          address: orderPayload.address,
-          requestdate: result.requestdate || orderPayload.requestDate,
-          status: result.status || 'PENDING',
-          user: {
-            id: user.id,
-            name: profile.name || 'Guest',
-            email: profile.email,
-            phoneNo: profile.phoneNo || 'Not provided',
-          },
-          items: orderPayload.items, // Pass items for display
-        },
-      },
-    });
-  } catch (error) {
-    // Error is handled by the useEffect above
-  }
-};
-  
-return (
+  return (
     <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Checkout</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
@@ -280,17 +240,16 @@ return (
               {cartItems.map((item) => (
                 <div key={`${item.type}-${item.productId}`} className="flex gap-4">
                   <img
-                    src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : '/images/fallback-image.jpg'}
+                    src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : "/images/fallback-image.jpg"}
                     alt={item.name}
                     className="w-20 h-20 object-cover rounded border"
-                    onError={(e) => (e.target.src = '/images/fallback-image.jpg')}
+                    onError={(e) => (e.target.src = "/images/fallback-image.jpg")}
                   />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm sm:text-base">{item.name}</h4>
-                    <p className="text-sm text-gray-600">Type: {item.type || 'ProductDetails'}</p>
                     <p className="text-sm text-gray-600">Product ID: {item.productId}</p>
                     <p className="text-sm">Quantity: {item.quantity}</p>
-                    <p className="text-sm font-semibold">Price: Tk {item.price}</p>
+                    <p className="text-sm font-semibold">Price: Tk {item.price.toFixed(2)}</p>
                     <p className="text-sm font-semibold">Subtotal: Tk {(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
@@ -388,13 +347,13 @@ return (
                 disabled={loading || loadingDistricts || loadingUpazilas}
                 aria-label="Confirm order"
               >
-                {loading ? 'Placing Order...' : 'Confirm Order'}
+                {loading ? "Placing Order..." : "Confirm Order"}
               </button>
             </div>
           </form>
         </div>
       </div>
-      <Toaster position="top-right" toastOptions={{ className: 'text-sm' }} />
+      <Toaster position="top-right" toastOptions={{ className: "text-sm" }} />
     </div>
   );
 };

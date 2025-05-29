@@ -45,7 +45,8 @@ export const fetchCartItemsAsync = createAsyncThunk(
       console.log("\n\n\n fetchCartItems response: ->", response);
       return response.data || [];
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch cart items');
+       return rejectWithValue("");
+      // return rejectWithValue(error.response?.data?.message || 'Failed to fetch cart items');
     }
   },
   {

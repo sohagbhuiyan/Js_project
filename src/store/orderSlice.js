@@ -24,7 +24,7 @@ export const placeOrder = createAsyncThunk(
         phoneNo: profile.phoneNo || "Not provided",
       };
 
-      const price = orderData.quantity * (orderData.productDetails.specialprice || orderData.productDetails.regularprice);
+      const price = orderData.quantity * (orderData.productDetailsList.specialprice || orderData.productDetailsList.regularprice);
 
       const orderWithUser = {
         ...orderData,
@@ -80,29 +80,29 @@ export const cartOrderPlace = createAsyncThunk(
         districts: orderData.districts,
         upazila: orderData.upazila,
         address: orderData.address,
-        // items: orderData.items.map((item) => ({
-        //   type: item.type || "ProductDetails", // Default to ProductDetails if type is missing
-        //   quantity: item.quantity,
-        //   productDetails: {
-        //     id: item.productId,
-        //     productid: item.productId,
-        //     name: item.name,
-        //     regularprice: item.price,
-        //     specialprice: item.price,
-        //     imagea: item.imagea,
-        //   },
-        //   productid: item.productId,
-        //   productname: item.name,
-        // })),
-        // price: orderData.price,
-        // requestDate: orderData.requestDate,
-        // status: orderData.status || "pending",
+        items: orderData.items.map((item) => ({
+          type: item.type || "ProductDetails", // Default to ProductDetails if type is missing
+          quantity: item.quantity,
+          productDetailsList: {
+            id: item.productId,
+            productid: item.productId,
+            name: item.name,
+            regularprice: item.price,
+            specialprice: item.price,
+            imagea: item.imagea,
+          },
+          productid: item.productId,
+          productname: item.name,
+        })),
+        price: orderData.price,
+        requestDate: orderData.requestDate,
+        status: orderData.status || "pending",
       };
 
       console.log("Sending cart order payload to backend:", cartOrderPayload);
 
       const response = await axios.post(
-        `${API_BASE_URL}/api/orders/AddToCart/save?userId=${userId}`,
+        `${API_BASE_URL}/api/orders/AddToCart/save/${userId}?userId=${userId}`,
         cartOrderPayload,
         {
           headers: {
@@ -164,28 +164,22 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
-// Fetch All Orders (for admin)
+// Fetch All Orders (for admin, no authentication)
 export const fetchOrders = createAsyncThunk(
   "order/fetchAll",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const token = state.auth.token || localStorage.getItem("authToken");
-      const role = state.auth.role;
-
-      if (role !== "admin") {
-        return rejectWithValue("Admin access required.");
-      }
-
-      const response = await axios.get(`${API_BASE_URL}/api/orders/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(`${API_BASE_URL}/api/orders/all`);
 
       console.log("Fetched all orders:", response.data);
 
-      return response.data;
+      // Ensure the response includes product name, price, and total
+      return response.data.map(order => ({
+        ...order,
+        productName: order.items?.[0]?.productname || order.productDetailsList?.name || "Unknown Product",
+        price: order.price || 0,
+        total: order.price || 0, // Assuming total is same as price unless backend provides a separate total
+      }));
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Failed to fetch orders";
       console.error("Fetch orders error:", error.response?.data);

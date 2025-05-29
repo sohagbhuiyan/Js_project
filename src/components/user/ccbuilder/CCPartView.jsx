@@ -454,26 +454,28 @@ const CCPartView = () => {
     }
     const product = {
       id: currentItem.id,
-      productid: currentItem.id,
+      productid: currentItem.id.toString(), // Use id as productid
       name: currentItem.name,
-      quantity: currentItem.quantity,
+      quantity: quantity, // Use user-selected quantity
       regularprice: currentItem.regularprice,
       specialprice: currentItem.specialprice,
-      title: currentItem.name,
-      details: currentItem.description || "No description available",
-      specification: {
-        performance: currentItem.performance || "N/A",
-        ability: currentItem.ability || "N/A",
-        benefits: currentItem.benefits || "N/A",
-        moralqualities: currentItem.moralqualities || "N/A",
-        opportunity: currentItem.opportunity || "N/A",
-        warranty: currentItem.warranty ? `${currentItem.warranty} years` : "N/A",
-      },
       imagea: currentItem.imagea,
-      ccBuilder: currentItem.ccBuilder,
+      description: currentItem.description || "No description available",
+      performance: currentItem.performance || "N/A",
+      ability: currentItem.ability || "N/A",
+      benefits: currentItem.benefits || "N/A",
+      moralqualities: currentItem.moralqualities || "N/A",
+      opportunity: currentItem.opportunity || "N/A",
+      warranty: currentItem.warranty ? `${currentItem.warranty} years` : "N/A",
+      ccBuilder: currentItem.ccBuilder, // Category equivalent
       item: currentItem.item,
     };
-    navigate("/checkout", { state: { product, quantity } });
+    navigate("/checkout", {
+      state: {
+        products: [product],
+        orderType: "ccpart", // Indicate CC Builder order
+      },
+    });
   };
 
   const handleAddToCart = () => {
@@ -603,14 +605,14 @@ const CCPartView = () => {
         {/* Item Image */}
         <div className="flex-1 flex justify-center">
           <div
-            className="relative w-md md:w-full max-w-[400px] h-[200px] sm:h-[300px] md:h-[400px] border border-gray-400 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+            className="relative w-full max-w-[400px] h-[200px] sm:h-[300px] md:h-[400px] border border-gray-400 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           >
             <img
               src={mainImage}
               alt={currentItem.name}
-              className="w-sm md:w-full px-4 h-full object-contain"
+              className="w-full h-full object-contain"
               onError={(e) => (e.target.src = FALLBACK_IMAGE)}
             />
             <div className="absolute inset-0 cursor-zoom-in" style={zoomStyle} />
@@ -683,7 +685,7 @@ const CCPartView = () => {
               {currentItem.quantity > 0 ? `${currentItem.quantity} available` : "Out of Stock"}
             </p>
           </div>
-          <div className="flex px-4 items-center gap-3">
+          <div className="flex items-center gap-3">
             <button
               className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
               onClick={decreaseQuantity}

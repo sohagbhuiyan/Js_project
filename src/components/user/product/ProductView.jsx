@@ -84,7 +84,15 @@ const ProductView = () => {
       navigate("/login", { state: { from: `/product/${id}` } });
       return;
     }
-    navigate("/checkout", { state: { product: currentProduct, quantity } });
+    // Pass product as an array to match CheckoutPage expectation
+    navigate("/checkout", {
+      state: {
+        products: [{
+          ...currentProduct,
+          quantity, // Include selected quantity
+        }],
+      },
+    });
   }, [user, profile, token, currentProduct, quantity, navigate, id]);
 
   // Render loading, error, or not found states

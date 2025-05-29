@@ -70,6 +70,7 @@ import CCPartView from './components/user/ccbuilder/CCPartView';
 import UpdateMeagaMenu from './components/admin/products/UpdateMeagaMenu';
 import AddMedia from './components/admin/footer/AddMedia';
 import AddContactUs from './components/admin/footer/AddContactUs';
+import CartOrderConfirmation from './components/user/product/CartOrderConfirmation';
 // import EditProduct from './components/admin/products/EditProduct';
 
 function App() { 
@@ -124,7 +125,8 @@ function App() {
           <Route element={<UserProtectedRoute />}>
             <Route path="/profile" element={<ProfileView />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
-            <Route path="/cart-checkout" element={<CartCheckoutPage/>} />/
+            <Route path="/cart-checkout" element={<CartCheckoutPage/>} />
+            <Route path="/cart-order-confirmation" element={<CartOrderConfirmation />} />;
             <Route path="/view-orders" element={<UserOrders />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />

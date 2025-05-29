@@ -7,9 +7,7 @@ export const fetchPCComponents = createAsyncThunk(
   "pcBuilder/fetchPCComponents",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/PcBuilder/Allget`, {
-      });
-
+      const response = await axios.get(`${API_BASE_URL}/api/PcBuilder/Allget`);
       const components = response.data;
       if (!Array.isArray(components)) {
         return rejectWithValue("Invalid response: Components data is not an array.");
@@ -30,11 +28,7 @@ export const fetchPCPartsByBuilderId = createAsyncThunk(
   "pcBuilder/fetchPCPartsByBuilderId",
   async (id, { rejectWithValue }) => {
     try {
-
-      const response = await axios.get(`${API_BASE_URL}/api/PcForPartAdd/getPcBuilder/Byid/${id}`, {
-       
-      });
-
+      const response = await axios.get(`${API_BASE_URL}/api/PcForPartAdd/getPcBuilder/Byid/${id}`);
       const parts = response.data;
       if (!Array.isArray(parts)) {
         return rejectWithValue("Invalid response: Parts data is not an array.");
@@ -55,11 +49,7 @@ export const fetchPCParts = createAsyncThunk(
   "pcBuilder/fetchPCParts",
   async (_, { rejectWithValue }) => {
     try {
-   
-      const response = await axios.get(`${API_BASE_URL}/api/PcForPartAdd/get`, {
-       
-      });
-
+      const response = await axios.get(`${API_BASE_URL}/api/PcForPartAdd/get`);
       const parts = response.data;
       if (!Array.isArray(parts)) {
         return rejectWithValue("Invalid response: Parts data is not an array.");
@@ -80,9 +70,7 @@ export const fetchPCPartsById = createAsyncThunk(
   "pcBuilder/fetchPCPartsById",
   async (id, { rejectWithValue }) => {
     try {
-   
-      const response = await axios.get(`${API_BASE_URL}/api/PcForPartAdd/get/${id}`, {
-      });
+      const response = await axios.get(`${API_BASE_URL}/api/PcForPartAdd/get/${id}`);
       const part = response.data;
       if (!part || typeof part !== "object") {
         return rejectWithValue("Invalid response: Part data is not valid.");
@@ -162,26 +150,52 @@ export const addPCPart = createAsyncThunk(
     }
   }
 );
+
+// Async thunk to place a PC part order
+export const placePCPartOrder = createAsyncThunk(
+  "pcBuilder/placePCPartOrder",
+  async (orderData, { rejectWithValue, getState }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem("authToken");
+      if (!token) return rejectWithValue("No authentication token found.");
+
+      const response = await axios.post(`${API_BASE_URL}/api/pcforpart/orders/save`, orderData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Place PC part order error:", error.response?.data);
+      return rejectWithValue(error.response?.data?.message || "Failed to place PC part order");
+    }
+  }
+);
+
 const pcbuilderSlice = createSlice({
   name: "pcBuilder",
   initialState: {
     components: [],
     parts: [],
     categoryParts: [],
-    currentPart: null, // Added to store single part
-    loading: { component: false, part: false, categoryParts: false },
-    error: { component: null, part: null, categoryParts: null },
-    successMessage: { component: null, part: null },
+    currentPart: null,
+    loading: { component: false, part: false, categoryParts: false, order: false },
+    error: { component: null, part: null, categoryParts: null, order: null },
+    successMessage: { component: null, part: null, order: null },
   },
   reducers: {
     clearPCBError: (state) => {
       state.error.component = null;
       state.error.part = null;
       state.error.categoryParts = null;
+      state.error.order = null;
     },
     clearPCBSuccess: (state) => {
       state.successMessage.component = null;
       state.successMessage.part = null;
+      state.successMessage.order = null;
     },
   },
   extraReducers: (builder) => {
@@ -229,11 +243,11 @@ const pcbuilderSlice = createSlice({
       .addCase(fetchPCPartsById.pending, (state) => {
         state.loading.part = true;
         state.error.part = null;
-        state.currentPart = null; // Reset currentPart
+        state.currentPart = null;
       })
       .addCase(fetchPCPartsById.fulfilled, (state, action) => {
         state.loading.part = false;
-        state.currentPart = action.payload; // Store in currentPart
+        state.currentPart = action.payload;
       })
       .addCase(fetchPCPartsById.rejected, (state, action) => {
         state.loading.part = false;
@@ -269,6 +283,20 @@ const pcbuilderSlice = createSlice({
         state.loading.part = false;
         state.error.part = action.payload;
       })
+      // Place PC Part Order
+      .addCase(placePCPartOrder.pending, (state) => {
+        state.loading.order = true;
+        state.error.order = null;
+        state.successMessage.order = null;
+      })
+      .addCase(placePCPartOrder.fulfilled, (state, action) => {
+        state.loading.order = false;
+        state.successMessage.order = "PC part order placed successfully!";
+      })
+      .addCase(placePCPartOrder.rejected, (state, action) => {
+        state.loading.order = false;
+        state.error.order = action.payload;
+      });
   },
 });
 

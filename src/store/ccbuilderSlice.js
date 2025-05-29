@@ -402,6 +402,28 @@ export const addCCItemToCartAsync = createAsyncThunk(
     }
   }
 );
+// Async thunk to place a CC Builder order
+export const placeCCPartOrder = createAsyncThunk(
+  "ccBuilder/placeCCPartOrder",
+  async (orderData, { rejectWithValue, getState }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem("authToken");
+      if (!token) return rejectWithValue("No authentication token found.");
+
+      const response = await axios.post(`${API_BASE_URL}/api/ccitem/Bulder/orders/save`, orderData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Place CC part order error:", error.response?.data);
+      return rejectWithValue(error.response?.data?.message || "Failed to place CC part order");
+    }
+  }
+);
 
 const ccbuilderSlice = createSlice({
   name: "ccBuilder",
@@ -640,6 +662,19 @@ const ccbuilderSlice = createSlice({
       .addCase(addCCItemToCartAsync.rejected, (state, action) => {
         state.loading.cart = false;
         state.error.cart = action.payload;
+      }) // Place CC Part Order
+      .addCase(placeCCPartOrder.pending, (state) => {
+        state.loading.order = true;
+        state.error.order = null;
+        state.successMessage.order = null;
+      })
+      .addCase(placeCCPartOrder.fulfilled, (state, action) => {
+        state.loading.order = false;
+        state.successMessage.order = "CC part order placed successfully!";
+      })
+      .addCase(placeCCPartOrder.rejected, (state, action) => {
+        state.loading.order = false;
+        state.error.order = action.payload;
       });
   },
 });

@@ -1,18 +1,34 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../../../store/api";
 
 const OrderConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { order } = location.state || {};
+  const { user, profile } = useSelector((state) => state.auth);
 
   if (!order) {
     navigate("/");
     return null;
   }
 
+  // Format date
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+    } catch {
+      return 'Invalid Date';
+    }
+  };
+
+  // Determine status color
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending":
+      case "PENDING":
         return "bg-yellow-100 text-yellow-800";
       case "Processing":
         return "bg-blue-100 text-blue-800";
@@ -27,29 +43,112 @@ const OrderConfirmation = () => {
     }
   };
 
+  // Determine items list (productDetailsList, pcForPartAddList, or ccBuilderItemDitelsList)
+  const itemsList =
+    order.productDetailsList ||
+    order.pcForPartAddList ||
+    order.ccBuilderItemDitelsList ||
+    [];
+
+  // Calculate total price
+  const totalPrice = itemsList.reduce((sum, item) => {
+    return sum + (item.specialprice || item.regularprice || 0) * (item.quantity || 1);
+  }, 0) || 0;
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Order Confirmation</h2>
       <p className="text-lg mb-4">Thank you for your order!</p>
       <div className="border p-4 rounded-md bg-gray-50">
-        <h3 className="text-lg font-semibold mb-4">Order Details</h3>
-        {order.orderId && <p><strong>Order ID:</strong> {order.orderId}</p>}
-        <p><strong>Product:</strong> {order.productname}</p>
-        <p><strong>Quantity:</strong> {order.quantity}</p>
-        <p><strong>Unit Price:</strong> Tk {order.productDetails.specialprice || order.productDetails.regularprice}</p>
-        <p><strong>Total Price:</strong> Tk {(order.productDetails.specialprice || order.productDetails.regularprice) * order.quantity}</p>
-        <p><strong>Shipping Address:</strong> {order.address}, {order.upazila}, {order.districts}</p>
-        <p><strong>Order Date:</strong> {new Date(order.requestDate).toLocaleString()}</p>
-        <p><strong>Status:</strong> <span className={`px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}>{order.status || "Pending"}</span></p>
-        {order.user && (
-          <div className="mt-4">
-            <h4 className="text-md font-semibold">User Information</h4>
-            <p><strong>Name:</strong> {order.user.name}</p>
-            <p><strong>Email:</strong> {order.user.email}</p>
-            <p><strong>Phone:</strong> {order.user.phoneNo}</p>
-          </div>
+        {/* Order Summary */}
+        <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+        {order.orderId && (
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Order ID:</span> {order.orderId}
+          </p>
         )}
+        <p className="text-sm text-gray-600">
+          <span className="font-medium">Order Date:</span> {formatDate(order.requestdate || new Date())}
+        </p>
+        <p className="text-sm text-gray-600">
+          <span className="font-medium">Status:</span>{' '}
+          <span className={`px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}>
+            {order.status || "PENDING"}
+          </span>
+        </p>
+
+        {/* Shipping Information */}
+        <div className="mt-4">
+          <h4 className="text-base font-semibold mb-2">Shipping Information</h4>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">District:</span> {order.districts || 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Upazila:</span> {order.upazila || 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Address:</span> {order.address || 'N/A'}
+          </p>
+        </div>
+
+        {/* Order Items */}
+        <div className="mt-6">
+          <h4 className="text-base font-semibold mb-2">Order Items</h4>
+          {itemsList.length > 0 ? (
+            <div className="space-y-4">
+              {itemsList.map((item, index) => (
+                <div key={index} className="flex gap-4 border-b pb-4">
+                  <img
+                    src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : '/images/fallback-image.jpg'}
+                    alt={item.name || "Item"}
+                    className="w-20 h-20 object-cover rounded border"
+                    onError={(e) => (e.target.src = '/images/fallback-image.jpg')}
+                  />
+                  <div className="flex-1">
+                    <h5 className="font-medium text-sm sm:text-base">{item.name || item.ccBuilder?.name || item.item?.name || 'N/A'}</h5>
+                    <p className="text-sm text-gray-600">ID: {item.productid || item.id || 'N/A'}</p>
+                    <p className="text-sm text-gray-600">Quantity: {item.quantity || 1}</p>
+                    <p className="text-sm text-gray-600">
+                      Price: Tk {(item.specialprice || item.regularprice || 0).toFixed(2)}
+                    </p>
+                    <p className="text-sm font-semibold">
+                      Subtotal: Tk {((item.specialprice || item.regularprice || 0) * (item.quantity || 1)).toFixed(2)}
+                    </p>
+                    {(item.catagory || item.pcbuilder || item.ccBuilder) && (
+                      <p className="text-sm text-gray-600">
+                        Category: {(item.catagory || item.pcbuilder || item.ccBuilder)?.name || 'N/A'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">No item details available.</p>
+          )}
+          <p className="text-base font-semibold mt-4">
+            Total: Tk {totalPrice.toFixed(2)}
+          </p>
+        </div>
+
+        {/* User Information */}
+        <div className="mt-4">
+          <h4 className="text-base font-semibold mb-2">User Information</h4>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Name:</span>{' '}
+            {profile?.name || user?.name || 'Guest'}
+          </p>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Email:</span>{' '}
+            {profile?.email || user?.email || 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Phone:</span>{' '}
+            {profile?.phoneNo || user?.phoneNo || 'Not provided'}
+          </p>
+        </div>
       </div>
+
       <div className="mt-6 flex justify-end gap-4">
         <button
           className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
@@ -69,7 +168,6 @@ const OrderConfirmation = () => {
 };
 
 export default OrderConfirmation;
-
 // import { useLocation, useNavigate } from 'react-router-dom';
 // import { useSelector } from 'react-redux';
 // import { API_BASE_URL } from '../../../store/api';

@@ -40,7 +40,7 @@ const ViewProduct = () => {
       }
     });
   };
-
+}
   return (
     <Box className="p-2 bg-gray-50 min-h-screen">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>

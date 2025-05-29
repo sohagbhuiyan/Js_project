@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
 import { placeOrder } from "../../../store/orderSlice";
+import { placePCPartOrder } from "../../../store/pcbuilderSlice";
+import { placeCCPartOrder } from "../../../store/ccbuilderSlice";
 import { API_BASE_URL } from "../../../store/api";
 
 const CheckoutPage = () => {
@@ -10,7 +12,7 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, profile, token } = useSelector((state) => state.auth);
-  const { product, quantity } = location.state || {};
+  const { products, orderType = "product" } = location.state || {}; // Default to product order
   const [orderForm, setOrderForm] = useState({
     districts: "",
     upazila: "",
@@ -28,28 +30,25 @@ const CheckoutPage = () => {
     return null;
   }
 
-  if (!product) {
-    toast.error("No product selected.", { duration: 1000 });
+  if (!products || !Array.isArray(products) || products.length === 0) {
+    toast.error("No items selected.", { duration: 1000 });
     navigate("/");
     return null;
   }
 
-  // Fetch districts on component mount
+  // Fetch districts
   useEffect(() => {
     const fetchDistricts = async () => {
       setLoadingDistricts(true);
       try {
         const response = await fetch("https://sohojapi.vercel.app/api/districts");
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
-     
         const districtsData = (Array.isArray(data) ? data : data.data || []).sort((a, b) =>
           a.name.localeCompare(b.name)
         );
         setDistricts(districtsData);
-        localStorage.setItem("districts", JSON.stringify(districtsData)); // Cache districts
+        localStorage.setItem("districts", JSON.stringify(districtsData));
         if (districtsData.length === 0) {
           toast.error("No districts available.", { duration: 2000 });
         }
@@ -69,22 +68,20 @@ const CheckoutPage = () => {
     fetchDistricts();
   }, []);
 
-  // Fetch upazilas when district changes
+  // Fetch upazilas
   useEffect(() => {
     if (orderForm.districts) {
       const fetchUpazilas = async () => {
         setLoadingUpazilas(true);
         try {
           const response = await fetch(`https://sohojapi.vercel.app/api/upzilas/${orderForm.districts}`);
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
           const data = await response.json();
           const upazilasData = (Array.isArray(data) ? data : data.data || []).sort((a, b) =>
             a.name.localeCompare(b.name)
           );
           setUpazilas(upazilasData);
-          localStorage.setItem(`upazilas_${orderForm.districts}`, JSON.stringify(upazilasData)); // Cache upazilas
+          localStorage.setItem(`upazilas_${orderForm.districts}`, JSON.stringify(upazilasData));
           if (upazilasData.length === 0) {
             toast.warn("No upazilas available for selected district.", { duration: 2000 });
           }
@@ -110,7 +107,6 @@ const CheckoutPage = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-  
     setOrderForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -123,68 +119,41 @@ const CheckoutPage = () => {
       return;
     }
 
-    const requestDate = new Date().toISOString();
+    const totalQuantity = products.reduce((sum, p) => sum + (p.quantity || 1), 0);
+    const itemsList = products.map((product) => ({ id: product.id }));
+
     const orderPayload = {
-      quantity,
-      catagory: {
-        id: product.catagory.id,
-        name: product.catagory.name,
-      },
-      product: {
-        id: product.product.id,
-        name: product.product.name,
-        catagory: {
-          id: product.catagory.id,
-          name: product.catagory.name,
-        },
-      },
-      productDetails: {
-        id: product.id,
-        productid: product.productid,
-        name: product.name,
-        quantity: product.quantity,
-        regularprice: product.regularprice,
-        specialprice: product.specialprice,
-        title: product.title,
-        details: product.details,
-        specification: product.specification,
-        imagea: product.imagea,
-        imageb: product.imageb,
-        imagec: product.imagec,
-        catagory: {
-          id: product.catagory.id,
-          name: product.catagory.name,
-        },
-        product: {
-          id: product.product.id,
-          name: product.product.name,
-          catagory: {
-            id: product.catagory.id,
-            name: product.catagory.name,
-          },
-        },
-      },
-      productid: product.productid,
-      productname: product.name,
+      quantity: totalQuantity,
       districts: districts.find((d) => d.id === orderForm.districts)?.name || orderForm.districts,
       upazila: upazilas.find((u) => u.id === orderForm.upazila)?.name || orderForm.upazila,
       address: orderForm.address,
-      requestDate,
-      userId: user.id,
-      status: "Pending",
+      user: { id: user.id },
+      ...(orderType === "pcpart"
+        ? { pcForPartAddList: itemsList }
+        : orderType === "ccpart"
+        ? { ccBuilderItemDitelsList: itemsList }
+        : { productDetailsList: itemsList }),
     };
 
     console.log("Submitting order payload:", orderPayload);
 
-    dispatch(placeOrder(orderPayload))
+    const placeOrderAction =
+      orderType === "pcpart"
+        ? placePCPartOrder
+        : orderType === "ccpart"
+        ? placeCCPartOrder
+        : placeOrder;
+
+    dispatch(placeOrderAction(orderPayload))
       .unwrap()
       .then((response) => {
-     
-      toast.success("Order placed successfully!", {
-      duration: 3000,
-      style: { background: "#10B981", color: "#FFFFFF", fontWeight: "bold" },
-    });
-        navigate("/order-confirmation", { state: { order: { ...orderPayload, orderId: response.orderId || response.id } }});
+        toast.success("Order placed successfully!", {
+          duration: 3000,
+          style: { background: "#10B981", color: "#FFFFFF", fontWeight: "bold" },
+        });
+        navigate("/order-confirmation", {
+          state: { order: { ...response, orderId: response.id } },
+        });
       })
       .catch((error) => {
         console.error("Order submission failed:", error);
@@ -199,24 +168,36 @@ const CheckoutPage = () => {
         {/* Order Summary */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-          <div className="flex gap-4">
-            <img
-              src={`${API_BASE_URL}/images/${product.imagea}`}
-              alt={product.name}
-              className="w-24 h-24 object-cover border"
-            />
-            <div>
-              <h4 className="font-medium">{product.name}</h4>
-              <p className="text-sm text-gray-600">Product ID: {product.productid}</p>
-              <p className="text-sm">Quantity: {quantity}</p>
-              <p className="text-sm font-bold">
-                Price: Tk {product.specialprice || product.regularprice}
-              </p>
-              <p className="text-sm font-bold">
-                Total: Tk {(product.specialprice || product.regularprice) * quantity}
-              </p>
+          {products.map((product, index) => (
+            <div key={index} className="flex gap-4 mb-4">
+              <img
+                src={`${API_BASE_URL}/images/${product.imagea}`}
+                alt={product.name}
+                className="w-24 h-24 object-cover border"
+                onError={(e) => (e.target.src = '/images/fallback-image.jpg')}
+              />
+              <div>
+                <h4 className="font-medium">{product.name}</h4>
+                <p className="text-sm text-gray-600">ID: {product.productid}</p>
+                <p className="text-sm">Quantity: {product.quantity || 1}</p>
+                <p className="text-sm font-bold">
+                  Price: Tk {(product.specialprice || product.regularprice).toFixed(2)}
+                </p>
+                <p className="text-sm font-bold">
+                  Subtotal: Tk {((product.specialprice || product.regularprice) * (product.quantity || 1)).toFixed(2)}
+                </p>
+              </div>
             </div>
-          </div>
+          ))}
+          <p className="text-lg font-bold mt-4">
+            Grand Total: Tk{" "}
+            {products
+              .reduce(
+                (sum, p) => sum + (p.specialprice || p.regularprice || 0) * (p.quantity || 1),
+                0
+              )
+              .toFixed(2)}
+          </p>
         </div>
 
         {/* Shipping Address Form */}
@@ -305,7 +286,7 @@ const CheckoutPage = () => {
           </form>
         </div>
       </div>
-      <Toaster position="top-right"/>
+      <Toaster position="top-right" />
     </div>
   );
 };

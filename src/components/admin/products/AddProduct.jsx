@@ -14,13 +14,13 @@ import {
 } from '@mui/material';
 import { addProductDetails } from '../../../store/productSlice';
 import { API_BASE_URL } from '../../../store/api';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const AddProduct = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { loading, error, successMessage } = useSelector((state) => state.products);
-
+  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
+  const navigate = useNavigate(); 
   const [formState, setFormState] = useState({
     productid: '',
     name: '',
@@ -34,7 +34,7 @@ const AddProduct = () => {
     catagory: { id: '' },
     product: { id: '' },
     brand: { id: '' },
-    productItem: { id: '' },
+    productItem: { id: '' }, // Changed from productitemname to productItem
   });
 
   const [imagea, setImageA] = useState(null);
@@ -172,14 +172,14 @@ const AddProduct = () => {
       const formDataObject = {
         productDetails: {
           ...formState,
-          productItem: { id: parseInt(formState.productItem.id) },
+          productItem: { id: parseInt(formState.productItem.id) }, // Ensure ID is integer
         },
         imagea,
         imageb,
         imagec,
       };
 
-      await dispatch(addProductDetails(formDataObject)).unwrap();
+      await dispatch(addProductDetails({ formDataObject, token })).unwrap();
       alert('Product added successfully!');
       setFormState({
         productid: '',
@@ -201,7 +201,7 @@ const AddProduct = () => {
       setImageC(null);
       setMainImagePreview(null);
       setAdditionalImagesPreviews([null, null]);
-      navigate('/admin/products/view-product');
+      navigate("/admin/products/add-product")
     } catch (error) {
       console.error('Error adding product:', error);
       alert('Failed to add product: ' + (error || 'Unknown error'));

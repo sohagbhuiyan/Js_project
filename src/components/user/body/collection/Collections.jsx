@@ -530,11 +530,11 @@ const Collections = ({ isHomePage = false, sx }) => {
   return (
     <Box
       sx={{
-        py: { xs: 3, md: 5 },
+        py: { xs: 1, md: 1 },
         px: { xs: 1, md: 2 },
         bgcolor: "#ffffff",
         borderRadius: "12px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
         ...sx,
       }}
     >
@@ -558,7 +558,7 @@ const Collections = ({ isHomePage = false, sx }) => {
                 transition: "all 0.3s ease-in-out",
               }}
             >
-              <FaFilter size={20} />
+              <FaFilter size={15} />
             </Fab>
           </Fade>
         )}
@@ -572,7 +572,7 @@ const Collections = ({ isHomePage = false, sx }) => {
               onClose={() => setIsFilterOpen(false)}
               sx={{
                 "& .MuiDrawer-paper": {
-                  width: { xs: "80vw", sm: "60vw", md: "40vw" },
+                  width: { xs: "80vw", sm: "20vw", md: "40vw" },
                   maxWidth: "200px",
                   bgcolor: "#fafafa",
                   p: 2,
@@ -698,7 +698,7 @@ const Collections = ({ isHomePage = false, sx }) => {
 
 // Updated FilterForm Component
 const FilterForm = ({ filters, handleChange, handleApplyFilters, handleResetFilters, brands, productItems, productData }) => (
-  <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 240 }}>
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 220 }}>
     <FormControl fullWidth size="small">
       <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>Brand</InputLabel>
       <Select
@@ -807,7 +807,7 @@ const FilterForm = ({ filters, handleChange, handleApplyFilters, handleResetFilt
         fullWidth
         disabled={!Object.values(filters).some((v) => v)}
         sx={{
-          fontSize: "0.9rem",
+          fontSize: "0.5rem",
           py: 1,
           bgcolor: "#1976d2",
           borderRadius: "8px",
@@ -816,7 +816,7 @@ const FilterForm = ({ filters, handleChange, handleApplyFilters, handleResetFilt
           transition: "all 0.2s ease-in-out",
         }}
       >
-        Apply Filters
+       Filters
       </Button>
       <Button
         variant="outlined"
@@ -824,7 +824,7 @@ const FilterForm = ({ filters, handleChange, handleApplyFilters, handleResetFilt
         onClick={handleResetFilters}
         fullWidth
         sx={{
-          fontSize: "0.9rem",
+          fontSize: "0.5rem",
           py: 1,
           borderColor: "#f50057",
           color: "#f50057",

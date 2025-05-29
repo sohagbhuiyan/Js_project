@@ -31,7 +31,7 @@ const Breadcrumb = () => {
                 </Link>
               )}
               {index < breadcrumbs.length - 1 && (
-                <span className="mx-2 text-gray-400">-></span>
+                <span className="mx-2 text-gray-400">-&gt;</span>
               )}
             </li>
           ))}
@@ -62,7 +62,7 @@ const UserOrders = () => {
     dispatch(fetchUserOrdersById(user.id))
       .unwrap()
       .catch((error) => {
-        toast.error(`Failed to load orders: ${error}`, {
+        toast.error(`Failed to load orders: ${error.message || error}`, {
           duration: 4000,
           style: { background: "#EF4444", color: "#FFFFFF", fontWeight: "bold" },
         });
@@ -152,54 +152,57 @@ const UserOrders = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {userOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition duration-100">
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-blue-600 hover:underline font-medium"
-                      >
-                        #{order.id}
-                      </button>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      {order.productDetails?.name || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      {order.quantity || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      ৳{(order.quantity * (order.productDetails?.specialprice || order.productDetails?.regularprice))?.toLocaleString() || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 text-sm">
-                      <div className="text-gray-900">{order.address || "N/A"}</div>
-                      <div className="text-xs text-gray-500">
-                        {order.upazila}, {order.districts}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      {formatDate(order.requestdate)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
-                          order.status
-                        )}`}
-                      >
-                        {order.status || "pending"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-blue-600 hover:text-blue-800 p-1 transition duration-150"
-                        title="View Details"
-                      >
-                        <FiEye className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {userOrders.map((order) => {
+                  const product = order.ccBuilderItemDitelsList?.[0] || {};
+                  return (
+                    <tr key={order.id} className="hover:bg-gray-50 transition duration-100">
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          #{order.id}
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        {product.name || order.productname || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        {order.quantity || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        ৳{(order.quantity * (product.specialprice || product.regularprice || order.price))?.toLocaleString() || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 text-sm">
+                        <div className="text-gray-900">{order.address || "N/A"}</div>
+                        <div className="text-xs text-gray-500">
+                          {order.upazila}, {order.districts}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        {formatDate(order.requestdate)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                            order.status
+                          )}`}
+                        >
+                          {order.status || "PENDING"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="text-blue-600 hover:text-blue-800 p-1 transition duration-150"
+                          title="View Details"
+                        >
+                          <FiEye className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -237,15 +240,15 @@ const UserOrders = () => {
                 </h4>
                 <p>
                   <span className="font-medium">Product ID:</span>{" "}
-                  {selectedOrder.productDetails?.productid || "N/A"}
+                  {selectedOrder.productid || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Name:</span>{" "}
-                  {selectedOrder.productDetails?.name || "N/A"}
+                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.name || selectedOrder.productname || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Category:</span>{" "}
-                  {selectedOrder.productDetails?.catagory?.name || "N/A"}
+                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.ccBuilder?.name || "N/A"}
                 </p>
               </div>
 
@@ -279,7 +282,7 @@ const UserOrders = () => {
                 </h4>
                 <p>
                   <span className="font-medium">Unit Price:</span>{" "}
-                  ৳{(selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice)?.toLocaleString() || "N/A"}
+                  ৳{(selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.price)?.toLocaleString() || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Quantity:</span>{" "}
@@ -287,7 +290,7 @@ const UserOrders = () => {
                 </p>
                 <p>
                   <span className="font-medium">Total Price:</span>{" "}
-                  ৳{(selectedOrder.quantity * (selectedOrder.productDetails?.specialprice || selectedOrder.productDetails?.regularprice))?.toLocaleString() || "N/A"}
+                  ৳{(selectedOrder.quantity * (selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.price))?.toLocaleString() || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Status:</span>{" "}
@@ -296,7 +299,7 @@ const UserOrders = () => {
                       selectedOrder.status
                     )}`}
                   >
-                    {selectedOrder.status || "pending"}
+                    {selectedOrder.status || "PENDING"}
                   </span>
                 </p>
               </div>
@@ -307,10 +310,14 @@ const UserOrders = () => {
                   Product Specifications
                 </h4>
                 <p className="text-gray-600">
-                  {selectedOrder.productDetails?.details || "No details available"}
+                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.description || "No description available"}
                 </p>
                 <p className="text-gray-600">
-                  {selectedOrder.productDetails?.specification ||
+                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.performance ||
+                    selectedOrder.ccBuilderItemDitelsList?.[0]?.ability ||
+                    selectedOrder.ccBuilderItemDitelsList?.[0]?.benefits ||
+                    selectedOrder.ccBuilderItemDitelsList?.[0]?.moralqualities ||
+                    selectedOrder.ccBuilderItemDitelsList?.[0]?.opportunity ||
                     "No specifications available"}
                 </p>
               </div>

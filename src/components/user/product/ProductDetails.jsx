@@ -83,9 +83,9 @@ const ProductDetails = () => {
           <div className="text-sm md:text-lg space-y-1">
             <p><strong>Title:</strong> {currentProduct.title}</p>
             <p><strong>Model:</strong> {currentProduct.name}</p>
-            <p><strong>Category:</strong> {currentProduct.catagory.name}</p>
+            <p><strong>Category:</strong> {currentProduct.catagory?.name}</p>
             <p><strong>Item:</strong> {currentProduct.productItem?.productitemname || "items"}</p>
-            <p><strong>Brand:</strong> {currentProduct.brand?.brandname || currentProduct.catagory.name}</p>
+            <p><strong>Brand:</strong> {currentProduct.brand?.brandname || currentProduct.catagory?.name}</p>
             <p><strong>Specification:</strong> {formatSpecification(currentProduct.specification)}</p>
           </div>
         ) : (

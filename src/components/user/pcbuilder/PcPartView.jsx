@@ -1,4 +1,3 @@
-// src/components/PcPartView.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -71,22 +70,25 @@ const PcPartView = () => {
     // Format part data to match CheckoutPage's expected product structure
     const product = {
       id: currentPart.id,
-      productid: currentPart.id, // Assuming part id as productid
+      productid: currentPart.id.toString(), // Use id as productid
       name: currentPart.name,
-      quantity: currentPart.quantity,
+      quantity: quantity, // Use user-selected quantity
       regularprice: currentPart.regularprice,
       specialprice: currentPart.specialprice,
-      title: currentPart.name, // Use name as title
-      details: currentPart.description || "No description available",
-      specification: {
-        performance: currentPart.performance || "N/A",
-        ability: currentPart.ability || "N/A",
-      },
       imagea: currentPart.imagea,
-
+      description: currentPart.description || "No description available",
+      performance: currentPart.performance || "N/A",
+      ability: currentPart.ability || "N/A",
+      pcbuilder: currentPart.pcbuilder, // Category equivalent
     };
-    navigate("/checkout", { state: { product, quantity } });
+    navigate("/checkout", {
+      state: {
+        products: [product],
+        orderType: "pcpart", // Indicate PC part order
+      },
+    });
   };
+
   const handleAddToCart = () => {
     if (!user?.id || !profile?.email || !token) {
       toast.error("Please log in to add to cart.", { position: "top-right", duration: 1000 });
@@ -168,7 +170,6 @@ const PcPartView = () => {
 
   if (error.part) {
     return (
-      
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4">{error.part}</div>
         <button
@@ -195,114 +196,112 @@ const PcPartView = () => {
 
   return (
     <>
-    <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-      {/* Part Image */}
-      <div className="flex-1 flex justify-center">
-        <div
-          className="relative w-full max-w-[400px] h-[200px] sm:h-[300px] md:h-[400px] border border-gray-400 rounded-lg overflow-hidden"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
-          <img
-            src={mainImage}
-            alt={currentPart.name}
-            className="w-full h-full object-contain"
-            onError={(e) => (e.target.src = FALLBACK_IMAGE)}
-          />
+      <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+        {/* Part Image */}
+        <div className="flex-1 flex justify-center">
           <div
-            className="absolute inset-0 cursor-zoom-in"
-            style={zoomStyle}
-          />
+            className="relative w-full max-w-[400px] h-[200px] sm:h-[300px] md:h-[400px] border border-gray-400 rounded-lg overflow-hidden"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <img
+              src={mainImage}
+              alt={currentPart.name}
+              className="w-full h-full object-contain"
+              onError={(e) => (e.target.src = FALLBACK_IMAGE)}
+            />
+            <div
+              className="absolute inset-0 cursor-zoom-in"
+              style={zoomStyle}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Part Details */}
-      <div className="flex-1 space-y-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{currentPart.name}</h1>
-        <p className="text-sm text-gray-600">Part ID: {currentPart.id}</p>
-        <div className="space-y-2">
-          <p className="text-lg font-semibold text-gray-900">
-            {formatPrice(currentPrice)}
+        {/* Part Details */}
+        <div className="flex-1 space-y-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{currentPart.name}</h1>
+          <p className="text-sm text-gray-600">Part ID: {currentPart.id}</p>
+          <div className="space-y-2">
+            <p className="text-lg font-semibold text-gray-900">
+              {formatPrice(currentPrice)}
+              {hasDiscount && (
+                <span className="ml-3 text-sm line-through text-gray-400">
+                  {formatPrice(currentPart.regularprice)}
+                </span>
+              )}
+            </p>
             {hasDiscount && (
-              <span className="ml-3 text-sm line-through text-gray-400">
-                {formatPrice(currentPart.regularprice)}
-              </span>
+              <p className="text-sm text-green-600">
+                Save {formatPrice(discount)} on online order
+              </p>
             )}
-          </p>
-          {hasDiscount && (
-            <p className="text-sm text-green-600">
-              Save {formatPrice(discount)} on online order
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-gray-900">Quick Overview</h3>
-          <p className="text-sm text-gray-600">{currentPart.description || "No description available."}</p>
-          {currentPart.performance && (
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-gray-900">Quick Overview</h3>
+            <p className="text-sm text-gray-600">{currentPart.description || "No description available."}</p>
+            {currentPart.performance && (
+              <p className="text-sm text-gray-600">
+                <strong>Performance:</strong> {currentPart.performance}
+              </p>
+            )}
+            {currentPart.ability && (
+              <p className="text-sm text-gray-600">
+                <strong>Ability:</strong> {currentPart.ability}
+              </p>
+            )}
             <p className="text-sm text-gray-600">
-              <strong>Performance:</strong> {currentPart.performance}
+              <strong>Stock:</strong> {currentPart.quantity > 0 ? `${currentPart.quantity} available` : "Out of Stock"}
             </p>
-          )}
-          {currentPart.ability && (
-            <p className="text-sm text-gray-600">
-              <strong>Ability:</strong> {currentPart.ability}
-            </p>
-          )}
-          <p className="text-sm text-gray-600">
-            <strong>Stock:</strong> {currentPart.quantity > 0 ? `${currentPart.quantity} available` : "Out of Stock"}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
-            onClick={decreaseQuantity}
-            disabled={quantity <= 1 || loading.part || currentPart.quantity === 0}
-          >
-            -
-          </button>
-          <span className="text-sm font-medium">{quantity}</span>
-          <button
-            className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
-            onClick={increaseQuantity}
-            disabled={quantity >= currentPart.quantity || loading.part || currentPart.quantity === 0}
-          >
-            +
-          </button>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-            onClick={handlePlaceOrderClick}
-            disabled={loading.part || currentPart.quantity === 0}
-          >
-            Proceed to Checkout
-          </button>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-            onClick={handleAddToCart}
-            disabled={loading.part || currentPart.quantity === 0}
-          >
-            <FaShoppingCart /> Add to Cart
-          </button>
-          <button
-            className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-            onClick={handleAddToWishlist}
-          >
-            <FaHeart /> Add to Wishlist
-          </button>
-          <button
-            className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-            onClick={handleAddToCompare}
-          >
-            <FaExchangeAlt /> Add to Compare
-          </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
+              onClick={decreaseQuantity}
+              disabled={quantity <= 1 || loading.part || currentPart.quantity === 0}
+            >
+              -
+            </button>
+            <span className="text-sm font-medium">{quantity}</span>
+            <button
+              className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
+              onClick={increaseQuantity}
+              disabled={quantity >= currentPart.quantity || loading.part || currentPart.quantity === 0}
+            >
+              +
+            </button>
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              onClick={handlePlaceOrderClick}
+              disabled={loading.part || currentPart.quantity === 0}
+            >
+              Proceed to Checkout
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
+              onClick={handleAddToCart}
+              disabled={loading.part || currentPart.quantity === 0}
+            >
+              <FaShoppingCart /> Add to Cart
+            </button>
+            <button
+              className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
+              onClick={handleAddToWishlist}
+            >
+              <FaHeart /> Add to Wishlist
+            </button>
+            <button
+              className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
+              onClick={handleAddToCompare}
+            >
+              <FaExchangeAlt /> Add to Compare
+            </button>
+          </div>
         </div>
       </div>
-
+      <ProductDetails />
       <Toaster />
-    </div>
-
-    <ProductDetails/>
     </>
   );
 };

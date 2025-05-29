@@ -80,7 +80,7 @@ const RelatedProduct = ({ categoryId }) => {
                   )}
                   <CardMedia
                     component="img"
-                    image={product.imagea || '/images/fallback.jpg'} // Use image prop, not imagea
+                    image={product.imagea || '/images/fallback.jpg'} 
                     alt={product.name || 'Product'}
                     sx={{
                       objectFit: 'contain',
