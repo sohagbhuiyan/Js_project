@@ -13,8 +13,9 @@ import { brandReducer } from "./brandSlice";
 import branchReducer from "./branchSlice";
 import ccbuilderReducer from './ccbuilderSlice';
 import aboutUsReducer from './aboutUsSlice';
-import mediaReducer from './mediaSlice'
-import contactUsReducer from './contactUsSlice'
+import mediaReducer from './mediaSlice';
+import contactUsReducer from './contactUsSlice';
+import filterReducer from './filterSlice';
 
 export const store = configureStore({
   reducer: {
@@ -34,5 +35,6 @@ export const store = configureStore({
     aboutUs: aboutUsReducer,
     media: mediaReducer,
     contactUs: contactUsReducer,
+    filter: filterReducer,
   },
 });

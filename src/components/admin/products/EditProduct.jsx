@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   TextField,
   MenuItem,
@@ -11,15 +12,16 @@ import {
   Select,
   Avatar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
-import { addProductDetails } from '../../../store/productSlice';
+import { fetchProductById, updateProductDetails, clearCurrentProduct } from '../../../store/productSlice';
 import { API_BASE_URL } from '../../../store/api';
-import { useNavigate } from 'react-router-dom';
 
-const AddProduct = () => {
+const EditProduct = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, successMessage } = useSelector((state) => state.products);
+  const { currentProduct, loading, error, successMessage } = useSelector((state) => state.products);
 
   const [formState, setFormState] = useState({
     productid: '',
@@ -48,7 +50,9 @@ const AddProduct = () => {
   const [brands, setBrands] = useState([]);
   const [productItems, setProductItems] = useState([]);
 
+  // Fetch product details and other data on mount
   useEffect(() => {
+    dispatch(fetchProductById(id));
     const fetchData = async () => {
       try {
         const [catRes, prodRes, brandsRes, itemsRes] = await Promise.all([
@@ -71,32 +75,58 @@ const AddProduct = () => {
         console.error('Failed to fetch data:', err);
       }
     };
-
     fetchData();
-  }, []);
+    return () => {
+      dispatch(clearCurrentProduct());
+    };
+  }, [dispatch, id]);
 
+  // Populate form with current product data
   useEffect(() => {
-    if (formState.product.id) {
-      const fetchProductItems = async () => {
-        try {
-          const response = await fetch(
-            `${API_BASE_URL}/api/item/findbyproductid/get/${formState.product.id}`
-          );
-          const data = await response.json();
-          setProductItems(data);
-        } catch (err) {
-          console.error('Failed to fetch product items:', err);
-        }
-      };
-      fetchProductItems();
-    } else {
-      setProductItems([]);
+    if (currentProduct) {
+      setFormState({
+        productid: currentProduct.productid || '',
+        name: currentProduct.name || '',
+        quantity: currentProduct.quantity || '',
+        regularprice: currentProduct.regularprice || '',
+        specialprice: currentProduct.specialprice || '',
+        title: currentProduct.title || '',
+        details: currentProduct.details || '',
+        specification: currentProduct.specification || '',
+        warranty: currentProduct.warranty || 0,
+        catagory: { id: currentProduct.catagory?.id || '' },
+        product: { id: currentProduct.product?.id || '' },
+        brand: { id: currentProduct.brand?.id || '' },
+        productItem: { id: currentProduct.productItem?.id || '' },
+      });
+      setMainImagePreview(currentProduct.imagea || null);
+      setAdditionalImagesPreviews([
+        currentProduct.imageb || null,
+        currentProduct.imagec || null,
+      ]);
+      if (currentProduct.product?.id) {
+        const filtered = products.filter((prod) => prod.catagory?.id === currentProduct.catagory?.id);
+        setFilteredProducts(filtered);
+        fetchProductItems(currentProduct.product.id);
+      }
     }
-  }, [formState.product.id]);
+  }, [currentProduct, products]);
+
+  // Fetch product items based on selected product
+  const fetchProductItems = async (id) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/item/findbyproductid/get/${id}`
+      );
+      const data = await response.json();
+      setProductItems(data);
+    } catch (err) {
+      console.error('Failed to fetch product items:', err);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === 'catagory.id') {
       setFormState((prev) => ({
         ...prev,
@@ -113,6 +143,7 @@ const AddProduct = () => {
         product: { id: value },
         productItem: { id: '' },
       }));
+      fetchProductItems(value);
     } else if (name === 'brand.id') {
       setFormState((prev) => ({
         ...prev,
@@ -156,7 +187,6 @@ const AddProduct = () => {
         });
       }
     };
-
     reader.readAsDataURL(file);
   };
 
@@ -179,34 +209,22 @@ const AddProduct = () => {
         imagec,
       };
 
-      await dispatch(addProductDetails(formDataObject)).unwrap();
-      alert('Product added successfully!');
-      setFormState({
-        productid: '',
-        name: '',
-        quantity: '',
-        regularprice: '',
-        specialprice: '',
-        title: '',
-        details: '',
-        specification: '',
-        warranty: 0,
-        catagory: { id: '' },
-        product: { id: '' },
-        brand: { id: '' },
-        productItem: { id: '' },
-      });
-      setImageA(null);
-      setImageB(null);
-      setImageC(null);
-      setMainImagePreview(null);
-      setAdditionalImagesPreviews([null, null]);
+      await dispatch(updateProductDetails({ id, formDataObject })).unwrap();
+      alert('Product updated successfully!');
       navigate('/admin/products/view-product');
     } catch (error) {
-      console.error('Error adding product:', error);
-      alert('Failed to add product: ' + (error || 'Unknown error'));
+      console.error('Error updating product:', error);
+      alert('Failed to update product: ' + (error || 'Unknown error'));
     }
   };
+
+  if (loading && !currentProduct) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -215,7 +233,7 @@ const AddProduct = () => {
       sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600, mx: 'auto', p: 2 }}
     >
       <Typography variant="h5" fontWeight={600}>
-        Add Product
+        Edit Product
       </Typography>
 
       <TextField
@@ -373,8 +391,8 @@ const AddProduct = () => {
           <Avatar src={mainImagePreview} variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
         )}
         <Button component="label" variant="outlined">
-          Upload Image A
-          <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, 0)} required />
+          Upload New Image A
+          <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, 0)} />
         </Button>
       </Box>
 
@@ -389,14 +407,14 @@ const AddProduct = () => {
             />
           )}
           <Button component="label" variant="outlined">
-            Upload Image {index}
-            <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} required />
+            Upload New Image {index}
+            <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
           </Button>
         </Box>
       ))}
 
       <Button type="submit" variant="contained" color="primary" disabled={loading}>
-        {loading ? 'Uploading...' : 'Add Product'}
+        {loading ? 'Updating...' : 'Update Product'}
       </Button>
 
       {error && <Alert severity="error">Error: {error}</Alert>}
@@ -405,4 +423,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

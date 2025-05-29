@@ -88,7 +88,7 @@ const UserNavbar = () => {
   };
 
   return (
-    <div className="sticky top-0 z-[99] flex flex-col w-full bg-[#CF212B]">
+    <div className="sticky top-0 z-[90] flex flex-col w-full bg-[#CF212B]">
       {/* TopBar - hide/show on scroll for desktop */}
       <div
         className={`bg-[#CF212B] text-white transition-all duration-300 ease-in-out
@@ -98,7 +98,7 @@ const UserNavbar = () => {
       </div>
 
       {/* Sticky Logo, SearchBar, NavIcons */}
-      <div className="bg-[#CF212B] text-white shadow-md transition-all duration-300 z-[100]">
+      <div className="bg-[#CF212B] text-white shadow-md transition-all duration-300 z-[90]">
         <div className="flex items-center justify-between px-4 py-2 md:py-2 md:px-6 lg:px-12">
           {/* Hamburger for mobile */}
           <button

@@ -1,25 +1,23 @@
-
 import Categories from "../../user/body/Categories";
 import HeroSection from "../body/HeroSection";
 import Collections from "../../user/body/collection/Collections";
 import UserInfo from "../body/UserInfo";
 import BrandSection from "../body/BrandSection";
 import Branch from "../body/Branch";
-// import FilteredProducts from "../body/FilteredProducts";
+import { Box } from "@mui/material";
 
-const Home = ()=> {
+const Home = () => {
+  return (
+    <Box sx={{ bgcolor: "#f5f5f5" }}>
+      <HeroSection />
+      <UserInfo />
+      <Categories />
+      <Collections isHomePage={true} sx={{ mb: 2 }} />
+      <Box sx={{ borderTop: "1px solid #e0e0e0", my: 1 }} />
+      <BrandSection />
+      <Branch />
+    </Box>
+  );
+};
 
-    return (
-        <>
-        <HeroSection/>
-        <UserInfo/>
-        <Categories/>
-        {/* <FilteredProducts/> */}
-        <Collections classname = " mb-2 "/> <hr/>
-        <BrandSection/>
-        <Branch/>
-        </>
-      );
-    }
-    
-    export default Home;
+export default Home;

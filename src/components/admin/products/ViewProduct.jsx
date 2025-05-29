@@ -1,44 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts, fetchProductById } from '../../../store/productSlice';
-import { 
-  Box, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Avatar, 
+import { useNavigate } from 'react-router-dom';
+import { fetchProducts } from '../../../store/productSlice';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
   CircularProgress,
   Link,
-  Divider
+  Button,
 } from '@mui/material';
 
 const ViewProduct = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { products, loading, error } = useSelector((state) => state.products);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  const handleProductIdClick = (name) => {
-    dispatch(fetchProductById(name)).then((result) => {
-      if (result.meta.requestStatus === 'fulfilled') {
-        setSelectedProduct(result.payload);
-      }
-    });
+  const handleProductIdClick = (id) => {
+    navigate(`/admin/products/edit/${id}`);
+  };
+
+  const handleAddProduct = () => {
+    navigate('/admin/products/add-product');
   };
 
   return (
     <Box className="p-2 bg-gray-50 min-h-screen">
-      <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
-        View Products
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" fontWeight={600}>
+          View Products
+        </Typography>
+        <Button variant="contained" color="primary" onClick={handleAddProduct}>
+          Add New Product
+        </Button>
+      </Box>
 
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -73,13 +79,13 @@ const ViewProduct = () => {
             </TableHead>
             <TableBody>
               {products.map((product) => (
-                <TableRow key={product.productid}>
+                <TableRow key={product.id}>
                   <TableCell>
                     {product.imagea ? (
-                      <Avatar 
-                        src={product.imagea} 
-                        variant="rounded" 
-                        sx={{ width: 60, height: 60 }} 
+                      <Avatar
+                        src={product.imagea}
+                        variant="rounded"
+                        sx={{ width: 60, height: 60 }}
                       />
                     ) : (
                       'No Image'
@@ -89,7 +95,7 @@ const ViewProduct = () => {
                     <Link
                       component="button"
                       variant="body2"
-                      onClick={() => handleProductIdClick(product.name)}
+                      onClick={() => handleProductIdClick(product.id)}
                       sx={{ textDecoration: 'underline', cursor: 'pointer' }}
                     >
                       {product.productid}
@@ -106,37 +112,6 @@ const ViewProduct = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      )}
-
-      {selectedProduct && (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            Selected Product Details
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Typography><strong>Product ID:</strong> {selectedProduct.productid}</Typography>
-            <Typography><strong>Title:</strong> {selectedProduct.title}</Typography>
-            <Typography><strong>Name:</strong> {selectedProduct.name}</Typography>
-            <Typography><strong>Category:</strong> {selectedProduct.catagory?.name || 'N/A'}</Typography>
-            <Typography><strong>Submenu:</strong> {selectedProduct.product?.name || 'N/A'}</Typography>
-            <Typography><strong>Quantity:</strong> {selectedProduct.quantity}</Typography>
-            <Typography><strong>Regular Price:</strong> ${selectedProduct.regularprice.toFixed(2)}</Typography>
-            <Typography><strong>Special Price:</strong> ${selectedProduct.specialprice.toFixed(2)}</Typography>
-            <Typography><strong>Details:</strong> {selectedProduct.details}</Typography>
-            <Typography><strong>Specification:</strong> {selectedProduct.specification}</Typography>
-            {selectedProduct.imagea && (
-              <Box sx={{ mt: 2 }}>
-                <Typography><strong>Main Image:</strong></Typography>
-                <Avatar 
-                  src={selectedProduct.imagea} 
-                  variant="rounded" 
-                  sx={{ width: 100, height: 100, mt: 1 }} 
-                />
-              </Box>
-            )}
-          </Box>
-        </Box>
       )}
     </Box>
   );

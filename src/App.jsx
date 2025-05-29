@@ -70,6 +70,7 @@ import CCPartView from './components/user/ccbuilder/CCPartView';
 import UpdateMeagaMenu from './components/admin/products/UpdateMeagaMenu';
 import AddMedia from './components/admin/footer/AddMedia';
 import AddContactUs from './components/admin/footer/AddContactUs';
+// import EditProduct from './components/admin/products/EditProduct';
 
 function App() { 
   const dispatch = useDispatch();
@@ -145,6 +146,7 @@ function App() {
             <Route path="/admin/products/update-categories" element={<UpdateMeagaMenu />} />
             <Route path="/admin/products/view-product" element={<ViewProduct />} />
             <Route path="/admin/products/add-product" element={<AddProduct />} />
+            {/* <Route path="/admin/products/edit/:id" element={<EditProduct />} /> */}
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />
             <Route path="/admin/payments" element={<PaymentManagement />} />
