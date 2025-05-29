@@ -73,17 +73,6 @@ const Dashboard = () => {
           <Grid container spacing={3} sx={{ mb: 6 }}>
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ display: "flex", alignItems: "center", p: 1 }}>
-                <People sx={{ fontSize: 30, color: "primary.main", mr: 1 }} />
-                <CardContent>
-                  <Typography variant="h6" fontWeight={600}>
-                    Total Users
-                  </Typography>
-                  <Typography variant="h4" ml={3}>{totalUsers}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ display: "flex", alignItems: "center", p: 1 }}>
                 <ShoppingCart sx={{ fontSize: 30, color: "primary.main", mr: 1 }} />
                 <CardContent>
                   <Typography variant="h6" fontWeight={600}>
@@ -140,8 +129,8 @@ const Dashboard = () => {
                   {recentOrders.map((order) => (
                     <TableRow key={order.id || order._id}>
                       <TableCell>{order.id || order._id || "N/A"}</TableCell>
-                      <TableCell>{order.profile?.email || order.profile?.name || "N/A"}</TableCell>
-                      <TableCell>{order.productDetails?.name || "N/A"}</TableCell>
+                      <TableCell>{order.profile?.email || order.profile?.name || order.user?.name ||  "N/A"}</TableCell>
+                      <TableCell>{order.productDetails?.name || order.productDetailsList?.name || "N/A"}</TableCell>
                       <TableCell>{order.quantity || "N/A"}</TableCell>
                       <TableCell>${(order.price || 0).toFixed(2)}</TableCell>
                       <TableCell>{order.status || "Pending"}</TableCell>

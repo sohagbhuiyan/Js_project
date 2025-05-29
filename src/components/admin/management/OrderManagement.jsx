@@ -342,7 +342,7 @@ const OrderManagement = () => {
 
   const filteredOrders = orders.filter((order) => {
     const searchLower = searchTerm.toLowerCase();
-    const productName = order.productname || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
+    const productName = order.productDetailsList?.name || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
     return (
       (order.id?.toString().toLowerCase().includes(searchLower) ||
         productName.toLowerCase().includes(searchLower) ||
@@ -481,8 +481,8 @@ const OrderManagement = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredOrders.map((order) => {
-              const productName = order.productname || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
-              const price = order.price || order.ccBuilderItemDitelsList?.[0]?.specialprice || order.ccBuilderItemDitelsList?.[0]?.regularprice || 0;
+              const productName = order.productname || order.pcForPartAdd?.[0]?.name || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
+              const price = order.price || order.ccBuilderItemDitelsList?.[0]?.specialprice || order.ccBuilderItemDitelsList?.[0]?.regularprice || order.pcForPartAdd?.[0]?.regularprice || 0;
               const total = order.quantity * price;
 
               return (
@@ -500,11 +500,11 @@ const OrderManagement = () => {
                     {order.user?.phoneNo && (
                       <div className="text-xs flex text-gray-500">
                         <FaPhoneAlt className="h-3 w-3 mt-1 mr-1" />
-                        {order.user.phoneNo}
+                        {order.user?.phoneNo}
                       </div>
                     )}
                   </td>
-                  <td className="w-36 px-2 py-4">{productName}</td>
+                  <td className="w-36 px-2 text-sm py-4">{productName}</td>
                   <td className="px-2 py-4">{order.quantity || 1}</td>
                   <td className="px-2 py-4">{formatPrice(price)}</td>
                   <td className="px-2 py-4">{formatPrice(total)}</td>
@@ -563,7 +563,7 @@ const OrderManagement = () => {
             <div className="p-6 grid gap-4 md:grid-cols-2">
               {/* Customer Information */}
               <div className="space-y-2 text-sm">
-                <h4 className="font-medium text-lg">Customer Information</h4>
+                <h4 className="font-medium text-lg">Bill To:</h4>
                 <p><span className="font-medium">Name:</span> {selectedOrder.user?.name || "Guest"}</p>
                 <p><span className="font-medium">Email:</span> {selectedOrder.user?.email}</p>
                 {selectedOrder.user?.phoneNo && (
@@ -583,9 +583,9 @@ const OrderManagement = () => {
               {/* Product Information */}
               <div className="space-y-2 text-sm">
                 <h4 className="font-bold text-lg">Product Information</h4>
-                <p><span className="font-medium">Product ID:</span> {selectedOrder.productid || selectedOrder.ccBuilderItemDitelsList?.[0]?.id || "N/A"}</p>
-                <p><span className="font-medium">Name:</span> {selectedOrder.productname || selectedOrder.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product"}</p>
-                <p><span className="font-medium">Category:</span> {selectedOrder.ccBuilderItemDitelsList?.[0]?.ccBuilder?.name || "N/A"}</p>
+                <p><span className="font-medium">Product ID:</span> {selectedOrder.productid || selectedOrder.ccBuilderItemDitelsList?.[0]?.id || selectedOrder.pcForPartAdd?.[0]?.id || "N/A"}</p>
+                <p><span className="font-medium">Name:</span> {selectedOrder.productname || selectedOrder.pcForPartAdd?.name  || selectedOrder.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product"}</p>
+                <p><span className="font-medium">Category:</span> {selectedOrder.productDetailsList?.catagory?.name || selectedOrder.ccBuilder?.name || "N/A"}</p>
               </div>
 
               {/* Pricing Details */}
@@ -595,13 +595,6 @@ const OrderManagement = () => {
                 <p><span className="font-medium">Quantity:</span> {selectedOrder.quantity || 1}</p>
                 <p><span className="font-medium">Total Price:</span> {formatPrice((selectedOrder.quantity || 1) * (selectedOrder.price || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || 0))}</p>
                 <p><span className="font-medium">Status:</span> <span className={`px-2 py-1 rounded text-sm ${getStatusColor(selectedOrder.status)}`}>{normalizeStatus(selectedOrder.status)}</span></p>
-              </div>
-
-              {/* Product Specifications */}
-              <div className="md:col-span-2 space-y-2">
-                <h4 className="font-medium text-lg">Product Specifications</h4>
-                <p className="text-gray-600">{selectedOrder.ccBuilderItemDitelsList?.[0]?.description || "No description available"}</p>
-                <p className="text-gray-600">{selectedOrder.ccBuilderItemDitelsList?.[0]?.specification || "No specifications available"}</p>
               </div>
 
               {/* Price Comparison */}

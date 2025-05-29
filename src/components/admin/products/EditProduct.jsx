@@ -14,7 +14,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { fetchProductById, updateProductDetails, clearCurrentProduct } from '../../../store/productSlice';
+import { fetchProductDetailsById, fetchProductIdByDetailsId, updateProductDetails, clearCurrentProduct } from '../../../store/productSlice';
 import { API_BASE_URL } from '../../../store/api';
 
 const EditProduct = () => {
@@ -22,6 +22,7 @@ const EditProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentProduct, loading, error, successMessage } = useSelector((state) => state.products);
+  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
 
   const [formState, setFormState] = useState({
     productid: '',
@@ -52,25 +53,23 @@ const EditProduct = () => {
 
   // Fetch product details and other data on mount
   useEffect(() => {
-    dispatch(fetchProductById(id));
+    dispatch(fetchProductDetailsById(id));
+    dispatch(fetchProductIdByDetailsId(id));
     const fetchData = async () => {
       try {
-        const [catRes, prodRes, brandsRes, itemsRes] = await Promise.all([
+        const [catRes, prodRes, brandsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/api/catagories/get`),
           fetch(`${API_BASE_URL}/api/Product/getall`),
           fetch(`${API_BASE_URL}/api/brands/get/all`),
-          fetch(`${API_BASE_URL}/api/product/items/get`),
         ]);
 
         const catData = await catRes.json();
         const prodData = await prodRes.json();
         const brandsData = await brandsRes.json();
-        const itemsData = await itemsRes.json();
 
         setCategories(catData);
         setProducts(prodData);
         setBrands(brandsData);
-        setProductItems(itemsData);
       } catch (err) {
         console.error('Failed to fetch data:', err);
       }
@@ -104,9 +103,11 @@ const EditProduct = () => {
         currentProduct.imageb || null,
         currentProduct.imagec || null,
       ]);
-      if (currentProduct.product?.id) {
+      if (currentProduct.catagory?.id) {
         const filtered = products.filter((prod) => prod.catagory?.id === currentProduct.catagory?.id);
         setFilteredProducts(filtered);
+      }
+      if (currentProduct.product?.id) {
         fetchProductItems(currentProduct.product.id);
       }
     }
@@ -115,9 +116,7 @@ const EditProduct = () => {
   // Fetch product items based on selected product
   const fetchProductItems = async (id) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/item/findbyproductid/get/${id}`
-      );
+      const response = await fetch(`${API_BASE_URL}/api/item/findbyproductid/get/${id}`);
       const data = await response.json();
       setProductItems(data);
     } catch (err) {
@@ -204,12 +203,12 @@ const EditProduct = () => {
           ...formState,
           productItem: { id: parseInt(formState.productItem.id) },
         },
-        imagea,
-        imageb,
-        imagec,
+        imagea: imagea || null,
+        imageb: imageb || null,
+        imagec: imagec || null,
       };
 
-      await dispatch(updateProductDetails({ id, formDataObject })).unwrap();
+      await dispatch(updateProductDetails({ id, formDataObject, token })).unwrap();
       alert('Product updated successfully!');
       navigate('/admin/products/view-product');
     } catch (error) {
@@ -220,7 +219,7 @@ const EditProduct = () => {
 
   if (loading && !currentProduct) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <Box className="flex justify-center mt-8">
         <CircularProgress />
       </Box>
     );
@@ -230,9 +229,9 @@ const EditProduct = () => {
     <Box
       component="form"
       onSubmit={handleSubmit}
-      sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600, mx: 'auto', p: 2 }}
+      className="flex flex-col gap-4 max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg"
     >
-      <Typography variant="h5" fontWeight={600}>
+      <Typography variant="h5" className="font-bold text-gray-800">
         Edit Product
       </Typography>
 
@@ -242,6 +241,7 @@ const EditProduct = () => {
         value={formState.productid}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="name"
@@ -249,6 +249,7 @@ const EditProduct = () => {
         value={formState.name}
         onChange={handleChange}
         required
+        className="w-full"
       />
 
       <FormControl fullWidth required>
@@ -332,6 +333,7 @@ const EditProduct = () => {
         value={formState.quantity}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="regularprice"
@@ -340,6 +342,7 @@ const EditProduct = () => {
         value={formState.regularprice}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="specialprice"
@@ -348,6 +351,7 @@ const EditProduct = () => {
         value={formState.specialprice}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="title"
@@ -355,26 +359,27 @@ const EditProduct = () => {
         value={formState.title}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="details"
         label="Details"
-        fullWidth
         multiline
         rows={4}
         value={formState.details}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="specification"
         label="Specification"
-        fullWidth
         multiline
         rows={3}
         value={formState.specification}
         onChange={handleChange}
         required
+        className="w-full"
       />
       <TextField
         name="warranty"
@@ -383,14 +388,17 @@ const EditProduct = () => {
         value={formState.warranty}
         onChange={handleChange}
         required
+        className="w-full"
       />
 
       <Box>
-        <Typography variant="subtitle1">Image A (Main)</Typography>
+        <Typography variant="subtitle1" className="text-gray-700">
+          Image A (Main)
+        </Typography>
         {mainImagePreview && (
-          <Avatar src={mainImagePreview} variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
+          <Avatar src={mainImagePreview} variant="rounded" className="w-20 h-20 mb-2" />
         )}
-        <Button component="label" variant="outlined">
+        <Button component="label" variant="outlined" className="border-gray-300 hover:border-gray-400">
           Upload New Image A
           <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, 0)} />
         </Button>
@@ -398,22 +406,30 @@ const EditProduct = () => {
 
       {[1, 2].map((index) => (
         <Box key={index}>
-          <Typography variant="subtitle1">Image {index} (Gallery)</Typography>
+          <Typography variant="subtitle1" className="text-gray-700">
+            Image {index} (Gallery)
+          </Typography>
           {additionalImagesPreviews[index - 1] && (
             <Avatar
               src={additionalImagesPreviews[index - 1]}
               variant="rounded"
-              sx={{ width: 60, height: 60, mb: 1 }}
+              className="w-16 h-16 mb-2"
             />
           )}
-          <Button component="label" variant="outlined">
+          <Button component="label" variant="outlined" className="border-gray-300 hover:border-gray-400">
             Upload New Image {index}
             <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
           </Button>
         </Box>
       ))}
 
-      <Button type="submit" variant="contained" color="primary" disabled={loading}>
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={loading}
+        className="bg-blue-600 hover:bg-blue-700"
+      >
         {loading ? 'Updating...' : 'Update Product'}
       </Button>
 

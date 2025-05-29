@@ -32,7 +32,6 @@ import CustomerManagement from './components/admin/management/CustomerManagement
 import ViewProduct from './components/admin/products/ViewProduct';
 import AddProduct from './components/admin/products/AddProduct';
 import AddCategory from './components/admin/products/AddCategory';
-import PaymentManagement from './components/admin/management/PaymentManagement';
 
 // Protected Routes
 import UserProtectedRoute from './components/Protected/UserProtectedRoute';
@@ -71,7 +70,8 @@ import UpdateMeagaMenu from './components/admin/products/UpdateMeagaMenu';
 import AddMedia from './components/admin/footer/AddMedia';
 import AddContactUs from './components/admin/footer/AddContactUs';
 import CartOrderConfirmation from './components/user/product/CartOrderConfirmation';
-// import EditProduct from './components/admin/products/EditProduct';
+import EditProduct from './components/admin/products/EditProduct';
+import CustomEmail from './components/admin/management/CustomEmail';
 
 function App() { 
   const dispatch = useDispatch();
@@ -134,7 +134,7 @@ function App() {
 
           {/* Admin Protected Routes */}
           <Route element={<AdminProtectedRoute />}>
-            <Route path="/admin/add-slider" element={<AddSlider />} />  
+            <Route path="/admin/add-slider" element={<AddSlider/>} />  
             <Route path="/admin/add-info" element={<Addinfo />} /> 
             <Route path="/admin/products/add-brand" element={<AddBrand />} />
             <Route path="/admin/products/view-brand" element={<ViewBrand />} /> 
@@ -148,10 +148,10 @@ function App() {
             <Route path="/admin/products/update-categories" element={<UpdateMeagaMenu />} />
             <Route path="/admin/products/view-product" element={<ViewProduct />} />
             <Route path="/admin/products/add-product" element={<AddProduct />} />
-            {/* <Route path="/admin/products/edit/:id" element={<EditProduct />} /> */}
+            <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />
-            <Route path="/admin/payments" element={<PaymentManagement />} />
+            <Route path="/admin/custom-email" element={<CustomEmail />} />
             <Route path="/admin/Pc-Builder" element={<PCBuilder />} />
             <Route path="/admin/add-cc-builder" element={<AddCCBuilder />} />
             <Route path="/admin/Pc-builder/ViewSystemBuilder" element={<ViewSystemBuilder />} />

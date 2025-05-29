@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { uploadHeroImages, clearHeroError, clearHeroSuccess } from '../../../store/heroSlice';
+import {
+  fetchHeroImages,
+  getHeroImageById,
+  uploadHeroImages,
+  updateHeroImages,
+  deleteHeroImage,
+  clearHeroError,
+  clearHeroSuccess,
+  setSelectedImage,
+} from '../../../store/heroSlice';
 import {
   Box,
   Typography,
@@ -11,8 +20,17 @@ import {
   CardContent,
   CardHeader,
   Fade,
+  Grid,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const FALLBACK_IMAGE = '/images/placeholder.png';
 
@@ -37,14 +55,34 @@ const StyledFileInput = styled('label')(({ theme }) => ({
 
 const AddSlider = () => {
   const dispatch = useDispatch();
-  const { loading, error, successMessage } = useSelector((state) => state.hero);
+  const { images, selectedImage, loading, error, successMessage } = useSelector((state) => state.hero);
   const [formData, setFormData] = useState({
     imagea: null,
     imageb: null,
     imagec: null,
     imaged: null,
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState(null);
 
+  // Fetch all hero images on component mount
+  useEffect(() => {
+    dispatch(fetchHeroImages());
+  }, [dispatch]);
+
+  // Clear success/error messages after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      setTimeout(() => {
+        dispatch(clearHeroSuccess());
+        setFormData({ imagea: null, imageb: null, imagec: null, imaged: null });
+        setIsEditing(false);
+      }, 3000);
+    }
+  }, [successMessage, dispatch]);
+
+  // Handle form input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -52,127 +90,217 @@ const AddSlider = () => {
     });
   };
 
+  // Handle form submission for add/update
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = new FormData();
-    data.append('1st Slider Image', formData.imagea);
-    data.append('2nd Slider Image', formData.imageb);
-    data.append('Informative Image', formData.imagec);
-    data.append('Offered Image', formData.imaged);
-    dispatch(uploadHeroImages(data));
+    if (formData.imagea) data.append('imagea', formData.imagea);
+    if (formData.imageb) data.append('imageb', formData.imageb);
+    if (formData.imagec) data.append('imagec', formData.imagec);
+    if (formData.imaged) data.append('imaged', formData.imaged);
+
+    if (isEditing && selectedImage?.id) {
+      dispatch(updateHeroImages({ id: selectedImage.id, formData: data }));
+    } else {
+      // Ensure all images are provided for adding
+      if (!formData.imagea || !formData.imageb || !formData.imagec || !formData.imaged) {
+        dispatch({
+          type: 'hero/uploadHeroImages/rejected',
+          payload: 'All images are required for adding a new slider.',
+        });
+        return;
+      }
+      dispatch(uploadHeroImages(data));
+    }
   };
 
-  useEffect(() => {
-    if (successMessage) {
-      setTimeout(() => {
-        dispatch(clearHeroSuccess());
-      }, 3000); // Clear success message after 3 seconds
+  // Handle edit button click
+  const handleEdit = (id) => {
+    dispatch(getHeroImageById(id)).then((action) => {
+      if (action.meta.requestStatus === 'fulfilled') {
+        setIsEditing(true);
+        setFormData({
+          imagea: null,
+          imageb: null,
+          imagec: null,
+          imaged: null,
+        });
+      }
+    });
+  };
+
+  // Handle delete button click
+  const handleDelete = (id) => {
+    setImageToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm deletion
+  const confirmDelete = () => {
+    if (imageToDelete) {
+      dispatch(deleteHeroImage(imageToDelete));
+      setDeleteDialogOpen(false);
+      setImageToDelete(null);
     }
-  }, [successMessage, dispatch]);
+  };
+
+  // Cancel deletion
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setImageToDelete(null);
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setFormData({ imagea: null, imageb: null, imagec: null, imaged: null });
+    dispatch(setSelectedImage(null));
+  };
 
   return (
-    <Card
-      sx={{
-        maxWidth: 600,
-        mx: 'auto',
-        mt: 4,
-        p: 2,
-        boxShadow: 3,
-        borderRadius: 2,
-        backgroundColor: '#ffffff',
-        transition: 'transform 0.3s ease',
-   
-      }}
-    >
-      <CardHeader
-        title={
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            color="primary"
-            sx={{ textAlign: 'center', mb: 2 }}
-          >
-            Upload Hero Section Slider Images
-          </Typography>
-        }
-        sx={{ pb: 0 }}
-      />
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: 'grid', gap: 2 }}>
-            {['1st Slider Image', '2nd Slider Image', 'Informative Image', 'Offered Image'].map(
-              (name, index) => (
-                <Box key={index} sx={{ width: '100%' }}>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight="medium"
-                    color="text.primary"
-                    gutterBottom
+    <Box sx={{ maxWidth: 1200, mx: 'auto', mt: 4, px: 2 }}>
+      {/* Upload/Update Form */}
+      <Card sx={{ mb: 4, p: 2, boxShadow: 3, borderRadius: 2, backgroundColor: '#ffffff' }}>
+        <CardHeader
+          title={
+            <Typography variant="h4" fontWeight="bold" color="primary" sx={{ textAlign: 'center' }}>
+              {isEditing ? 'Update Hero Slider Images' : 'Upload Hero Slider Images'}
+            </Typography>
+          }
+        />
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ display: 'grid', gap: 2 }}>
+              {['1st Slider Image', '2nd Slider Image', 'Informative Image', 'Offered Image'].map(
+                (label, index) => {
+                  const fieldName = ['imagea', 'imageb', 'imagec', 'imaged'][index];
+                  return (
+                    <Box key={index} sx={{ width: '100%' }}>
+                      <Typography variant="subtitle1" fontWeight="medium" color="text.primary" gutterBottom>
+                        {label}
+                      </Typography>
+                      <StyledFileInput>
+                        <Typography variant="body2" color="text.secondary">
+                          {formData[fieldName]
+                            ? formData[fieldName].name
+                            : isEditing && selectedImage?.[fieldName]
+                            ? selectedImage[fieldName].split('/').pop()
+                            : 'Choose File'}
+                        </Typography>
+                        <input
+                          type="file"
+                          name={fieldName}
+                          accept="image/*"
+                          onChange={handleChange}
+                          required={!isEditing}
+                        />
+                      </StyledFileInput>
+                    </Box>
+                  );
+                }
+              )}
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  variant="contained"
+                  sx={{
+                    py: 1.5,
+                    flex: 1,
+                    background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                    '&:hover': { background: 'linear-gradient(45deg, #1565c0, #2196f3)', boxShadow: 2 },
+                  }}
+                >
+                  {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : isEditing ? 'Update Images' : 'Upload Images'}
+                </Button>
+                {isEditing && (
+                  <Button
+                    variant="outlined"
+                    onClick={cancelEdit}
+                    sx={{ py: 1.5, flex: 1 }}
                   >
-                    {name}
-                  </Typography>
-                  <StyledFileInput>
-                    <Typography variant="body2" color="text.secondary">
-                      {formData[name.toLowerCase().replace(/ /g, '')]
-                        ? formData[name.toLowerCase().replace(/ /g, '')].name
-                        : 'Choose File'}
-                    </Typography>
-                    <input
-                      type="file"
-                      name={name.toLowerCase().replace(/ /g, '')}
-                      accept="image/*"
-                      onChange={handleChange}
-                      required
-                    />
-                  </StyledFileInput>
+                    Cancel
+                  </Button>
+                )}
+              </Box>
+              {error && (
+                <Fade in={Boolean(error)}>
+                  <Alert severity="error" sx={{ mt: 2, borderRadius: 1 }} onClose={() => dispatch(clearHeroError())}>
+                    {error}
+                  </Alert>
+                </Fade>
+              )}
+              {successMessage && (
+                <Fade in={Boolean(successMessage)}>
+                  <Alert severity="success" sx={{ mt: 2, borderRadius: 1 }} onClose={() => dispatch(clearHeroSuccess())}>
+                    {successMessage}
+                  </Alert>
+                </Fade>
+              )}
+            </Box>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* List of Hero Images */}
+      <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
+        Existing Hero Slider Images
+      </Typography>
+      {images.length === 0 ? (
+        <Typography color="text.secondary">No slider images available.</Typography>
+      ) : (
+        <Grid container spacing={2}>
+          {images.map((imageSet) => (
+            <Grid item xs={12} sm={6} md={4} key={imageSet.id}>
+              <Card sx={{ boxShadow: 2, borderRadius: 2 }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {['imagea', 'imageb', 'imagec', 'imaged'].map((imgKey, index) => (
+                      <Box key={imgKey}>
+                        <Typography variant="body2" color="text.primary">
+                          {['1st Slider', '2nd Slider', 'Informative', 'Offered'][index]} Image:
+                        </Typography>
+                        <img
+                          src={imageSet[imgKey] || FALLBACK_IMAGE}
+                          alt={imgKey}
+                          style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 4 }}
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                </CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+                  <IconButton color="primary" onClick={() => handleEdit(imageSet.id)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleDelete(imageSet.id)}>
+                    <DeleteIcon />
+                  </IconButton>
                 </Box>
-              )
-            )}
-            <Button
-              type="submit"
-              disabled={loading}
-              variant="contained"
-              sx={{
-                mt: 2,
-                py: 1.5,
-                width: '100%',
-                background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
-                color: '#fff',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #1565c0, #2196f3)',
-                  boxShadow: 2,
-                },
-                transition: 'all 0.3s ease',
-              }}
-            >
-              {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Upload Images'}
-            </Button>
-            {error && (
-              <Fade in={Boolean(error)}>
-                <Alert
-                  severity="error"
-                  sx={{ mt: 2, borderRadius: 1 }}
-                  onClose={() => dispatch(clearHeroError())}
-                >
-                  {error}
-                </Alert>
-              </Fade>
-            )}
-            {successMessage && (
-              <Fade in={Boolean(successMessage)}>
-                <Alert
-                  severity="success"
-                  sx={{ mt: 2, borderRadius: 1 }}
-                  onClose={() => dispatch(clearHeroSuccess())}
-                >
-                  {successMessage}
-                </Alert>
-              </Fade>
-            )}
-          </Box>
-        </form>
-      </CardContent>
-    </Card>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this hero image set? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 

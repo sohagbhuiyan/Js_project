@@ -84,6 +84,75 @@ export const fetchProductDetailsById = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch product ID by product details ID
+export const fetchProductIdByDetailsId = createAsyncThunk(
+  'products/fetchProductIdByDetailsId',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/productDetails/Product/get/ById/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+// Async thunk to update product details
+export const updateProductDetails = createAsyncThunk(
+  'products/updateProductDetails',
+  async ({ id, formDataObject, token }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      const jsonBlob = new Blob(
+        [JSON.stringify(formDataObject.productDetails)],
+        { type: 'application/json' }
+      );
+      formData.append('productDetails', jsonBlob);
+      if (formDataObject.imagea) formData.append('imagea', formDataObject.imagea);
+      if (formDataObject.imageb) formData.append('imageb', formDataObject.imageb);
+      if (formDataObject.imagec) formData.append('imagec', formDataObject.imagec);
+
+      const response = await axios.put(
+        `${API_BASE_URL}/api/ProductDetails/update/${id}`,
+        formData,
+        { 
+          headers: {
+            Authorization: `Bearer ${token}`,
+          } 
+        }
+      );
+      return { 
+        ...response.data,
+        regularprice: Number(response.data.regularprice),
+        specialprice: Number(response.data.specialprice)
+      };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Async thunk to delete product details
+export const deleteProductDetails = createAsyncThunk(
+  'products/deleteProductDetails',
+  async ({ id, token }, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/api/product/Ditels/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Clear current product
+export const clearCurrentProduct = () => ({
+  type: 'products/clearCurrentProduct',
+});
+
 const productSlice = createSlice({
   name: 'products',
   initialState: {
@@ -94,7 +163,11 @@ const productSlice = createSlice({
     error: null,
     successMessage: null,
   },
-  reducers: {},
+  reducers: {
+      clearCurrentProduct(state) {
+      state.currentProduct = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Fetch Products
@@ -171,6 +244,65 @@ const productSlice = createSlice({
         }));
       })
       .addCase(fetchRelatedProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch product ID by details ID
+      .addCase(fetchProductIdByDetailsId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductIdByDetailsId.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.currentProduct) {
+          state.currentProduct.product = { id: action.payload };
+        }
+      })
+      .addCase(fetchProductIdByDetailsId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Update product
+      .addCase(updateProductDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(updateProductDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = 'Product updated successfully';
+        state.products = state.products.map(product =>
+          product.id === action.payload.id ? {
+            ...action.payload,
+            imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
+            imageb: action.payload.imageb ? `${API_BASE_URL}/images/${action.payload.imageb}` : null,
+            imagec: action.payload.imagec ? `${API_BASE_URL}/images/${action.payload.imagec}` : null,
+          } : product
+        );
+        state.currentProduct = {
+          ...action.payload,
+          imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
+          imageb: action.payload.imageb ? `${API_BASE_URL}/images/${action.payload.imageb}` : null,
+          imagec: action.payload.imagec ? `${API_BASE_URL}/images/${action.payload.imagec}` : null,
+        };
+      })
+      .addCase(updateProductDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Delete product
+      .addCase(deleteProductDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(deleteProductDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = 'Product deleted successfully';
+        state.products = state.products.filter(product => product.id !== action.payload);
+        state.currentProduct = null;
+      })
+      .addCase(deleteProductDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

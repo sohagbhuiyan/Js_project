@@ -210,12 +210,12 @@ const AdminSidebar = () => {
         {/* Payments */}
         <li>
           <Link
-            to="/admin/payments"
+            to="/admin/custom-email"
             className={`flex items-center p-2 rounded-md ${
-              isActive("admin/payments") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
+              isActive("/admin/custom-email") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
             }`}
           >
-            <Payment className="mr-2" /> Payments
+            <Payment className="mr-2" /> Custom Email
           </Link>
         </li>
         {/* PC Builder */}
