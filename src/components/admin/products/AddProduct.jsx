@@ -331,13 +331,7 @@ const AddProduct = () => {
         onChange={handleChange}
         required
       />
-      <TextField
-        name="title"
-        label="Title"
-        value={formState.title}
-        onChange={handleChange}
-        required
-      />
+
       <TextField
         name="details"
         label="Details"
@@ -355,6 +349,13 @@ const AddProduct = () => {
         multiline
         rows={3}
         value={formState.specification}
+        onChange={handleChange}
+        required
+      />
+      <TextField
+        name="title"
+        label="Additional Information"
+        value={formState.title}
         onChange={handleChange}
         required
       />

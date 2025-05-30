@@ -20,7 +20,7 @@ export const registerUser = createAsyncThunk(
       };
 
       const role = data.role?.toLowerCase() || "user";
-
+      
       saveAuthData({ token, email: profileData.email, role, profileData, userId });
 
       console.log("Registered User ID:", userId, "Email:", profileData.email, "Role:", role);

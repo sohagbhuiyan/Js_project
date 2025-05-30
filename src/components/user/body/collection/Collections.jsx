@@ -528,40 +528,50 @@ const Collections = ({ isHomePage = false, sx }) => {
   const displayProducts = filteredProducts.length > 0 ? filteredProducts : urlFilteredProducts;
 
   return (
-    <Box
-      sx={{
-        py: { xs: 1, md: 1 },
-        px: { xs: 1, md: 2 },
-        bgcolor: "#ffffff",
-        borderRadius: "12px",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-        ...sx,
-      }}
-    >
-      <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexDirection: { xs: "column", md: "row" } }}>
-        {/* Mobile Filter Button (Floating Action Button) */}
-        {showFilter && (
-          <Fade in={showFilter}>
-            <Fab
-              color="primary"
-              aria-label="Open filters"
-              onClick={() => setIsFilterOpen(true)}
-              sx={{
-                display: { xs: "flex", md: "none" },
-                position: "fixed",
-                top: "100px",
-                right: "20px",
-                zIndex: 1000,
-                bgcolor: "#1976d2",
-                "&:hover": { bgcolor: "#1565c0" },
-                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                transition: "all 0.3s ease-in-out",
-              }}
-            >
-              <FaFilter size={15} />
-            </Fab>
-          </Fade>
-        )}
+<Box
+  sx={{
+    py: { xs: 1, md: 1 },
+    px: { xs: 1, md: 1 },
+    bgcolor: "#ffffff",
+    borderRadius: "12px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+    ...sx,
+  }}
+>
+  <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexDirection: { xs: "column", md: "row" }, position: "relative" }}>
+    {/* Mobile Filter Button (Small Icon with Text) */}
+    {showFilter && (
+      <Fade in={showFilter}>
+        <Box
+          onClick={() => setIsFilterOpen(true)}
+          sx={{
+            display: { xs: "flex", md: "none" },
+            alignItems: "center",
+            gap: 0.5,
+            position: "fixed",
+            top: { xs: 60, sm:130 }, // Positioned above the container
+            right: { xs: 0, sm: 4 },
+            cursor: "pointer",
+            bgcolor: "#f9689d",
+            color: "#ffffff",
+            borderRadius: "8px",
+            padding: "2px 4px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+            transition: "all 0.3s ease-in-out",
+            "&:hover": {
+              bgcolor: "#f9686d",
+              boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+            },
+            zIndex: 1000,
+          }}
+        >
+          <FaFilter size={8} />
+          <Typography variant="caption" sx={{ fontWeight: "medium", fontSize: "0.75rem" }}>
+            Filter
+          </Typography>
+        </Box>
+      </Fade>
+    )}
 
         {/* Filter Sidebar (Desktop) / Drawer (Mobile) */}
         {showFilter && (

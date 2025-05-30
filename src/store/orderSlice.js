@@ -80,23 +80,23 @@ export const cartOrderPlace = createAsyncThunk(
         districts: orderData.districts,
         upazila: orderData.upazila,
         address: orderData.address,
-        items: orderData.items.map((item) => ({
-          type: item.type || "ProductDetails", // Default to ProductDetails if type is missing
-          quantity: item.quantity,
-          productDetailsList: {
-            id: item.productId,
-            productid: item.productId,
-            name: item.name,
-            regularprice: item.price,
-            specialprice: item.price,
-            imagea: item.imagea,
-          },
-          productid: item.productId,
-          productname: item.name,
-        })),
-        price: orderData.price,
-        requestDate: orderData.requestDate,
-        status: orderData.status || "pending",
+        // items: orderData.items.map((item) => ({
+        //   type: item.type || "ProductDetails", // Default to ProductDetails if type is missing
+        //   quantity: item.quantity,
+        //   productDetailsList: {
+        //     id: item.productId,
+        //     productid: item.productId,
+        //     name: item.name,
+        //     regularprice: item.price,
+        //     specialprice: item.price,
+        //     imagea: item.imagea,
+        //   },
+        //   productid: item.productId,
+        //   productname: item.name,
+        // })),
+        // price: orderData.price,
+        // requestDate: orderData.requestDate,
+        // status: orderData.status || "pending",
       };
 
       console.log("Sending cart order payload to backend:", cartOrderPayload);

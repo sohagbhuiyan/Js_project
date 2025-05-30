@@ -11,7 +11,7 @@ const Login = () => {
   const [localError, setLocalError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, token, error: authError } = useSelector((state) => state.auth);
+  const { loading, token, role, error: authError } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(clearError());
@@ -21,9 +21,13 @@ const Login = () => {
     if (token) {
       // Fetch profile data immediately after successful login
       dispatch(fetchProfile());
-      navigate("/");
+      if (role== "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     }
-  }, [token, navigate, dispatch]);
+  }, [token, navigate, dispatch, role]);
 
   useEffect(() => {
     if (authError) {
