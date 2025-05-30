@@ -15,7 +15,7 @@ const AdminNavbar = () => {
   }, [token, profile, dispatch]);
 
   return (
-    <div className="bg-gray-900 z-90 p-1 flex justify-between px-10 items-center">
+    <div className="bg-gray-900 z-1000 p-1 flex justify-between px-10 items-center">
       <h1 className="text-xl text-white ml-64 font-bold">Techno Shop</h1>
       <div className="items-center relative mr-32">
         <AdminDropdown position="desktop" />

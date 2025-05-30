@@ -8,7 +8,7 @@ import { addToCompare } from "../../../../store/compareSlice";
 import toast, { Toaster } from "react-hot-toast";
 
 const CollectionCard = ({
-  id,
+id,
   imagea,
   category,
   name,
@@ -108,7 +108,7 @@ const CollectionCard = ({
       })
     )
       .then(() => {
-        toast.success("Added to cart!", { position: "top-right" });
+        toast.success("Added to cart!",);
       })
       .catch(() => {
         // Error toast is handled in the useEffect above
@@ -211,7 +211,7 @@ const CollectionCard = ({
           <div className="text-center mt-2 space-y-1">
             <h3 className="text-sm font-semibold text-gray-700 truncate">{name}</h3>
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[2rem]">{category}</p>
-            <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{title}</p>
+            <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{specification}</p>
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{product}</p>
             {/* {formatSpecification(specification)} */}
             <div className="flex flex-col items-center justify-center">
@@ -270,7 +270,7 @@ const CollectionCard = ({
               </div>
             </div>
           </div>
-          <Toaster />
+          <Toaster position="top-right"/>
         </div>
       )}
     </>

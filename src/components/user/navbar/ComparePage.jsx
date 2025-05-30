@@ -49,12 +49,12 @@ const ComparePage = () => {
                   <FaTimes className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <img
-                  src={product.image}
+                  src={product.imagea}
                   alt={product.name}
                   className="w-full h-32 sm:h-48 object-contain mb-2 sm:mb-4"
                 />
                 <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">{product.name}</h3>
-                <p className="text-lg sm:text-xl font-bold text-blue-600 mb-2 sm:mb-4">Tk {product.price}</p>
+                <p className="text-lg sm:text-xl font-bold text-blue-600 mb-2 sm:mb-4">Tk {product.specialprice}</p>
                 
                 <div className="space-y-1 sm:space-y-2 text-sm sm:text-base">
                   <div className="flex justify-between">

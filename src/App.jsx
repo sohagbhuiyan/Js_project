@@ -72,6 +72,7 @@ import AddContactUs from './components/admin/footer/AddContactUs';
 import CartOrderConfirmation from './components/user/product/CartOrderConfirmation';
 import EditProduct from './components/admin/products/EditProduct';
 import CustomEmail from './components/admin/management/CustomEmail';
+import CCBuilderViewItem from './components/admin/systemBuild/CCBuilderViewItem';
 
 function App() { 
   const dispatch = useDispatch();
@@ -156,6 +157,7 @@ function App() {
             <Route path="/admin/add-cc-builder" element={<AddCCBuilder />} />
             <Route path="/admin/Pc-builder/ViewSystemBuilder" element={<ViewSystemBuilder />} />
             <Route path="/admin/add-cc-item-details" element={<CCItemsDetailsAdd />} />
+            <Route path="/admin/update-cc-item-details" element={<CCBuilderViewItem />} />
           </Route>
 
           {/* Fallback Route */}

@@ -261,9 +261,22 @@ const AdminSidebar = () => {
                 : "hover:text-gray-400"
             }`}
           >
-            <BuildCircleTwoTone className="mr-2" /> View System Builder
+            <BuildCircleTwoTone className="mr-2" /> View PC-Builder
           </Link>
         </li>
+               <li>
+          <Link
+            to="/admin/update-cc-item-details"
+            className={`flex items-center p-2 rounded-md ${
+              isActive("/admin/update-cc-item-details")
+                ? "bg-gray-700 text-blue-400"
+                : "hover:text-gray-400"
+            }`}
+          >
+            <BuildCircleTwoTone className="mr-2" /> View CC-Builder
+          </Link>
+        </li>
+        
       </ul>
     </div>
   );

@@ -1,24 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProfile, logout } from "../../../store/authSlice";
+import { logout } from "../../../store/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import { clearCart } from "../../../store/cartSlice";
 import toast, { Toaster } from "react-hot-toast";
 
 export const AdminDropdown = ({ position = "desktop" }) => {
+
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, profile, role, loading, error } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (isOpen && user?.email && role === "admin") {
-      dispatch(fetchProfile());
-    }
-  }, [isOpen, user, role, dispatch]);
-
+  const { user, profile, role, error } = useSelector((state) => state.auth);
+  
   useEffect(() => {
     if (error && isOpen) {
       toast.error(`Profile error: ${error}`, {
@@ -69,23 +64,17 @@ export const AdminDropdown = ({ position = "desktop" }) => {
           {user && role === "admin" ? (
             <>
               <div className="mb-2">
-                {loading ? (
-                  <div className="flex items-center justify-center py-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-blue-500 border-solid"></div>
-                    <span className="ml-2 text-sm text-gray-600">Loading...</span>
-                  </div>
-                ) : (
                   <>
                     <p className="bg-green-600 text-white rounded-lg px-2 py-1 text-center text-sm">
                       {user.email}
                     </p>
                     {profile?.name && (
                       <p className="text-sm font-medium mt-1 text-center">
-                        Welcome, {user.name}
+                        Welcome Admin, <strong>{profile?.name}!</strong>
                       </p>
                     )}
-                  </>
-                )}
+                 </>
+                {/* )} */}
               </div>
               <Link
                 to="/admin/dashboard"
@@ -100,7 +89,7 @@ export const AdminDropdown = ({ position = "desktop" }) => {
                 className="block text-sm font-medium text-gray-600 hover:text-gray-500 mb-1 hover:bg-gray-200 p-1 rounded"
                 onClick={() => setIsOpen(false)}
               >
-                View Profile
+                Admin Profile
               </Link>
      
               <button

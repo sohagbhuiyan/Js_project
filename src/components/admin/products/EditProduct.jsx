@@ -384,7 +384,7 @@ const EditProduct = () => {
       <TextField
         name="warranty"
         type="number"
-        label="Warranty (Months)"
+        label="Warranty (year)"
         value={formState.warranty}
         onChange={handleChange}
         required

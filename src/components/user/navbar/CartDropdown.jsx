@@ -93,12 +93,13 @@ export const CartDropdown = ({ isOpen, onClose, position = 'desktop', cartIconRe
       if (profile?.id && token && cartId) {
         dispatch(removeFromCartAsync({ id: cartId, productId, productName }));
       } else {
-        dispatch({ type: 'cart/removeFromCart', payload: productId });
+      dispatch({ type: 'cart/removeFromCart', payload: productId });
         toast.success(`${productName} removed from cart!`, {
           duration: 2000,
           style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
         });
       }
+    
     },
     [dispatch, profile, token]
   );

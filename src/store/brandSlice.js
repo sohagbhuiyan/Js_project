@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api, { API_BASE_URL } from './api';
+import axios from 'axios';
 
 export const addBrand = createAsyncThunk(
   'brands/add',
   async ({ brandname, token }, { rejectWithValue }) => {
     try {
-      const response = await api.post(
+      const response = await axios.post(
         `${API_BASE_URL}/api/brands/save`,
         { brandname },
         {
@@ -38,7 +39,8 @@ export const fetchBrandById = createAsyncThunk(
   'brands/fetchBrandById',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await api.get(`${API_BASE_URL}/api/brands/get/${id}`); // get brand by id (individual)
+      const response = await axios.get(`${API_BASE_URL}/api/brands/get/${id}`); // get brand by id (individual)
+      console.log("\n\n\n respnose->",response)
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch brand');
@@ -62,7 +64,7 @@ export const updateBrand = createAsyncThunk(
   'brands/update',
   async ({ id, brandname, token }, { rejectWithValue }) => {
     try {
-      const response = await api.put(
+      const response = await axios.put(
         `${API_BASE_URL}/api/brands/update/${id}`,
         { brandname },
         {
@@ -83,7 +85,7 @@ export const deleteBrand = createAsyncThunk(
   'brands/delete',
   async ({ id, token }, { rejectWithValue }) => {
     try {
-      await api.delete(`${API_BASE_URL}/api/brands/delete/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/brands/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

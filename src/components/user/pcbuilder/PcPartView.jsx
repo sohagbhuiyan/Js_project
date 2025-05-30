@@ -274,30 +274,10 @@ const PcPartView = () => {
               onClick={handlePlaceOrderClick}
               disabled={loading.part || currentPart.quantity === 0}
             >
-              Proceed to Checkout
+              Proceed to order
             </button>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleAddToCart}
-              disabled={loading.part || currentPart.quantity === 0}
-            >
-              <FaShoppingCart /> Add to Cart
-            </button>
-            <button
-              className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleAddToWishlist}
-            >
-              <FaHeart /> Add to Wishlist
-            </button>
-            <button
-              className="flex cursor-pointer items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleAddToCompare}
-            >
-              <FaExchangeAlt /> Add to Compare
-            </button>
-          </div>
+
         </div>
       </div>
       <ProductDetails />

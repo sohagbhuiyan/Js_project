@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchBrands, fetchBrandById, updateBrand, deleteBrand, clearSelectedBrand } from "../../../store/brandSlice";
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchBrands, fetchBrandById, updateBrand, deleteBrand, clearSelectedBrand } from '../../../store/brandSlice';
 
 const ViewBrand = () => {
   const dispatch = useDispatch();
-  const { items: brands, loading, error } = useSelector((state) => state.brands);
-//   const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
+  const { items: brands, selectedBrand, loading, error } = useSelector((state) => state.brands);
+  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
   const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
 
   const [editBrandId, setEditBrandId] = useState(null);
@@ -17,12 +17,21 @@ const ViewBrand = () => {
     dispatch(fetchBrands());
   }, [dispatch]);
 
-  const handleEditClick = (brand) => {
+  const handleEditClick = async (brand) => {
     setEditBrandId(brand._id);
-    setEditBrandName(brand.brandname);
     setEditError('');
     setEditSuccess('');
-    dispatch(fetchBrandById({ id: brand._id }));
+    try {
+      const resultAction = await dispatch(fetchBrandById({ id: brand._id }));
+      if (fetchBrandById.fulfilled.match(resultAction)) {
+        setEditBrandName(resultAction.payload.brandname);
+      } else {
+        setEditError('Failed to fetch brand details.');
+      }
+    } catch (err) {
+      setEditError('An unexpected error occurred.');
+      console.error('Error:', err);
+    }
   };
 
   const handleUpdateSubmit = async (e) => {
@@ -37,16 +46,17 @@ const ViewBrand = () => {
 
     try {
       const resultAction = await dispatch(updateBrand({ id: editBrandId, brandname: editBrandName, token }));
-      if (resultAction.meta.requestStatus === 'fulfilled') {
+      if (updateBrand.fulfilled.match(resultAction)) {
         setEditSuccess('Brand updated successfully!');
         setEditBrandId(null);
         setEditBrandName('');
         dispatch(clearSelectedBrand());
+        dispatch(fetchBrands()); // Refresh the brand list
       } else {
-        setEditError('Failed to update brand.');
+        setEditError(resultAction.payload || 'Failed to update brand.');
       }
     } catch (err) {
-      setEditError('Failed to update brand.');
+      setEditError('An unexpected error occurred.');
       console.error('Error:', err);
     }
   };
@@ -55,13 +65,14 @@ const ViewBrand = () => {
     if (window.confirm('Are you sure you want to delete this brand?')) {
       try {
         const resultAction = await dispatch(deleteBrand({ id, token }));
-        if (resultAction.meta.requestStatus === 'fulfilled') {
+        if (deleteBrand.fulfilled.match(resultAction)) {
           alert('Brand deleted successfully!');
+          dispatch(fetchBrands()); // Refresh the brand list
         } else {
-          alert('Failed to delete brand.');
+          alert(resultAction.payload || 'Failed to delete brand.');
         }
       } catch (err) {
-        alert('Failed to delete brand.');
+        alert('An unexpected error occurred.');
         console.error('Error:', err);
       }
     }
@@ -70,12 +81,8 @@ const ViewBrand = () => {
   return (
     <div className="p-8 max-w-2xl mx-auto space-y-12">
       <h2 className="text-2xl font-bold mb-6">View Brands</h2>
-      {loading && (
-        <p className="text-gray-600 text-center">Loading brands...</p>
-      )}
-      {error && (
-        <p className="text-red-600 text-center">{error}</p>
-      )}
+      {loading && <p className="text-gray-600 text-center">Loading brands...</p>}
+      {error && <p className="text-red-600 text-center">{error}</p>}
       {!loading && !error && brands.length === 0 && (
         <p className="text-gray-600 text-center">No brands found.</p>
       )}
@@ -87,7 +94,7 @@ const ViewBrand = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Brand Name
                 </th>
-                {token === 'admin' && (
+                {userRole === 'admin' && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -137,7 +144,7 @@ const ViewBrand = () => {
                       brand.brandname
                     )}
                   </td>
-                  {token === 'admin' && (
+                  {userRole === 'admin' && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {editBrandId !== brand._id && (
                         <div className="flex space-x-2">

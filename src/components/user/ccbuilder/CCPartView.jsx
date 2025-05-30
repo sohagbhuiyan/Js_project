@@ -478,82 +478,82 @@ const CCPartView = () => {
     });
   };
 
-  const handleAddToCart = () => {
-    if (!user?.id || !profile?.email || !token) {
-      toast.error("Please log in to add to cart.", { position: "top-right", duration: 1000 });
-      navigate("/login", { state: { from: `/cc-builder/item-details/${id}` } });
-      return;
-    }
-    if (!currentItem) {
-      toast.error("Item not available.", { position: "top-right" });
-      return;
-    }
-    dispatch(
-      addToCartAsync({
-        productDetailsId: id,
-        quantity,
-        name: currentItem.name,
-        price: currentItem.specialprice > 0 ? currentItem.specialprice : currentItem.regularprice,
-        imagea: mainImage,
-      })
-    )
-      .then(() => {
-        toast.success("Added to cart!", { position: "top-right" });
-      })
-      .catch(() => {
-        // Error handled in useEffect
-      });
-  };
+  // const handleAddToCart = () => {
+  //   if (!user?.id || !profile?.email || !token) {
+  //     toast.error("Please log in to add to cart.", { position: "top-right", duration: 1000 });
+  //     navigate("/login", { state: { from: `/cc-builder/item-details/${id}` } });
+  //     return;
+  //   }
+  //   if (!currentItem) {
+  //     toast.error("Item not available.", { position: "top-right" });
+  //     return;
+  //   }
+  //   dispatch(
+  //     addToCartAsync({
+  //       productDetailsId: id,
+  //       quantity,
+  //       name: currentItem.name,
+  //       price: currentItem.specialprice > 0 ? currentItem.specialprice : currentItem.regularprice,
+  //       imagea: mainImage,
+  //     })
+  //   )
+  //     .then(() => {
+  //       toast.success("Added to cart!", { position: "top-right" });
+  //     })
+  //     .catch(() => {
+  //       // Error handled in useEffect
+  //     });
+  // };
 
-  const handleAddToWishlist = () => {
-    if (!user?.id || !profile?.email || !token) {
-      toast.error("Please log in to add to wishlist.", { position: "top-right", duration: 1000 });
-      navigate("/login", { state: { from: `/cc-builder/item-details/${id}` } });
-      return;
-    }
-    if (!currentItem) {
-      toast.error("Item not available.", { position: "top-right" });
-      return;
-    }
-    dispatch(
-      addToWishlist({
-        id,
-        imagea: mainImage,
-        name: currentItem.name,
-        regularprice: currentItem.regularprice,
-        specialprice: currentItem.specialprice,
-        description: currentItem.description,
-      })
-    );
-    toast.success("Added to wishlist!", { position: "top-right" });
-  };
+  // const handleAddToWishlist = () => {
+  //   if (!user?.id || !profile?.email || !token) {
+  //     toast.error("Please log in to add to wishlist.", { position: "top-right", duration: 1000 });
+  //     navigate("/login", { state: { from: `/cc-builder/item-details/${id}` } });
+  //     return;
+  //   }
+  //   if (!currentItem) {
+  //     toast.error("Item not available.", { position: "top-right" });
+  //     return;
+  //   }
+  //   dispatch(
+  //     addToWishlist({
+  //       id,
+  //       imagea: mainImage,
+  //       name: currentItem.name,
+  //       regularprice: currentItem.regularprice,
+  //       specialprice: currentItem.specialprice,
+  //       description: currentItem.description,
+  //     })
+  //   );
+  //   toast.success("Added to wishlist!", { position: "top-right" });
+  // };
 
-  const handleAddToCompare = () => {
-    if (!currentItem) {
-      toast.error("Item not available.", { position: "top-right" });
-      return;
-    }
-    dispatch(
-      addToCompare({
-        id,
-        name: currentItem.name,
-        regularprice: currentItem.regularprice,
-        specialprice: currentItem.specialprice,
-        imagea: mainImage,
-        description: currentItem.description,
-        specifications: {
-          performance: currentItem.performance,
-          ability: currentItem.ability,
-          quantity: currentItem.quantity,
-          benefits: currentItem.benefits,
-          moralqualities: currentItem.moralqualities,
-          opportunity: currentItem.opportunity,
-          warranty: currentItem.warranty,
-        },
-      })
-    );
-    toast.success("Added to compare!", { position: "top-right" });
-  };
+  // const handleAddToCompare = () => {
+  //   if (!currentItem) {
+  //     toast.error("Item not available.", { position: "top-right" });
+  //     return;
+  //   }
+  //   dispatch(
+  //     addToCompare({
+  //       id,
+  //       name: currentItem.name,
+  //       regularprice: currentItem.regularprice,
+  //       specialprice: currentItem.specialprice,
+  //       imagea: mainImage,
+  //       description: currentItem.description,
+  //       specifications: {
+  //         performance: currentItem.performance,
+  //         ability: currentItem.ability,
+  //         quantity: currentItem.quantity,
+  //         benefits: currentItem.benefits,
+  //         moralqualities: currentItem.moralqualities,
+  //         opportunity: currentItem.opportunity,
+  //         warranty: currentItem.warranty,
+  //       },
+  //     })
+  //   );
+  //   toast.success("Added to compare!", { position: "top-right" });
+  // };
 
   const handleRetry = () => {
     dispatch(clearCCBError());
@@ -706,30 +706,10 @@ const CCPartView = () => {
               onClick={handlePlaceOrderClick}
               disabled={loading.itemDetails || currentItem.quantity === 0}
             >
-              Proceed to Checkout
+              Proceed to Order
             </button>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="flex items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleAddToCart}
-              disabled={loading.itemDetails || currentItem.quantity === 0}
-            >
-              <FaShoppingCart /> Add to Cart
-            </button>
-            <button
-              className="flex items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleAddToWishlist}
-            >
-              <FaHeart /> Add to Wishlist
-            </button>
-            <button
-              className="flex items-center gap-2 bg-white text-sm text-gray-600 border border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleAddToCompare}
-            >
-              <FaExchangeAlt /> Add to Compare
-            </button>
-          </div>
+
         </div>
       </div>
       <Toaster />

@@ -168,17 +168,18 @@ const ProductView = () => {
           <Button
             variant="contained"
             color="success"
+            size="small"
             onClick={handlePlaceOrderClick}
             disabled={loading}
             sx={{ px: 3, py: 1 }}
           >
-            {loading ? "Processing..." : "Proceed to Checkout"}
+            {loading ? "Processing..." : "Proceed to Order"}
           </Button>
         </Box>
       </Box>
 
       {/* Product Images */}
-      <Box sx={{ display: "flex", flexDirection: { xs: "column-reverse", md: "row" }, gap: 2 }}>
+      <Box sx={{ display: "flex", px: 5, py:2, flexDirection: { xs: "column-reverse", md: "row" }, gap: 2 }}>
         <Box sx={{ display: "flex", flexDirection: { xs: "row", md: "column" }, gap: 1, px: 1 }}>
           {galleryImages.map((img, index) => (
             <img
@@ -198,10 +199,11 @@ const ProductView = () => {
         <Box
           sx={{
             position: "relative",
-            width: { xs: "160px", sm: "300px" },
-            height: { xs: "160px", sm: "300px" },
+            width: { xs: "250px", sm: "420px" },
+            height: { xs: "180px", sm: "360px" },
             border: "1px solid #ccc",
             overflow: "hidden",
+           
           }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}

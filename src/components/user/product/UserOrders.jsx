@@ -165,7 +165,7 @@ const UserOrders = () => {
                         </button>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {product.name || order.productname || "N/A"}
+                        {product.name || order.productname || order.ccBuilderItemDitelsList?.name || order.pcForPartAddList?.name || "N/A"}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
                         {order.quantity || "N/A"}
@@ -240,7 +240,7 @@ const UserOrders = () => {
                 </h4>
                 <p>
                   <span className="font-medium">Product ID:</span>{" "}
-                  {selectedOrder.productid || "N/A"}
+                  {selectedOrder.productid || selectedOrder.id || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Name:</span>{" "}
@@ -248,7 +248,7 @@ const UserOrders = () => {
                 </p>
                 <p>
                   <span className="font-medium">Category:</span>{" "}
-                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.ccBuilder?.name || "N/A"}
+                  {selectedOrder.productDetails?.catagory || selectedOrder.ccBuilderItemDitelsList?.[0]?.ccBuilder?.name || "N/A"}
                 </p>
               </div>
 
