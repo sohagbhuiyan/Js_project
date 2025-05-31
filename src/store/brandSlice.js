@@ -39,23 +39,10 @@ export const fetchBrandById = createAsyncThunk(
   'brands/fetchBrandById',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/brands/get/${id}`); // get brand by id (individual)
-      console.log("\n\n\n respnose->",response)
+      const response = await api.get(`${API_BASE_URL}/api/brands/get/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch brand');
-    }
-  }
-);
-
-export const fetchProductsByBrand = createAsyncThunk(
-  'brands/fetchProductsByBrand',
-  async ({ id }, { rejectWithValue }) => {
-    try {
-      const response = await api.get(`${API_BASE_URL}/api/productDetails/Brand/get/ById/${id}`); // all productdetails show under the brand id select
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch products by brand');
     }
   }
 );
@@ -74,7 +61,7 @@ export const updateBrand = createAsyncThunk(
           }
         }
       );
-      return response.data;
+      return { id, ...response.data };
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Updating brand failed');
     }
@@ -85,15 +72,31 @@ export const deleteBrand = createAsyncThunk(
   'brands/delete',
   async ({ id, token }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/brands/delete/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/brands/delete/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
-      });
+      );
       return id;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Deleting brand failed');
+      console.error('Delete brand error:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || 'Deleting brand failed');
+    }
+  }
+);
+
+export const fetchProductsByBrand = createAsyncThunk(
+  'brands/fetchProductsByBrand',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`${API_BASE_URL}/api/productDetails/Brand/get/ById/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch products by brand');
     }
   }
 );
@@ -153,6 +156,33 @@ const brandSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(updateBrand.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateBrand.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.items.findIndex(brand => brand.id === action.payload.id);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
+      })
+      .addCase(updateBrand.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteBrand.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteBrand.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = state.items.filter(brand => brand.id !== action.payload);
+      })
+      .addCase(deleteBrand.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(fetchProductsByBrand.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -165,34 +195,6 @@ const brandSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(updateBrand.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateBrand.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.items.findIndex((brand) => brand._id === action.payload._id);
-        if (index !== -1) {
-          state.items[index] = action.payload;
-        }
-        state.selectedBrand = null;
-      })
-      .addCase(updateBrand.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(deleteBrand.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteBrand.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = state.items.filter((brand) => brand._id !== action.payload);
-      })
-      .addCase(deleteBrand.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
   },
 });
 

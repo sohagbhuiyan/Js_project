@@ -47,9 +47,10 @@ export const addProductDetails = createAsyncThunk(
         { type: 'application/json' }
       );
       formData.append('productDetails', jsonBlob);
-      formData.append('imagea', formDataObject.imagea);
-      formData.append('imageb', formDataObject.imageb);
-      formData.append('imagec', formDataObject.imagec);
+      
+      if (formDataObject.imagea) formData.append('imagea', formDataObject.imagea);
+      if (formDataObject.imageb) formData.append('imageb', formDataObject.imageb);
+      if (formDataObject.imagec) formData.append('imagec', formDataObject.imagec);
 
       const response = await axios.post(
         `${API_BASE_URL}/api/ProductDetails/save`,
@@ -57,6 +58,7 @@ export const addProductDetails = createAsyncThunk(
         { 
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           } 
         }
       );
@@ -96,17 +98,23 @@ export const fetchProductIdByDetailsId = createAsyncThunk(
     }
   }
 );
-// Async thunk to update product details
+
+// Updated async thunk to update product details
 export const updateProductDetails = createAsyncThunk(
   'products/updateProductDetails',
   async ({ id, formDataObject, token }, { rejectWithValue }) => {
     try {
+      console.log('Updating product with ID:', id);
+      console.log('Form data object:', formDataObject);
+      
       const formData = new FormData();
       const jsonBlob = new Blob(
         [JSON.stringify(formDataObject.productDetails)],
         { type: 'application/json' }
       );
       formData.append('productDetails', jsonBlob);
+      
+      // Only append images if they are provided (new uploads)
       if (formDataObject.imagea) formData.append('imagea', formDataObject.imagea);
       if (formDataObject.imageb) formData.append('imageb', formDataObject.imageb);
       if (formDataObject.imagec) formData.append('imagec', formDataObject.imagec);
@@ -117,15 +125,21 @@ export const updateProductDetails = createAsyncThunk(
         { 
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           } 
         }
       );
+      
+      console.log('Update response:', response.data);
+      
       return { 
+        id: parseInt(id),
         ...response.data,
         regularprice: Number(response.data.regularprice),
         specialprice: Number(response.data.specialprice)
       };
     } catch (error) {
+      console.error('Update error:', error);
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -148,10 +162,13 @@ export const deleteProductDetails = createAsyncThunk(
   }
 );
 
-// Clear current product
-export const clearCurrentProduct = () => ({
-  type: 'products/clearCurrentProduct',
-});
+// Clear current product action
+export const clearCurrentProduct = createAsyncThunk(
+  'products/clearCurrentProduct',
+  async () => {
+    return null;
+  }
+);
 
 const productSlice = createSlice({
   name: 'products',
@@ -164,8 +181,14 @@ const productSlice = createSlice({
     successMessage: null,
   },
   reducers: {
-      clearCurrentProduct(state) {
+    clearCurrentProduct(state) {
       state.currentProduct = null;
+      state.error = null;
+      state.successMessage = null;
+    },
+    clearMessages(state) {
+      state.error = null;
+      state.successMessage = null;
     },
   },
   extraReducers: (builder) => {
@@ -190,6 +213,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
       // Add Product
       .addCase(addProductDetails.pending, (state) => {
         state.loading = true;
@@ -198,7 +222,7 @@ const productSlice = createSlice({
       })
       .addCase(addProductDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = action.payload;
+        state.successMessage = 'Product added successfully';
         state.products.push({
           ...action.payload,
           imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
@@ -210,11 +234,11 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
       // Fetch product by ID (single product)
       .addCase(fetchProductDetailsById.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.currentProduct = null;
       })
       .addCase(fetchProductDetailsById.fulfilled, (state, action) => {
         state.loading = false;
@@ -229,6 +253,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
       // Fetch related products by category
       .addCase(fetchRelatedProducts.pending, (state) => {
         state.loading = true;
@@ -247,6 +272,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
       // Fetch product ID by details ID
       .addCase(fetchProductIdByDetailsId.pending, (state) => {
         state.loading = true;
@@ -262,6 +288,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      
       // Update product
       .addCase(updateProductDetails.pending, (state) => {
         state.loading = true;
@@ -271,25 +298,27 @@ const productSlice = createSlice({
       .addCase(updateProductDetails.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = 'Product updated successfully';
-        state.products = state.products.map(product =>
-          product.id === action.payload.id ? {
-            ...action.payload,
-            imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
-            imageb: action.payload.imageb ? `${API_BASE_URL}/images/${action.payload.imageb}` : null,
-            imagec: action.payload.imagec ? `${API_BASE_URL}/images/${action.payload.imagec}` : null,
-          } : product
-        );
-        state.currentProduct = {
+        
+        // Update the product in the products array
+        const updatedProduct = {
           ...action.payload,
           imagea: action.payload.imagea ? `${API_BASE_URL}/images/${action.payload.imagea}` : null,
           imageb: action.payload.imageb ? `${API_BASE_URL}/images/${action.payload.imageb}` : null,
           imagec: action.payload.imagec ? `${API_BASE_URL}/images/${action.payload.imagec}` : null,
         };
+        
+        state.products = state.products.map(product =>
+          product.id === action.payload.id ? updatedProduct : product
+        );
+        
+        // Update current product
+        state.currentProduct = updatedProduct;
       })
       .addCase(updateProductDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      
       // Delete product
       .addCase(deleteProductDetails.pending, (state) => {
         state.loading = true;
@@ -300,7 +329,9 @@ const productSlice = createSlice({
         state.loading = false;
         state.successMessage = 'Product deleted successfully';
         state.products = state.products.filter(product => product.id !== action.payload);
-        state.currentProduct = null;
+        if (state.currentProduct && state.currentProduct.id === action.payload) {
+          state.currentProduct = null;
+        }
       })
       .addCase(deleteProductDetails.rejected, (state, action) => {
         state.loading = false;
@@ -309,8 +340,8 @@ const productSlice = createSlice({
   },
 });
 
+export const { clearMessages } = productSlice.actions;
 export default productSlice.reducer;
-
 
 
 // import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';

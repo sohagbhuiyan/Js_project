@@ -18,14 +18,14 @@ const Layout = () => {
     return (
       <div className="min-h-screen flex">
         {/* Sidebar */}
-        <aside className="w-48 bg-gray-800 text-white fixed min-h-screen">
+        <aside className="w-48 bg-gray-800 text-white z-1000 fixed min-h-screen">
           <AdminSidebar />
         </aside>
 
         {/* Main content area */}
         <div className="flex-1 flex flex-col ">
           {/* Top Navbar */}
-          <div className="bg-gray-900 text-white p-3 sticky top-0">
+          <div className="bg-gray-900 text-white p-3 sticky z-900 top-0">
             <AdminNavbar />
           </div>
           {/* Outlet renders admin protected routes */}

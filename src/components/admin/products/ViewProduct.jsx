@@ -21,9 +21,9 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { fetchProducts, deleteProductDetails } from '../../../store/productSlice';
+import { Trash } from 'lucide-react';
 
 const ViewProduct = () => {
   const dispatch = useDispatch();
@@ -66,7 +66,7 @@ const ViewProduct = () => {
   };
 
   return (
-    <Box className="p-6 bg-gray-100 min-h-screen">
+    <Box className="p-6 bg-gray-100">
       <Box className="flex justify-between items-center mb-6">
         <Typography variant="h5" className="font-bold text-gray-800">
           View Products
@@ -154,7 +154,7 @@ const ViewProduct = () => {
                       color="error"
                       onClick={() => handleDeleteClick(product.id)}
                     >
-                      <DeleteIcon />
+                      <Trash/>
                     </IconButton>
                   </TableCell>
                 </TableRow>

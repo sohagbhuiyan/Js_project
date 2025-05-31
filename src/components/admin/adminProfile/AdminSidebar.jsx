@@ -27,7 +27,7 @@ const AdminSidebar = () => {
       className="w-50 bg-gray-800 text-white min-h-screen p-1"
       style={{ maxHeight: "calc(100vh - 16px)" }} // Adjust for padding/margin if needed
     >
-      <h1 className="text-2xl font-bold mb-6">Admin Panel</h1>
+      <h1 className="text-xl text-gray-400 p-3 mb-2">Admin Panel</h1>
       <ul className="space-y-4 overflow-y-auto" style={{ maxHeight: "calc(100vh - 70px)" }}>
         {/* Dashboard */}
         <li>

@@ -14,7 +14,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { fetchProductDetailsById, fetchProductIdByDetailsId, updateProductDetails, clearCurrentProduct } from '../../../store/productSlice';
+import { fetchProductDetailsById, updateProductDetails, clearCurrentProduct } from '../../../store/productSlice';
 import { API_BASE_URL } from '../../../store/api';
 
 const EditProduct = () => {
@@ -54,7 +54,7 @@ const EditProduct = () => {
   // Fetch product details and other data on mount
   useEffect(() => {
     dispatch(fetchProductDetailsById(id));
-    dispatch(fetchProductIdByDetailsId(id));
+    
     const fetchData = async () => {
       try {
         const [catRes, prodRes, brandsRes] = await Promise.all([
@@ -67,14 +67,16 @@ const EditProduct = () => {
         const prodData = await prodRes.json();
         const brandsData = await brandsRes.json();
 
-        setCategories(catData);
-        setProducts(prodData);
-        setBrands(brandsData);
+        setCategories(catData || []);
+        setProducts(prodData || []);
+        setBrands(brandsData || []);
       } catch (err) {
         console.error('Failed to fetch data:', err);
       }
     };
+    
     fetchData();
+    
     return () => {
       dispatch(clearCurrentProduct());
     };
@@ -83,6 +85,8 @@ const EditProduct = () => {
   // Populate form with current product data
   useEffect(() => {
     if (currentProduct) {
+      console.log('Current Product Data:', currentProduct); // Debug log
+      
       setFormState({
         productid: currentProduct.productid || '',
         name: currentProduct.name || '',
@@ -98,15 +102,21 @@ const EditProduct = () => {
         brand: { id: currentProduct.brand?.id || '' },
         productItem: { id: currentProduct.productItem?.id || '' },
       });
+
+      // Set image previews
       setMainImagePreview(currentProduct.imagea || null);
       setAdditionalImagesPreviews([
         currentProduct.imageb || null,
         currentProduct.imagec || null,
       ]);
-      if (currentProduct.catagory?.id) {
+
+      // Filter products based on selected category
+      if (currentProduct.catagory?.id && products.length > 0) {
         const filtered = products.filter((prod) => prod.catagory?.id === currentProduct.catagory?.id);
         setFilteredProducts(filtered);
       }
+
+      // Fetch product items if product is selected
       if (currentProduct.product?.id) {
         fetchProductItems(currentProduct.product.id);
       }
@@ -114,18 +124,25 @@ const EditProduct = () => {
   }, [currentProduct, products]);
 
   // Fetch product items based on selected product
-  const fetchProductItems = async (id) => {
+  const fetchProductItems = async (productId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/item/findbyproductid/get/${id}`);
-      const data = await response.json();
-      setProductItems(data);
+      const response = await fetch(`${API_BASE_URL}/api/item/findbyproductid/get/${productId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setProductItems(data || []);
+      } else {
+        console.error('Failed to fetch product items');
+        setProductItems([]);
+      }
     } catch (err) {
       console.error('Failed to fetch product items:', err);
+      setProductItems([]);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
     if (name === 'catagory.id') {
       setFormState((prev) => ({
         ...prev,
@@ -142,7 +159,11 @@ const EditProduct = () => {
         product: { id: value },
         productItem: { id: '' },
       }));
-      fetchProductItems(value);
+      if (value) {
+        fetchProductItems(value);
+      } else {
+        setProductItems([]);
+      }
     } else if (name === 'brand.id') {
       setFormState((prev) => ({
         ...prev,
@@ -192,28 +213,50 @@ const EditProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation
     if (!formState.catagory.id || !formState.product.id || !formState.productItem.id) {
       alert('Category, product, and product item are required.');
       return;
     }
 
     try {
+      // Prepare form data object with proper structure
       const formDataObject = {
         productDetails: {
-          ...formState,
+          id: parseInt(id), // Include the ID for update
+          productid: formState.productid,
+          name: formState.name,
+          quantity: parseInt(formState.quantity),
+          regularprice: parseFloat(formState.regularprice),
+          specialprice: parseFloat(formState.specialprice),
+          title: formState.title,
+          details: formState.details,
+          specification: formState.specification,
+          warranty: parseInt(formState.warranty),
+          catagory: { id: parseInt(formState.catagory.id) },
+          product: { id: parseInt(formState.product.id) },
+          brand: { id: parseInt(formState.brand.id) },
           productItem: { id: parseInt(formState.productItem.id) },
         },
-        imagea: imagea || null,
-        imageb: imageb || null,
-        imagec: imagec || null,
+        imagea: imagea,
+        imageb: imageb,
+        imagec: imagec,
       };
 
-      await dispatch(updateProductDetails({ id, formDataObject, token })).unwrap();
+      console.log('Submitting form data:', formDataObject); // Debug log
+
+      const result = await dispatch(updateProductDetails({ 
+        id: parseInt(id), 
+        formDataObject, 
+        token 
+      })).unwrap();
+
+      console.log('Update result:', result); // Debug log
       alert('Product updated successfully!');
       navigate('/admin/products/view-product');
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Failed to update product: ' + (error || 'Unknown error'));
+      alert('Failed to update product: ' + (error?.message || error || 'Unknown error'));
     }
   };
 
@@ -235,6 +278,9 @@ const EditProduct = () => {
         Edit Product
       </Typography>
 
+      {error && <Alert severity="error">Error: {error}</Alert>}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+
       <TextField
         name="productid"
         label="Product ID"
@@ -243,6 +289,7 @@ const EditProduct = () => {
         required
         className="w-full"
       />
+      
       <TextField
         name="name"
         label="Product Name"
@@ -335,6 +382,7 @@ const EditProduct = () => {
         required
         className="w-full"
       />
+      
       <TextField
         name="regularprice"
         type="number"
@@ -343,7 +391,9 @@ const EditProduct = () => {
         onChange={handleChange}
         required
         className="w-full"
+        inputProps={{ step: "0.01" }}
       />
+      
       <TextField
         name="specialprice"
         type="number"
@@ -352,15 +402,18 @@ const EditProduct = () => {
         onChange={handleChange}
         required
         className="w-full"
+        inputProps={{ step: "0.01" }}
       />
+      
       <TextField
         name="title"
-        label="Title"
+        label="Additional Information"
         value={formState.title}
         onChange={handleChange}
         required
         className="w-full"
       />
+      
       <TextField
         name="details"
         label="Details"
@@ -371,6 +424,7 @@ const EditProduct = () => {
         required
         className="w-full"
       />
+      
       <TextField
         name="specification"
         label="Specification"
@@ -381,6 +435,7 @@ const EditProduct = () => {
         required
         className="w-full"
       />
+      
       <TextField
         name="warranty"
         type="number"
@@ -407,7 +462,7 @@ const EditProduct = () => {
       {[1, 2].map((index) => (
         <Box key={index}>
           <Typography variant="subtitle1" className="text-gray-700">
-            Image {index} (Gallery)
+            Image {index === 1 ? 'B' : 'C'} (Gallery)
           </Typography>
           {additionalImagesPreviews[index - 1] && (
             <Avatar
@@ -417,7 +472,7 @@ const EditProduct = () => {
             />
           )}
           <Button component="label" variant="outlined" className="border-gray-300 hover:border-gray-400">
-            Upload New Image {index}
+            Upload New Image {index === 1 ? 'B' : 'C'}
             <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
           </Button>
         </Box>
@@ -428,13 +483,10 @@ const EditProduct = () => {
         variant="contained"
         color="primary"
         disabled={loading}
-        className="bg-blue-600 hover:bg-blue-700"
+        className="bg-blue-600 hover:bg-blue-700 mt-4"
       >
         {loading ? 'Updating...' : 'Update Product'}
       </Button>
-
-      {error && <Alert severity="error">Error: {error}</Alert>}
-      {successMessage && <Alert severity="success">{successMessage}</Alert>}
     </Box>
   );
 };

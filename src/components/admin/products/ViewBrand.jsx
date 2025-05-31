@@ -1,177 +1,206 @@
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchBrands, fetchBrandById, updateBrand, deleteBrand, clearSelectedBrand } from '../../../store/brandSlice';
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchBrands, updateBrand, deleteBrand } from "../../../store/brandSlice";
 
 const ViewBrand = () => {
-  const dispatch = useDispatch();
-  const { items: brands, selectedBrand, loading, error } = useSelector((state) => state.brands);
-  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
-  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
-
-  const [editBrandId, setEditBrandId] = useState(null);
+  const [editingBrand, setEditingBrand] = useState(null);
   const [editBrandName, setEditBrandName] = useState('');
-  const [editError, setEditError] = useState('');
-  const [editSuccess, setEditSuccess] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const dispatch = useDispatch();
+  const { items: brands, loading, error } = useSelector((state) => state.brands);
+  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
+  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
 
   useEffect(() => {
     dispatch(fetchBrands());
   }, [dispatch]);
 
-  const handleEditClick = async (brand) => {
-    setEditBrandId(brand._id);
-    setEditError('');
-    setEditSuccess('');
-    try {
-      const resultAction = await dispatch(fetchBrandById({ id: brand._id }));
-      if (fetchBrandById.fulfilled.match(resultAction)) {
-        setEditBrandName(resultAction.payload.brandname);
-      } else {
-        setEditError('Failed to fetch brand details.');
-      }
-    } catch (err) {
-      setEditError('An unexpected error occurred.');
-      console.error('Error:', err);
-    }
+  const handleEditClick = (brand) => {
+    setEditingBrand(brand.id);
+    setEditBrandName(brand.brandname);
   };
 
-  const handleUpdateSubmit = async (e) => {
+  const handleCancelEdit = () => {
+    setEditingBrand(null);
+    setEditBrandName('');
+  };
+
+  const handleUpdateSubmit = async (e, brandId) => {
     e.preventDefault();
-    setEditError('');
-    setEditSuccess('');
-
-    if (!editBrandName.trim()) {
-      setEditError('Brand name is required');
-      return;
-    }
+    setSuccessMessage('');
+    setErrorMessage('');
 
     try {
-      const resultAction = await dispatch(updateBrand({ id: editBrandId, brandname: editBrandName, token }));
-      if (updateBrand.fulfilled.match(resultAction)) {
-        setEditSuccess('Brand updated successfully!');
-        setEditBrandId(null);
+      const resultAction = await dispatch(updateBrand({ 
+        id: brandId, 
+        brandname: editBrandName, 
+        token 
+      }));
+      
+      if (resultAction.meta.requestStatus === 'fulfilled') {
+        setSuccessMessage('Brand updated successfully!');
+        setEditingBrand(null);
         setEditBrandName('');
-        dispatch(clearSelectedBrand());
-        dispatch(fetchBrands()); // Refresh the brand list
       } else {
-        setEditError(resultAction.payload || 'Failed to update brand.');
+        setErrorMessage('Failed to update brand.');
       }
     } catch (err) {
-      setEditError('An unexpected error occurred.');
+      setErrorMessage('Failed to update brand.');
       console.error('Error:', err);
     }
   };
 
-  const handleDeleteClick = async (id) => {
+  const handleDelete = async (brandId) => {
     if (window.confirm('Are you sure you want to delete this brand?')) {
+      setSuccessMessage('');
+      setErrorMessage('');
+
       try {
-        const resultAction = await dispatch(deleteBrand({ id, token }));
-        if (deleteBrand.fulfilled.match(resultAction)) {
-          alert('Brand deleted successfully!');
-          dispatch(fetchBrands()); // Refresh the brand list
+        const resultAction = await dispatch(deleteBrand({ id: brandId, token }));
+        
+        if (resultAction.meta.requestStatus === 'fulfilled') {
+          setSuccessMessage('Brand deleted successfully!');
         } else {
-          alert(resultAction.payload || 'Failed to delete brand.');
+          setErrorMessage('Failed to delete brand.');
         }
       } catch (err) {
-        alert('An unexpected error occurred.');
+        setErrorMessage('Failed to delete brand.');
         console.error('Error:', err);
       }
     }
   };
 
+  if (userRole !== 'admin') {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <p className="text-red-600 text-center text-xl font-semibold">
+          You do not have permission to access this page.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8 max-w-2xl mx-auto space-y-12">
-      <h2 className="text-2xl font-bold mb-6">View Brands</h2>
-      {loading && <p className="text-gray-600 text-center">Loading brands...</p>}
-      {error && <p className="text-red-600 text-center">{error}</p>}
-      {!loading && !error && brands.length === 0 && (
-        <p className="text-gray-600 text-center">No brands found.</p>
-      )}
-      {!loading && !error && brands.length > 0 && (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Brand Name
-                </th>
-                {userRole === 'admin' && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {brands.map((brand) => (
-                <tr key={brand._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {editBrandId === brand._id ? (
-                      <form onSubmit={handleUpdateSubmit} className="space-y-2">
-                        <input
-                          type="text"
-                          value={editBrandName}
-                          onChange={(e) => setEditBrandName(e.target.value)}
-                          required
-                          className="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                          disabled={loading}
-                        />
-                        <div className="flex space-x-2">
-                          <button
-                            type="submit"
-                            className={`bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors ${
-                              loading ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                            disabled={loading}
-                          >
-                            {loading ? 'Updating...' : 'Save'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditBrandId(null);
-                              setEditBrandName('');
-                              dispatch(clearSelectedBrand());
-                            }}
-                            className="bg-gray-300 text-gray-800 py-1 px-3 rounded hover:bg-gray-400 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                        {editError && <p className="text-red-600 text-sm">{editError}</p>}
-                        {editSuccess && <p className="text-green-600 text-sm">{editSuccess}</p>}
-                      </form>
-                    ) : (
-                      brand.brandname
-                    )}
-                  </td>
-                  {userRole === 'admin' && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {editBrandId !== brand._id && (
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleEditClick(brand)}
-                            className="bg-yellow-500 text-white py-1 px-3 rounded hover:bg-yellow-600 transition-colors"
-                            disabled={loading}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(brand._id)}
-                            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors"
-                            disabled={loading}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="p-8 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6">Manage Brands</h2>
+      
+      {successMessage && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          {successMessage}
         </div>
       )}
+      
+      {errorMessage && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {errorMessage}
+        </div>
+      )}
+
+      {loading && (
+        <div className="text-center py-4">
+          <p>Loading brands...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          Error: {error}
+        </div>
+      )}
+
+      <div className="bg-white shadow rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Brand Name
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {brands.map((brand) => (
+              <tr key={brand.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {brand.id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {editingBrand === brand.id ? (
+                    <form 
+                      onSubmit={(e) => handleUpdateSubmit(e, brand.id)}
+                      className="flex items-center space-x-2"
+                    >
+                      <input
+                        type="text"
+                        value={editBrandName}
+                        onChange={(e) => setEditBrandName(e.target.value)}
+                        className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        required
+                        disabled={loading}
+                      />
+                      <button
+                        type="submit"
+                        className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+                        disabled={loading}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  ) : (
+                    brand.brandname
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  {editingBrand !== brand.id && (
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => handleEditClick(brand)}
+                        className="text-blue-600 hover:text-blue-900 p-1"
+                        title="Edit Brand"
+                        disabled={loading}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={(brand) => handleDelete(brand.id)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                        title="Delete Brand"
+                        disabled={loading}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        {brands.length === 0 && !loading && (
+          <div className="text-center py-8 text-gray-500">
+            No brands found.
+          </div>
+        )}
+      </div>
     </div>
   );
 };
