@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHeroImages } from '../../../store/heroSlice';
-import { Box, CircularProgress, Alert, IconButton } from '@mui/material';
+import { Box, CircularProgress, Alert } from '@mui/material';
 
 const FALLBACK_IMAGE = '/images/placeholder.png';
 
@@ -52,7 +52,7 @@ const HeroSection = () => {
   const imagesArray = [currentImageSet.imagea, currentImageSet.imageb];
 
   return (
-    <Box className="container mx-auto px-2 py-2">
+    <Box className="container mx-auto px-1 py-2">
       {/* Desktop View */}
       <Box
         sx={{
@@ -114,7 +114,7 @@ const HeroSection = () => {
                 <div
                   key={index}
                   onClick={() => setCurrentSlideIndex(index)}
-                  className={`w-10 h-1  rounded-full cursor-pointer transition-all duration-300 ease-in ${
+                  className={`w-10 h-1 rounded-full cursor-pointer transition-all duration-300 ease-in ${
                     currentSlideIndex === index ? 'bg-gray-500' : 'bg-white'
                   }`}
                 />
@@ -130,11 +130,10 @@ const HeroSection = () => {
             maxWidth: '25%',
             display: 'flex',
             flexDirection: 'column',
-      
-            gap: 2,
+            gap: 1, // Reduced gap for better alignment
           }}
         >
-          <Box sx={{ flex: 1, position: 'relative' }}>
+          <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 1 }}>
             <img
               src={currentImageSet.imagec || FALLBACK_IMAGE}
               alt="Hero Image C"
@@ -150,13 +149,13 @@ const HeroSection = () => {
               loading="lazy"
             />
           </Box>
-          <Box sx={{ flex: 1, position: 'relative' }}>
+          <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 1 }}>
             <img
               src={currentImageSet.imaged || FALLBACK_IMAGE}
               alt="Hero Image D"
               style={{
                 width: '100%',
-                height: '94%',
+                height: '100%', // Changed from 94% to 100% for consistency
                 objectFit: 'cover',
                 borderRadius: '5px',
               }}
@@ -228,7 +227,7 @@ const HeroSection = () => {
 
         {/* Second Row: imagec and imaged in two columns */}
         <Box sx={{ display: 'flex', gap: 1, height: '100px' }}>
-          <Box sx={{ flex: 1, position: 'relative' }}>
+          <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 1 }}>
             <img
               src={currentImageSet.imagec || FALLBACK_IMAGE}
               alt="Hero Image C"
@@ -244,14 +243,14 @@ const HeroSection = () => {
               loading="lazy"
             />
           </Box>
-          <Box sx={{ flex: 1, position: 'relative' }}>
+          <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 1 }}>
             <img
               src={currentImageSet.imaged || FALLBACK_IMAGE}
               alt="Hero Image D"
               style={{
                 width: '100%',
                 height: '100%',
-        
+                objectFit: 'cover',
                 borderRadius: '5px',
               }}
               onError={(e) => {

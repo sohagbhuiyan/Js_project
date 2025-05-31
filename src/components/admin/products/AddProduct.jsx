@@ -357,7 +357,7 @@ const AddProduct = () => {
         label="Additional Information"
         value={formState.title}
         onChange={handleChange}
-        required
+        required  
       />
       <TextField
         name="warranty"

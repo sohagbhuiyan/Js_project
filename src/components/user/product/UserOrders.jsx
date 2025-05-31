@@ -146,9 +146,6 @@ const UserOrders = () => {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -165,14 +162,31 @@ const UserOrders = () => {
                         </button>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {product.name || order.productname || order.ccBuilderItemDitelsList?.name || order.pcForPartAddList?.name || "N/A"}
+                        {order.productDetailsList?.length > 0
+                          ? order.productDetailsList.map(item => item.name).join(", ")
+                          : order.pcForPartAddList?.length > 0
+                          ? order.pcForPartAddList.map(item => item.name).join(", ")
+                          : order.ccBuilderItemDitelsList?.length > 0
+                          ? order.ccBuilderItemDitelsList.map(item => item.name).join(", ")
+                          : product?.name || order.productname || "N/A"}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {order.quantity || "N/A"}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        ৳{(order.quantity * (product.specialprice || product.regularprice || order.price))?.toLocaleString() || "N/A"}
-                      </td>
+
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          {order.quantity || "multiple"}
+                        </td>
+
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          ৳{(
+                            order.quantity *
+                            (
+                              product?.specialprice ||
+                              product?.regularprice ||
+                              order.price ||
+                              0
+                            )
+                          )?.toLocaleString() || "N/A"}
+                        </td>
+
                       <td className="px-4 py-4 text-sm">
                         <div className="text-gray-900">{order.address || "N/A"}</div>
                         <div className="text-xs text-gray-500">
@@ -191,15 +205,7 @@ const UserOrders = () => {
                           {order.status || "PENDING"}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-right">
-                        <button
-                          onClick={() => setSelectedOrder(order)}
-                          className="text-blue-600 hover:text-blue-800 p-1 transition duration-150"
-                          title="View Details"
-                        >
-                          <FiEye className="w-5 h-5" />
-                        </button>
-                      </td>
+          
                     </tr>
                   );
                 })}
@@ -217,124 +223,6 @@ const UserOrders = () => {
       </button>
 
       {/* Order Details Modal */}
-      {selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Order Details - #{selectedOrder.id}
-              </h3>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="text-gray-500 hover:text-gray-700 text-2xl transition duration-150"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="p-6 grid gap-6 md:grid-cols-2">
-              {/* Product Information */}
-              <div className="space-y-3 text-sm">
-                <h4 className="font-semibold text-lg text-gray-800">
-                  Product Information
-                </h4>
-                <p>
-                  <span className="font-medium">Product ID:</span>{" "}
-                  {selectedOrder.productid || selectedOrder.id || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Name:</span>{" "}
-                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.name || selectedOrder.productname || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Category:</span>{" "}
-                  {selectedOrder.productDetails?.catagory || selectedOrder.ccBuilderItemDitelsList?.[0]?.ccBuilder?.name || "N/A"}
-                </p>
-              </div>
-
-              {/* Shipping Information */}
-              <div className="space-y-3 text-sm">
-                <h4 className="font-semibold text-lg text-gray-800">
-                  Shipping Information
-                </h4>
-                <p>
-                  <span className="font-medium">Address:</span>{" "}
-                  {selectedOrder.address || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Upazila:</span>{" "}
-                  {selectedOrder.upazila || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">District:</span>{" "}
-                  {selectedOrder.districts || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Order Date:</span>{" "}
-                  {formatDate(selectedOrder.requestdate)}
-                </p>
-              </div>
-
-              {/* Pricing Details */}
-              <div className="space-y-3 text-sm">
-                <h4 className="font-semibold text-lg text-gray-800">
-                  Pricing Details
-                </h4>
-                <p>
-                  <span className="font-medium">Unit Price:</span>{" "}
-                  ৳{(selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.price)?.toLocaleString() || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Quantity:</span>{" "}
-                  {selectedOrder.quantity || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Total Price:</span>{" "}
-                  ৳{(selectedOrder.quantity * (selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.price))?.toLocaleString() || "N/A"}
-                </p>
-                <p>
-                  <span className="font-medium">Status:</span>{" "}
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
-                      selectedOrder.status
-                    )}`}
-                  >
-                    {selectedOrder.status || "PENDING"}
-                  </span>
-                </p>
-              </div>
-
-              {/* Product Specifications */}
-              <div className="md:col-span-2 space-y-3 text-sm">
-                <h4 className="font-semibold text-lg text-gray-800">
-                  Product Specifications
-                </h4>
-                <p className="text-gray-600">
-                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.description || "No description available"}
-                </p>
-                <p className="text-gray-600">
-                  {selectedOrder.ccBuilderItemDitelsList?.[0]?.performance ||
-                    selectedOrder.ccBuilderItemDitelsList?.[0]?.ability ||
-                    selectedOrder.ccBuilderItemDitelsList?.[0]?.benefits ||
-                    selectedOrder.ccBuilderItemDitelsList?.[0]?.moralqualities ||
-                    selectedOrder.ccBuilderItemDitelsList?.[0]?.opportunity ||
-                    "No specifications available"}
-                </p>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <Toaster position="top-right" />
     </div>
   );

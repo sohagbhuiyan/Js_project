@@ -48,14 +48,9 @@ const AdminProfileView = () => {
       ) : null}
 
       <div className="mt-6 flex justify-between">
+
         <button
-          onClick={() => navigate('/profile/edit')}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Edit Profile
-        </button>
-        <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/admin/dashboard')}
           className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
         >
           Back to Home

@@ -24,6 +24,8 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { fetchCategoriesAndProducts } from "../../../store/categorySlice";
+import { Tv, TvIcon } from "lucide-react";
+import { Call, CallOutlined, Scanner, ScannerOutlined } from "@mui/icons-material";
 
 // Mapping of category name keywords to icons (case-insensitive)
 const iconMapping = {
@@ -54,6 +56,9 @@ const iconMapping = {
   tools: <FaTools size={24} />,
   battery: <FaBatteryFull size={24} />,
   power: <FaBatteryFull size={24} />,
+  Tv:<TvIcon size={24} />,
+  Scanner:<ScannerOutlined size={24} />,
+  Call: <CallOutlined size={24} />
 };
 
 // Function to get icon based on category name

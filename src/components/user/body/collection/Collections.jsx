@@ -538,7 +538,7 @@ const Collections = ({ isHomePage = false, sx }) => {
     ...sx,
   }}
 >
-  <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexDirection: { xs: "column", md: "row" }, position: "relative" }}>
+  <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexDirection: { xs: "column", md: "row" }, }}>
     {/* Mobile Filter Button (Small Icon with Text) */}
     {showFilter && (
       <Fade in={showFilter}>

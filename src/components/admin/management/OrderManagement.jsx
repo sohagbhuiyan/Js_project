@@ -504,7 +504,15 @@ const OrderManagement = () => {
                       </div>
                     )}
                   </td>
-                  <td className="w-36 px-2 text-sm py-4">{productName}</td>
+                  <td className="px-4 py-4 text-sm text-gray-900">
+                  {order.productDetailsList?.length > 0
+                    ? order.productDetailsList.map(item => item.name).join(", ")
+                    : order.pcForPartAddList?.length > 0
+                    ? order.pcForPartAddList.map(item => item.name).join(", ")
+                    : order.ccBuilderItemDitelsList?.length > 0
+                    ? order.ccBuilderItemDitelsList.map(item => item.name).join(", ")
+                    : order?.name || order.productname || productName || "N/A"}
+                </td>
                   <td className="px-2 py-4">{order.quantity || 1}</td>
                   <td className="px-2 py-4">{formatPrice(price)}</td>
                   <td className="px-2 py-4">{formatPrice(total)}</td>
@@ -584,8 +592,26 @@ const OrderManagement = () => {
               <div className="space-y-2 text-sm">
                 <h4 className="font-bold text-lg">Product Information</h4>
                 <p><span className="font-medium">Product ID:</span> {selectedOrder.productid || selectedOrder.ccBuilderItemDitelsList?.[0]?.id || selectedOrder.pcForPartAdd?.[0]?.id || "N/A"}</p>
-                <p><span className="font-medium">Name:</span> {selectedOrder.productname || selectedOrder.pcForPartAdd?.name  || selectedOrder.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product"}</p>
-                <p><span className="font-medium">Category:</span> {selectedOrder.productDetailsList?.catagory?.name || selectedOrder.ccBuilder?.name || "N/A"}</p>
+               <p>
+            <span className="font-medium">Name:</span>{" "}
+            {selectedOrder?.productDetailsList?.length > 0
+              ? selectedOrder.productDetailsList.map(item => item.name).join(", ")
+              : selectedOrder?.pcForPartAddList?.length > 0
+              ? selectedOrder.pcForPartAddList.map(item => item.name).join(", ")
+              : selectedOrder?.ccBuilderItemDitelsList?.length > 0
+              ? selectedOrder.ccBuilderItemDitelsList.map(item => item.name).join(", ")
+              : selectedOrder?.productname || selectedOrder?.pcForPartAdd?.name || selectedOrder?.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product"}
+              </p>
+               <p>
+              <span className="font-medium">Category:</span>{" "}
+              {
+                selectedOrder.productDetailsList[0]?.catagory?.name ||
+                selectedOrder?.pcForPartAddList?.length > 0 ||
+                selectedOrder.pcForPartAddList[0]?.catagory?.name ||
+                selectedOrder?.ccBuilderItemDitelsList?.length > 0 ||
+                selectedOrder.ccBuilderItemDitelsList[0]?.catagory?.name ||
+                selectedOrder?.ccBuilder?.name || "N/A"}
+            </p>
               </div>
 
               {/* Pricing Details */}

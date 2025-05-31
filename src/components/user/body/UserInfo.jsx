@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchInfo } from '../../../store/infoSlice';
-import { Box, Typography, CircularProgress, Alert } from '@mui/material';
 
 const UserInfo = () => {
   const dispatch = useDispatch();
@@ -15,56 +14,43 @@ const UserInfo = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" my={2}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center my-4">
+        <div className="animate-spin h-8 w-8 border-4 border-t-transparent border-gray-600 rounded-full" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ mb: 4 }}>
+      <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 text-sm">
         {error}
-      </Alert>
+      </div>
     );
   }
 
   if (!info) {
     return (
-      <Alert severity="info" sx={{ mb: 4 }}>
+      <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded mb-4 text-sm">
         No service feature info available.
-      </Alert>
+      </div>
     );
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: { xs:'row' },
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        gap: 2,
-        backgroundColor: '#c8a071',
-      }}
-    >
-      <Box sx={{ textAlign: 'center' }}>
-
-        <Typography variant="body1">{info.emi}</Typography>
-      </Box>
-      <Box sx={{ textAlign: 'center' }}>
-
-        <Typography variant="body1">{info.support}</Typography>
-      </Box>
-      <Box sx={{ textAlign: 'center' }}>
-
-        <Typography variant="body1">{info.payment}</Typography>
-      </Box>
-      <Box sx={{ textAlign: 'center' }}>
-   
-        <Typography variant="body1">{info.delivery}</Typography>
-      </Box>
-    </Box>
+    <div className="flex flex-row justify-around items-center gap-4 p-1 sm:gap-6 px-4 bg-[#c8a071] text-white text-center">
+      <div className="text-xs  md:text-sm font-medium">
+        {info.emi}
+      </div>
+      <div className="text-xs  md:text-sm font-medium">
+        {info.support}
+      </div>
+      <div className="text-xs  md:text-sm font-medium">
+        {info.payment}
+      </div>
+      <div className="text-xs  md:text-sm font-medium">
+        {info.delivery}
+      </div>
+    </div>
   );
 };
 
