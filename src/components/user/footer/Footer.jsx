@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between md:space-x-10">
 
           <div className="flex flex-col mb-3 items-center md:items-start">
-            <h2 className="text-lg font-semibold">TECHNO SHOP</h2>
+            <h2 className="text-lg font-semibold">JS COMPUTER</h2>
             <p className="text-xs max-w-56 text-justify"><strong>JS Computers</strong> is your trusted online destination for high quality tech products, offering the latest gadgets and computer essentials at unbeatable value. Connect with Us-
 </p>
             <div className="flex gap-3 md:gap-6 mt-2">
