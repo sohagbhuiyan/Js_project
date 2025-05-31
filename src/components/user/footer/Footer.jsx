@@ -4,12 +4,15 @@ import ContactUs from "./ContactUs";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white py-6 px-4 md:px-16 pb-6 sm:pb-5">
+    <>
+    <footer className="bg-gray-900 text-white py-6 px-4 md:px-16 pb-1">
       <div className=" mx-auto">
         <div className="flex flex-col md:flex-row justify-between md:space-x-10">
 
-          <div className="flex flex-col items-center md:items-start">
+          <div className="flex flex-col mb-3 items-center md:items-start">
             <h2 className="text-lg font-semibold">TECHNO SHOP</h2>
+            <p className="text-xs max-w-56 text-justify"><strong>JS Computers</strong> is your trusted online destination for high quality tech products, offering the latest gadgets and computer essentials at unbeatable value. Connect with Us-
+</p>
             <div className="flex gap-3 md:gap-6 mt-2">
               <a href="https://www.facebook.com/jscomputermym" target="_blank" rel="noopener noreferrer">
                 <FaFacebook className="text-xl cursor-pointer hover:text-gray-400" />
@@ -52,6 +55,13 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+      <hr />
+      <div className="p-3 mb-13 md:mb-0 bg-gray-800">
+      {/* <p className="text-xs text-gray-300 items-center text-center px-10 md:px-60">Prices are subject to change without any prior notice.
+Product data used in this website is based solely on its manufacturer provided information. Authenticity and accuracy are their responsibility only.</p>  */}
+      <p className=" text-gray-100 text-center ">Copyright © 2025 JS Computers. All Rights Reserved</p> 
+      </div>
+     </>
   );
 };
 

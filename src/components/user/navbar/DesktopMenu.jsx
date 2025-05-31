@@ -264,8 +264,8 @@ const DesktopMenu = ({ menuItems }) => {
             setHoverMoreProductIndex(null);
           }}
         >
-          <div className="flex items-center px-3 py-2 rounded-md transition-colors duration-200 hover:bg-white hover:text-[#CF212B]">
-            More <FaAngleDoubleRight className="ml-1" />
+          <div className="flex items-center px-3 py-2 rounded-md transition-colors duration-200">
+            More Items<FaAngleDoubleRight className="ml-1" />
           </div>
           {showMoreItems && (
             <div className="absolute top-full right-0 w-96 bg-white text-black shadow-lg rounded-md border border-gray-200 z-50 animate-fadeIn">

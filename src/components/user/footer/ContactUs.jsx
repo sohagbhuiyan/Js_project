@@ -20,9 +20,8 @@ const ContactUs = () => {
   }, [error, dispatch]);
 
   return (
-    <div className="md:px-6 mb-6 md:mb-2 text-sm sm:text-base text-center md:text-left">
-      <h1 className="text-lg font-medium mb-4">Contact Us</h1>
-
+    <div className="md:px-6 mb-1 -mt-3 text-sm sm:text-base text-center md:text-left">
+      <h1 className="text-lg font-medium ">Contact Us</h1>
       {error && (
         <div className="text-red-700 bg-red-100 p-2 mb-4 rounded">
           {error}
@@ -34,7 +33,7 @@ const ContactUs = () => {
       ) : contacts.length === 0 ? (
         <div>No contact information available.</div>
       ) : (
-        <div className="space-y-1 mb-6">
+        <div className="space-y-1 text-sm">
           {contacts.map((contact) => (
             <div key={contact.id}>
               <p>{contact.address}</p>

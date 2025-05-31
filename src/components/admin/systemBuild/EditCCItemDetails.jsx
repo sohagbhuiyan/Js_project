@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCCItems, fetchCCComponents, addCCItemDetails } from "../../../store/ccbuilderSlice";
+import {
+  fetchCCItemDetailsById,
+  updateCCItemDetails,
+  fetchCCItems,
+  fetchCCComponents,
+  clearCCBError,
+  clearCCBSuccess,
+} from "../../../store/ccbuilderSlice";
 import {
   Box,
   Button,
@@ -17,7 +24,7 @@ import {
   Grid,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -26,38 +33,64 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
-const CCItemsDetailsAdd = () => {
-
+const EditCCItemDetails = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, components, loading, successMessage, error } = useSelector((state) => state.ccBuilder);
- const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
-  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
+  const { items, components, loading, successMessage, error, currentItemDetails } = useSelector(
+    (state) => state.ccBuilder
+  );
+  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem("authRole");
 
   const [formData, setFormData] = useState({
+    id: "",
     name: "",
     description: "",
     performance: "",
     ability: "",
-    regularprice: "", // Changed to match Postman
-    warranty: "", // Added
+    regularprice: "",
+    warranty: "",
     benefits: "",
-    moralqualities: "", // Changed to match Postman
+    moralqualities: "",
     opportunity: "",
-    specialprice: "", // Changed to match Postman
+    specialprice: "",
     quantity: "",
-    itemId: "" ,
+    itemId: "",
     ccBuilderId: "",
-    imagea: null, // Changed to match Postman
+    imagea: null,
   });
   const [success, setSuccess] = useState("");
   const [formError, setFormError] = useState("");
 
-  // Fetch items and components on mount
+  // Fetch item details, items, and components on mount
   useEffect(() => {
+    dispatch(fetchCCItemDetailsById(id));
     dispatch(fetchCCItems());
     dispatch(fetchCCComponents());
-  }, [dispatch]);
+  }, [dispatch, id]);
+
+  // Populate form when currentItemDetails is fetched
+  useEffect(() => {
+    if (currentItemDetails) {
+      setFormData({
+        id: currentItemDetails.id || "",
+        name: currentItemDetails.name || "",
+        description: currentItemDetails.description || "",
+        performance: currentItemDetails.performance || "",
+        ability: currentItemDetails.ability || "",
+        regularprice: currentItemDetails.regularprice || "",
+        warranty: currentItemDetails.warranty || "",
+        benefits: currentItemDetails.benefits || "",
+        moralqualities: currentItemDetails.moralqualities || "",
+        opportunity: currentItemDetails.opportunity || "",
+        specialprice: currentItemDetails.specialprice || "",
+        quantity: currentItemDetails.quantity || "",
+        itemId: currentItemDetails.item?.id || "",
+        ccBuilderId: currentItemDetails.ccBuilder?.id || "",
+        imagea: null,
+      });
+    }
+  }, [currentItemDetails]);
 
   // Clear success/error messages after 5 seconds
   useEffect(() => {
@@ -65,8 +98,8 @@ const CCItemsDetailsAdd = () => {
       setSuccess(successMessage.itemDetails || "");
       setFormError(error.itemDetails || "");
       const timer = setTimeout(() => {
-        dispatch({ type: "ccBuilder/clearCCBSuccess" });
-        dispatch({ type: "ccBuilder/clearCCBError" });
+        dispatch(clearCCBSuccess());
+        dispatch(clearCCBError());
         setSuccess("");
         setFormError("");
       }, 5000);
@@ -100,9 +133,14 @@ const CCItemsDetailsAdd = () => {
       "opportunity",
       "specialprice",
       "quantity",
-      "itemId",
       "ccBuilderId",
     ];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        setFormError(`${field.charAt(0).toUpperCase() + field.slice(1)} is required.`);
+        return;
+      }
+    }
 
     if (isNaN(parseFloat(formData.regularprice)) || parseFloat(formData.regularprice) < 0) {
       setFormError("Regular price must be a valid number.");
@@ -123,6 +161,7 @@ const CCItemsDetailsAdd = () => {
 
     // Prepare payload
     const payload = {
+      id: parseInt(formData.id),
       name: formData.name,
       description: formData.description,
       performance: formData.performance,
@@ -135,36 +174,20 @@ const CCItemsDetailsAdd = () => {
       specialprice: parseFloat(formData.specialprice),
       quantity: parseInt(formData.quantity),
       ccBuilderId: parseInt(formData.ccBuilderId),
-      itemId: parseInt(formData.itemId),
+      itemId: formData.itemId ? parseInt(formData.itemId) : null,
       imagea: formData.imagea,
     };
 
     try {
-      const resultAction = await dispatch(addCCItemDetails(payload));
-      if (addCCItemDetails.fulfilled.match(resultAction)) {
-        setSuccess("Item details added successfully!");
-        setFormData({
-          name: "",
-          description: "",
-          performance: "",
-          ability: "",
-          regularprice: "",
-          warranty: "",
-          benefits: "",
-          moralqualities: "",
-          opportunity: "",
-          specialprice: "",
-          quantity: "",
-          itemId: "",
-          ccBuilderId: "",
-          imagea: null,
-        });
-        setTimeout(() => navigate("admin/add-cc-item-details"), 2000); // Redirect after success
+      const resultAction = await dispatch(updateCCItemDetails(payload));
+      if (updateCCItemDetails.fulfilled.match(resultAction)) {
+        setSuccess("Item details updated successfully!");
+        setTimeout(() => navigate("/admin/cc-builder-view-item"), 2000);
       } else {
-        setFormError(resultAction.payload || "Failed to add item details.");
+        setFormError(resultAction.payload || "Failed to update item details.");
       }
     } catch (err) {
-      setFormError("Failed to add item details.");
+      setFormError("Failed to update item details.");
       console.error("Error:", err);
     }
   };
@@ -174,7 +197,7 @@ const CCItemsDetailsAdd = () => {
     ? items.filter((item) => String(item.ccBuilder?.id) === String(formData.ccBuilderId))
     : items;
 
-  if (!userRole || userRole !== 'admin') {
+  if (!userRole || userRole !== "admin") {
     return (
       <Box sx={{ textAlign: "center", mt: 4 }}>
         <Alert severity="error">You do not have permission to access this page.</Alert>
@@ -185,7 +208,7 @@ const CCItemsDetailsAdd = () => {
   return (
     <Box sx={{ maxWidth: "md", mx: "auto", p: 4 }}>
       <Typography variant="h4" gutterBottom align="center" color="primary">
-        Add CC Builder Item Details
+        Edit CC Builder Item Details
       </Typography>
       <StyledPaper elevation={3}>
         <form onSubmit={handleSubmit}>
@@ -405,7 +428,15 @@ const CCItemsDetailsAdd = () => {
                   disabled={loading.itemDetails}
                   startIcon={loading.itemDetails ? <CircularProgress size={20} /> : null}
                 >
-                  {loading.itemDetails ? "Processing..." : "Add Item Details"}
+                  {loading.itemDetails ? "Processing..." : "Update Item Details"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => navigate("/admin/update-cc-item-details")}
+                  disabled={loading.itemDetails}
+                >
+                  Cancel
                 </Button>
               </Box>
             </Grid>
@@ -422,4 +453,4 @@ const CCItemsDetailsAdd = () => {
   );
 };
 
-export default CCItemsDetailsAdd;
+export default EditCCItemDetails;

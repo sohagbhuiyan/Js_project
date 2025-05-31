@@ -73,6 +73,8 @@ import CartOrderConfirmation from './components/user/product/CartOrderConfirmati
 import EditProduct from './components/admin/products/EditProduct';
 import CustomEmail from './components/admin/management/CustomEmail';
 import CCBuilderViewItem from './components/admin/systemBuild/CCBuilderViewItem';
+import EditCCItemDetails from './components/admin/systemBuild/EditCCItemDetails';
+import EditPCPart from './components/admin/systemBuild/EditPCPart';
 
 function App() { 
   const dispatch = useDispatch();
@@ -158,6 +160,8 @@ function App() {
             <Route path="/admin/Pc-builder/ViewSystemBuilder" element={<ViewSystemBuilder />} />
             <Route path="/admin/add-cc-item-details" element={<CCItemsDetailsAdd />} />
             <Route path="/admin/update-cc-item-details" element={<CCBuilderViewItem />} />
+            <Route path="/admin/edit-cc-item-details/:id" element={<EditCCItemDetails />} />
+            <Route path="/admin/edit-pc-part/:id" element={<EditPCPart />} />
           </Route>
 
           {/* Fallback Route */}

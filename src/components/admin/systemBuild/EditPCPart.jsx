@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCCItems, fetchCCComponents, addCCItemDetails } from "../../../store/ccbuilderSlice";
+import {
+  fetchPCPartsById,
+  updatePCPart,
+  fetchPCComponents,
+  clearPCBError,
+  clearPCBSuccess,
+} from "../../../store/pcbuilderSlice";
 import {
   Box,
   Button,
@@ -17,7 +23,7 @@ import {
   Grid,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -26,53 +32,68 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
-const CCItemsDetailsAdd = () => {
-
+const EditPCPart = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, components, loading, successMessage, error } = useSelector((state) => state.ccBuilder);
- const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
-  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem('authRole');
+  const { components, currentPart, loading, error, successMessage } = useSelector(
+    (state) => state.pcBuilder
+  );
+  const userRole = useSelector((state) => state.auth.role) || localStorage.getItem("authRole");
 
   const [formData, setFormData] = useState({
+    id: "",
     name: "",
     description: "",
     performance: "",
     ability: "",
-    regularprice: "", // Changed to match Postman
-    warranty: "", // Added
-    benefits: "",
-    moralqualities: "", // Changed to match Postman
-    opportunity: "",
-    specialprice: "", // Changed to match Postman
+    regularprice: "",
+    specialprice: "",
     quantity: "",
-    itemId: "" ,
-    ccBuilderId: "",
-    imagea: null, // Changed to match Postman
+    pcbuilderId: "",
+    imagea: null,
   });
-  const [success, setSuccess] = useState("");
   const [formError, setFormError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Fetch items and components on mount
+  // Fetch part and components on mount
   useEffect(() => {
-    dispatch(fetchCCItems());
-    dispatch(fetchCCComponents());
-  }, [dispatch]);
+    dispatch(fetchPCPartsById(id));
+    dispatch(fetchPCComponents());
+  }, [dispatch, id]);
+
+  // Populate form when currentPart is fetched
+  useEffect(() => {
+    if (currentPart) {
+      setFormData({
+        id: currentPart.id || "",
+        name: currentPart.name || "",
+        description: currentPart.description || "",
+        performance: currentPart.performance || "",
+        ability: currentPart.ability || "",
+        regularprice: currentPart.regularprice || "",
+        specialprice: currentPart.specialprice || "",
+        quantity: currentPart.quantity || "",
+        pcbuilderId: currentPart.pcbuilder?.id || "",
+        imagea: null,
+      });
+    }
+  }, [currentPart]);
 
   // Clear success/error messages after 5 seconds
   useEffect(() => {
-    if (successMessage.itemDetails || error.itemDetails) {
-      setSuccess(successMessage.itemDetails || "");
-      setFormError(error.itemDetails || "");
+    if (successMessage.update || error.update) {
+      setSuccess(successMessage.update || "");
+      setFormError(error.update || "");
       const timer = setTimeout(() => {
-        dispatch({ type: "ccBuilder/clearCCBSuccess" });
-        dispatch({ type: "ccBuilder/clearCCBError" });
+        dispatch(clearPCBSuccess());
+        dispatch(clearPCBError());
         setSuccess("");
         setFormError("");
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [successMessage.itemDetails, error.itemDetails, dispatch]);
+  }, [successMessage.update, error.update, dispatch]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -95,14 +116,16 @@ const CCItemsDetailsAdd = () => {
       "performance",
       "ability",
       "regularprice",
-      "benefits",
-      "moralqualities",
-      "opportunity",
       "specialprice",
       "quantity",
-      "itemId",
-      "ccBuilderId",
+      "pcbuilderId",
     ];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        setFormError(`${field.charAt(0).toUpperCase() + field.slice(1)} is required.`);
+        return;
+      }
+    }
 
     if (isNaN(parseFloat(formData.regularprice)) || parseFloat(formData.regularprice) < 0) {
       setFormError("Regular price must be a valid number.");
@@ -116,65 +139,36 @@ const CCItemsDetailsAdd = () => {
       setFormError("Quantity must be a valid integer.");
       return;
     }
-    if (formData.warranty && (isNaN(parseInt(formData.warranty)) || parseInt(formData.warranty) < 0)) {
-      setFormError("Warranty must be a valid integer.");
-      return;
-    }
 
     // Prepare payload
     const payload = {
+      id: parseInt(formData.id),
       name: formData.name,
       description: formData.description,
       performance: formData.performance,
       ability: formData.ability,
       regularprice: parseFloat(formData.regularprice),
-      warranty: parseInt(formData.warranty) || 0,
-      benefits: formData.benefits,
-      moralqualities: formData.moralqualities,
-      opportunity: formData.opportunity,
       specialprice: parseFloat(formData.specialprice),
       quantity: parseInt(formData.quantity),
-      ccBuilderId: parseInt(formData.ccBuilderId),
-      itemId: parseInt(formData.itemId),
+      pcbuilder: { id: parseInt(formData.pcbuilderId) },
       imagea: formData.imagea,
     };
 
     try {
-      const resultAction = await dispatch(addCCItemDetails(payload));
-      if (addCCItemDetails.fulfilled.match(resultAction)) {
-        setSuccess("Item details added successfully!");
-        setFormData({
-          name: "",
-          description: "",
-          performance: "",
-          ability: "",
-          regularprice: "",
-          warranty: "",
-          benefits: "",
-          moralqualities: "",
-          opportunity: "",
-          specialprice: "",
-          quantity: "",
-          itemId: "",
-          ccBuilderId: "",
-          imagea: null,
-        });
-        setTimeout(() => navigate("admin/add-cc-item-details"), 2000); // Redirect after success
+      const resultAction = await dispatch(updatePCPart(payload));
+      if (updatePCPart.fulfilled.match(resultAction)) {
+        setSuccess("PC part updated successfully!");
+        setTimeout(() => navigate("/admin/pc-builder-view-part"), 2000);
       } else {
-        setFormError(resultAction.payload || "Failed to add item details.");
+        setFormError(resultAction.payload || "Failed to update PC part.");
       }
     } catch (err) {
-      setFormError("Failed to add item details.");
+      setFormError("Failed to update PC part.");
       console.error("Error:", err);
     }
   };
 
-  // Filter items based on selected ccBuilderId
-  const filteredItems = formData.ccBuilderId
-    ? items.filter((item) => String(item.ccBuilder?.id) === String(formData.ccBuilderId))
-    : items;
-
-  if (!userRole || userRole !== 'admin') {
+  if (!userRole || userRole !== "admin") {
     return (
       <Box sx={{ textAlign: "center", mt: 4 }}>
         <Alert severity="error">You do not have permission to access this page.</Alert>
@@ -185,7 +179,7 @@ const CCItemsDetailsAdd = () => {
   return (
     <Box sx={{ maxWidth: "md", mx: "auto", p: 4 }}>
       <Typography variant="h4" gutterBottom align="center" color="primary">
-        Add CC Builder Item Details
+        Edit PC Part
       </Typography>
       <StyledPaper elevation={3}>
         <form onSubmit={handleSubmit}>
@@ -193,63 +187,37 @@ const CCItemsDetailsAdd = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Name"
+                label="Part Name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth disabled={loading.itemDetails || !components.length}>
-                <InputLabel>Select CC Builder</InputLabel>
+              <FormControl fullWidth disabled={loading.update || !components.length}>
+                <InputLabel>Select PC Builder</InputLabel>
                 <Select
-                  name="ccBuilderId"
-                  value={formData.ccBuilderId}
+                  name="pcbuilderId"
+                  value={formData.pcbuilderId}
                   onChange={handleInputChange}
                   required
-                  label="Select CC Builder"
+                  label="Select PC Builder"
                 >
                   <MenuItem value="">
-                    <em>Select a CC Builder</em>
+                    <em>Select a PC Builder</em>
                   </MenuItem>
                   {components.length ? (
-                    components.map((builder) => (
-                      <MenuItem key={builder.id} value={builder.id}>
-                        {builder.name}
+                    components.map((component) => (
+                      <MenuItem key={component.id} value={component.id}>
+                        {component.name}
                       </MenuItem>
                     ))
                   ) : (
                     <MenuItem value="" disabled>
-                      No CC Builders available
-                    </MenuItem>
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth disabled={loading.itemDetails}>
-                <InputLabel>Select Item (Optional)</InputLabel>
-                <Select
-                  name="itemId"
-                  value={formData.itemId}
-                  onChange={handleInputChange}
-                  label="Select Item (Optional)"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  {filteredItems.length ? (
-                    filteredItems.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name} (ID: {item.id})
-                      </MenuItem>
-                    ))
-                  ) : (
-                    <MenuItem value="" disabled>
-                      No Items available
+                      No PC Builders available
                     </MenuItem>
                   )}
                 </Select>
@@ -263,7 +231,7 @@ const CCItemsDetailsAdd = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
                 multiline
                 rows={3}
@@ -277,19 +245,19 @@ const CCItemsDetailsAdd = () => {
                 value={formData.performance}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Ability"
+                label="Others Info"
                 name="ability"
                 value={formData.ability}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
               />
             </Grid>
@@ -302,7 +270,7 @@ const CCItemsDetailsAdd = () => {
                 value={formData.regularprice}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -316,7 +284,7 @@ const CCItemsDetailsAdd = () => {
                 value={formData.specialprice}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
                 inputProps={{ min: 0, step: "0.01" }}
               />
@@ -330,58 +298,9 @@ const CCItemsDetailsAdd = () => {
                 value={formData.quantity}
                 onChange={handleInputChange}
                 required
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
                 inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Warranty (years)"
-                name="warranty"
-                type="number"
-                value={formData.warranty}
-                onChange={handleInputChange}
-                disabled={loading.itemDetails}
-                variant="outlined"
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Benefits"
-                name="benefits"
-                value={formData.benefits}
-                onChange={handleInputChange}
-                required
-                disabled={loading.itemDetails}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Moral Qualities"
-                name="moralqualities"
-                value={formData.moralqualities}
-                onChange={handleInputChange}
-                required
-                disabled={loading.itemDetails}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Opportunity"
-                name="opportunity"
-                value={formData.opportunity}
-                onChange={handleInputChange}
-                required
-                disabled={loading.itemDetails}
-                variant="outlined"
               />
             </Grid>
             <Grid item xs={12}>
@@ -391,7 +310,7 @@ const CCItemsDetailsAdd = () => {
                 type="file"
                 name="imagea"
                 onChange={handleFileChange}
-                disabled={loading.itemDetails}
+                disabled={loading.update}
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
               />
@@ -402,10 +321,18 @@ const CCItemsDetailsAdd = () => {
                   type="submit"
                   variant="contained"
                   color="success"
-                  disabled={loading.itemDetails}
-                  startIcon={loading.itemDetails ? <CircularProgress size={20} /> : null}
+                  disabled={loading.update}
+                  startIcon={loading.update ? <CircularProgress size={20} /> : null}
                 >
-                  {loading.itemDetails ? "Processing..." : "Add Item Details"}
+                  {loading.update ? "Processing..." : "Update PC Part"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => navigate("/admin/pc-builder-view-part")}
+                  disabled={loading.update}
+                >
+                  Cancel
                 </Button>
               </Box>
             </Grid>
@@ -422,4 +349,4 @@ const CCItemsDetailsAdd = () => {
   );
 };
 
-export default CCItemsDetailsAdd;
+export default EditPCPart;

@@ -264,7 +264,7 @@ const AdminSidebar = () => {
             <BuildCircleTwoTone className="mr-2" /> View PC-Builder
           </Link>
         </li>
-               <li>
+          <li>
           <Link
             to="/admin/update-cc-item-details"
             className={`flex items-center p-2 rounded-md ${
@@ -276,6 +276,7 @@ const AdminSidebar = () => {
             <BuildCircleTwoTone className="mr-2" /> View CC-Builder
           </Link>
         </li>
+        
         
       </ul>
     </div>

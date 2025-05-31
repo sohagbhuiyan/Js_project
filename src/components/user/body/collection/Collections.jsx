@@ -549,17 +549,17 @@ const Collections = ({ isHomePage = false, sx }) => {
             alignItems: "center",
             gap: 0.5,
             position: "fixed",
-            top: { xs: 60, sm:130 }, // Positioned above the container
-            right: { xs: 0, sm: 4 },
+            top: { xs: 63, sm:130 }, // Positioned above the container
+            left: { xs: 1, sm: 4 },
             cursor: "pointer",
-            bgcolor: "#f9689d",
+            bgcolor: "#07a966",
             color: "#ffffff",
             borderRadius: "8px",
             padding: "2px 4px",
             boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
             transition: "all 0.3s ease-in-out",
             "&:hover": {
-              bgcolor: "#f9686d",
+              bgcolor: "#07a966",
               boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
             },
             zIndex: 1000,
@@ -661,6 +661,7 @@ const Collections = ({ isHomePage = false, sx }) => {
                 },
                 gap: { xs: 1.5, sm: 2, md: 3, lg: 4 },
                 mb: 4,
+                p:4,
               }}
             >
               {displayProducts.length > 0 ? (

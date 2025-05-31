@@ -4,7 +4,7 @@ const Specialty = ()=> {
     return (
         <>
     
-        <h1 className="py-16 text-3xl text-center text-red-600 font-semibold">This is Specialty section</h1>
+        <h1 className="py-16 text-xl text-center font-semibold">This is Specialty section <br /> Provide by client!</h1>
       
         </>
       );
