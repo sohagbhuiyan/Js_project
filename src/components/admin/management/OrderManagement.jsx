@@ -300,9 +300,9 @@ const OrderManagement = () => {
               {/* Pricing Details */}
               <div className="space-y-2 text-sm">
                 <h4 className="font-bold text-lg">Pricing Details</h4>
-                <p><span className="font-medium">Unit Price:</span> {formatPrice(selectedOrder.price || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice)}</p>
+                <p><span className="font-medium">Unit Price:</span> {formatPrice(selectedOrder.productDetailsList[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice)}</p>
                 <p><span className="font-medium">Quantity:</span> {selectedOrder.quantity || 1}</p>
-                <p><span className="font-medium">Total Price:</span> {formatPrice((selectedOrder.quantity || 1) * (selectedOrder.price || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || 0))}</p>
+                <p><span className="font-medium">Total Price:</span> {formatPrice((selectedOrder.quantity || 1) * (selectedOrder.productDetailsList[0]?.specialprice  || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || 0))}</p>
                 <p><span className="font-medium">Status:</span> <span className={`px-2 py-1 rounded text-sm ${getStatusColor(selectedOrder.status)}`}>{normalizeStatus(selectedOrder.status)}</span></p>
               </div>
 
@@ -311,11 +311,11 @@ const OrderManagement = () => {
                 <div className="border-t pt-4">
                   <div className="flex justify-between mb-2">
                     <span>Regular Price:</span>
-                    <span>{formatPrice(selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.regularprice)}</span>
+                    <span>{formatPrice(selectedOrder.productDetailsList[0]?.regularprice ||selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.regularprice)}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span>Special Price:</span>
-                    <span>{formatPrice(selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.specialprice)}</span>
+                    <span>{formatPrice(selectedOrder.productDetailsList[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.specialprice)}</span>
                   </div>
                   <div className="flex justify-between font-bold">
                     <span>Total Paid:</span>
