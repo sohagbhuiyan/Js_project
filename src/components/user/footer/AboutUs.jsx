@@ -62,7 +62,7 @@ const AboutUs = () => {
 
   // Animation variants
   const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, },
     visible: {
       opacity: 1,
       y: 0,
@@ -78,7 +78,7 @@ const AboutUs = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+ 
         background: "linear-gradient(to bottom, #f3f4f6, #e5e7eb)",
         py: 4,
       }}
@@ -120,7 +120,7 @@ const AboutUs = () => {
               </Alert>
             </Fade>
           ) : (
-            <StyledPaper elevation={0}>
+            <div elevation={0}>
               <motion.div variants={containerVariants}>
                 <SectionTitle variant="h5">Our Story</SectionTitle>
                 <motion.div variants={itemVariants}>
@@ -195,7 +195,7 @@ const AboutUs = () => {
                   </motion.div>
                 </Box>
               </motion.div>
-            </StyledPaper>
+            </div>
           )}
         </motion.div>
       </Container>

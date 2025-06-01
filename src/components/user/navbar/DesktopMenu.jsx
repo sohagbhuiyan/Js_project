@@ -160,7 +160,7 @@ const DesktopMenu = ({ menuItems }) => {
   const [hoverMoreProductIndex, setHoverMoreProductIndex] = useState(null);
   const megamenuRefs = useRef([]);
 
-  const firstTwelveItems = menuItems.slice(0, 12); // Changed from 13 to 12
+  const firstTwelveItems = menuItems.slice(0, 12); 
   const remainingItems = menuItems.slice(12); // Remaining items go to "More" dropdown
   const columnClass = remainingItems.length > 6 ? "grid-cols-3" : "grid-cols-2";
 
@@ -216,7 +216,7 @@ const DesktopMenu = ({ menuItems }) => {
             {item.name}
           </Link>
           {item.products?.length > 0 && hoverIndex === index && (
-            <div className="absolute top-full left-0 w-64 bg-white text-black shadow-lg rounded-md border border-gray-200 z-50 animate-fadeIn">
+            <div className="absolute top-full left-0 w-72 bg-gray-300 text-black shadow-lg rounded-md border border-gray-200 z-50 animate-fadeIn">
               {item.products.map((product, productIndex) => (
                 <div
                   key={product.id}
@@ -226,20 +226,20 @@ const DesktopMenu = ({ menuItems }) => {
                 >
                   <Link
                     to={product.path}
-                    className="block px-4 py-2 hover:bg-gray-100 rounded transition-colors duration-150"
+                    className="block px-4 py-2 hover:bg-gray-200 rounded transition-colors duration-150"
                   >
                     {product.name}
                   </Link>
                   {product.items?.length > 0 && hoverProductIndex === productIndex && (
                     <div
                       ref={(el) => (megamenuRefs.current[productIndex] = el)}
-                      className="absolute top-0 left-full w-64 bg-white text-black shadow-lg rounded-md border border-gray-300 z-50 animate-fadeIn"
+                      className="absolute top-0 left-full w-64 bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn"
                     >
                       {product.items.map((subItem) => (
                         <Link
                           key={subItem.name}
                           to={subItem.path}
-                          className="block px-4 py-2 hover:bg-gray-100 rounded transition-colors duration-150"
+                          className="block px-4 py-2 hover:bg-gray-200 rounded transition-colors duration-150"
                         >
                           {subItem.name}
                         </Link>
@@ -268,7 +268,7 @@ const DesktopMenu = ({ menuItems }) => {
             More Items<FaAngleDoubleRight className="ml-1" />
           </div>
           {showMoreItems && (
-            <div className="absolute top-full right-0 w-96 bg-white text-black shadow-lg rounded-md border border-gray-200 z-50 animate-fadeIn">
+            <div className="absolute top-full right-0 w-96 bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn">
               <div className={`grid ${columnClass} gap-4 p-2`}>
                 {remainingItems.map((item, index) => (
                   <div
@@ -282,12 +282,12 @@ const DesktopMenu = ({ menuItems }) => {
                   >
                     <Link
                       to={item.path}
-                      className="block px-3 py-2 hover:bg-gray-100 rounded transition-colors duration-150"
+                      className="block px-3 py-2 hover:bg-gray-200 border-gray-500 border rounded transition-colors duration-150"
                     >
                       {item.name}
                     </Link>
                     {item.products?.length > 0 && hoverMoreItemIndex === index && (
-                      <div className="block top-0 left-full w-44 bg-white text-black shadow-lg rounded-md border border-gray-300 z-50 animate-fadeIn">
+                      <div className="block top-0 left-full w-44 bg-gray-300 text-black shadow-lg border-gray-500 border rounded-md z-50 animate-fadeIn">
                         {item.products.map((product, productIndex) => (
                           <div
                             key={product.id}
@@ -297,20 +297,20 @@ const DesktopMenu = ({ menuItems }) => {
                           >
                             <Link
                               to={product.path}
-                              className="block px-4 py-2 hover:bg-gray-100 rounded transition-colors duration-150"
+                              className="block px-4 py-2 hover:bg-gray-200 rounded transition-colors duration-150"
                             >
                               {product.name}
                             </Link>
                             {product.items?.length > 0 && hoverMoreProductIndex === productIndex && (
                               <div
                                 ref={(el) => (megamenuRefs.current[productIndex] = el)}
-                                className="block top-0 left-full w-44 bg-white text-black shadow-lg rounded-md border border-gray-300 z-50 animate-fadeIn"
+                                className="block top-0 left-full w-44 bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn"
                               >
                                 {product.items.map((subItem) => (
                                   <Link
                                     key={subItem.name}
                                     to={subItem.path}
-                                    className="block px-4 py-2 hover:bg-gray-100 rounded transition-colors duration-150"
+                                    className="block px-4 py-2 hover:bg-gray-200 rounded transition-colors duration-150"
                                   >
                                     {subItem.name}
                                   </Link>

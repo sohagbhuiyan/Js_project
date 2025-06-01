@@ -480,12 +480,12 @@ export const updatePCPart = createAsyncThunk(
         quantity: parseInt(quantity),
         pcbuilder: { id: parseInt(pcbuilder.id) },
       };
-      formData.append("pcforpartadd", new Blob([JSON.stringify(partData)], { type: "application/json" }));
+      formData.append("pcpart", new Blob([JSON.stringify(partData)], { type: "application/json" }));
       if (imagea) {
         formData.append("imagea", imagea);
       }
 
-      const response = await axios.put(`${API_BASE_URL}/api/PcForPartAdd/update/${id}`, formData, {
+      const response = await axios.put(`${API_BASE_URL}/api/pcforpartadd/update/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

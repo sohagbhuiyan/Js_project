@@ -23,15 +23,15 @@ import {
   IconButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Delete } from "@mui/icons-material";
-import { Link } from "react-router-dom";
-import { API_BASE_URL } from "../../../store/api"; // Ensure API_BASE_URL is imported
+import { Edit, Delete } from "@mui/icons-material";
+import { API_BASE_URL } from "../../../store/api";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   marginBottom: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[3],
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: theme.shadows[5],
+  background: "linear-gradient(to bottom right, #ffffff, #f9fafb)",
 }));
 
 const CCBuilderViewItem = () => {
@@ -55,6 +55,10 @@ const CCBuilderViewItem = () => {
     }
   }, [successMessage.itemDetails, error.itemDetails, dispatch]);
 
+  const handleEditClick = (id) => {
+    window.location.href = `/admin/edit-cc-item-details/${id}`;
+  };
+
   const handleDelete = async (id) => {
     try {
       const resultAction = await dispatch(deleteCCItemDetails(id));
@@ -68,86 +72,103 @@ const CCBuilderViewItem = () => {
 
   if (!userRole || userRole !== "admin") {
     return (
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <Alert severity="error">You do not have permission to access this page.</Alert>
+      <Box className="min-h-screen flex justify-center items-center">
+        <Alert severity="error" className="rounded-lg shadow-md p-4">
+          You do not have permission to access this page.
+        </Alert>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: "lg", mx: "auto", p: 4 }}>
-      <Typography variant="h4" gutterBottom align="center" color="primary">
-        CC Builder Item Details
-      </Typography>
+    <Box className="min-h-screen p-6 bg-gradient-to-br from-gray-50 to-gray-100 max-w-7xl mx-auto">
+      <Box className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <Typography 
+          variant="h4" 
+          className="font-bold text-gray-800 mb-4 sm:mb-0"
+        >
+          CC Builder Item Management
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => window.location.href = '/admin/add-cc-item-details'}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all duration-300"
+        >
+          + Add New Item
+        </Button>
+      </Box>
 
       <StyledPaper elevation={3}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
           Item Details List
         </Typography>
         <TableContainer>
-          <Table>
+          <Table aria-label="cc builder items table">
             <TableHead>
-              <TableRow>
-                <TableCell>ID <br />(Click to Edit)</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Image</TableCell>
-                <TableCell>CC Builder</TableCell>
-                <TableCell>Item</TableCell>
-                <TableCell>Regular Price</TableCell>
-                <TableCell>Special Price</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Actions</TableCell>
+              <TableRow className="bg-gradient-to-r from-gray-300 to-gray-400">
+                <TableCell className="font-semibold text-white py-4">Image</TableCell>
+                <TableCell className="font-semibold text-white">ID</TableCell>
+                <TableCell className="font-semibold text-white">Name</TableCell>
+                <TableCell className="font-semibold text-white">CC Builder</TableCell>
+                <TableCell className="font-semibold text-white">Item</TableCell>
+                <TableCell className="font-semibold text-white">Regular Price</TableCell>
+                <TableCell className="font-semibold text-white">Special Price</TableCell>
+                <TableCell className="font-semibold text-white">Quantity</TableCell>
+                <TableCell className="font-semibold text-white">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading.itemDetails ? (
                 <TableRow>
                   <TableCell colSpan={9} align="center">
-                    <CircularProgress />
+                    <CircularProgress size={48} className="text-blue-500" />
                   </TableCell>
                 </TableRow>
               ) : itemDetails.length ? (
                 itemDetails.map((detail) => {
                   const imageUrl = detail.imagea ? `${API_BASE_URL}/images/${detail.imagea}` : null;
                   return (
-                    <TableRow key={detail.id}>
-                      <TableCell>
-                        <Button
-                          component={Link}
-                          to={`/admin/edit-cc-item-details/${detail.id}`}
-                          color="primary"
-                          sx={{ textTransform: "none" }}
-                        >
-                          {detail.id}
-                        </Button>
-                      </TableCell>
-                      <TableCell>{detail.name}</TableCell>
+                    <TableRow 
+                      key={detail.id}
+                      className="hover:bg-gray-50 transition-colors duration-200"
+                    >
                       <TableCell>
                         {imageUrl ? (
                           <img
                             src={imageUrl}
                             alt={detail.name}
-                            style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                            className="w-16 h-16 object-cover rounded border-2 border-gray-200"
                             onError={(e) => {
                               e.target.src = "/path/to/placeholder-image.jpg"; // Fallback image
                             }}
                           />
                         ) : (
-                          "No Image"
+                          <Box className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded text-gray-500 text-sm">
+                            No Image
+                          </Box>
                         )}
                       </TableCell>
-                      <TableCell>{detail.ccBuilder?.name || "N/A"}</TableCell>
-                      <TableCell>{detail.item?.name || "N/A"}</TableCell>
-                      <TableCell>${detail.regularprice}</TableCell>
-                      <TableCell>${detail.specialprice}</TableCell>
-                      <TableCell>{detail.quantity}</TableCell>
+                      <TableCell className="text-gray-700">{detail.id}</TableCell>
+                      <TableCell className="text-gray-700">{detail.name}</TableCell>
+                      <TableCell className="text-gray-700">{detail.ccBuilder?.name || "N/A"}</TableCell>
+                      <TableCell className="text-gray-700">{detail.item?.name || "N/A"}</TableCell>
+                      <TableCell className="text-gray-700">${detail.regularprice.toFixed(2)}</TableCell>
+                      <TableCell className="text-gray-700">${detail.specialprice.toFixed(2)}</TableCell>
+                      <TableCell className="text-gray-700">{detail.quantity}</TableCell>
                       <TableCell>
                         <IconButton
-                          color="error"
-                          onClick={() => handleDelete(detail.id)}
+                          onClick={() => handleEditClick(detail.id)}
+                          className="text-blue-500 hover:text-blue-700 mr-2"
                           disabled={loading.itemDetails}
                         >
-                          <Delete />
+                          <Edit size={20} />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => handleDelete(detail.id)}
+                          className="text-red-500 hover:text-red-700"
+                          disabled={loading.itemDetails}
+                        >
+                          <Delete size={20} />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -156,7 +177,9 @@ const CCBuilderViewItem = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} align="center">
-                    No item details found.
+                    <Typography className="text-gray-600 p-4">
+                      No item details found. Start by adding a new item!
+                    </Typography>
                   </TableCell>
                 </TableRow>
               )}
@@ -164,11 +187,17 @@ const CCBuilderViewItem = () => {
           </Table>
         </TableContainer>
         <Fade in={!!successMessage.itemDetails || !!error.itemDetails}>
-          <Box sx={{ mt: 2 }}>
+          <Box className="mt-4">
             {successMessage.itemDetails && (
-              <Alert severity="success">{successMessage.itemDetails}</Alert>
+              <Alert severity="success" className="rounded-lg shadow-md">
+                {successMessage.itemDetails}
+              </Alert>
             )}
-            {error.itemDetails && <Alert severity="error">{error.itemDetails}</Alert>}
+            {error.itemDetails && (
+              <Alert severity="error" className="rounded-lg shadow-md">
+                {error.itemDetails}
+              </Alert>
+            )}
           </Box>
         </Fade>
       </StyledPaper>

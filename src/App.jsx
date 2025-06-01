@@ -66,7 +66,7 @@ import CCItemsDetailsAdd from './components/admin/systemBuild/CCItemsDetailsAdd'
 import CComponentProductsPageCC from './components/user/ccbuilder/CComponentProductsPageCC'
 import CCItemDetailsByItemPage from './components/user/ccbuilder/CCItemDetailsByItemPage';
 import CCPartView from './components/user/ccbuilder/CCPartView';
-import UpdateMeagaMenu from './components/admin/products/UpdateMeagaMenu';
+import UpdateMegaMenu from './components/admin/products/UpdateMegaMenu';
 import AddMedia from './components/admin/footer/AddMedia';
 import AddContactUs from './components/admin/footer/AddContactUs';
 import CartOrderConfirmation from './components/user/product/CartOrderConfirmation';
@@ -148,18 +148,18 @@ function App() {
             <Route path="/admin/add-aboutus" element={<AddAboutUs />} /> 
             <Route path="/admin/add-contact-us" element={<AddContactUs />} /> 
             <Route path="admin/products/add-category" element={<AddCategory />} />
-            <Route path="/admin/products/update-categories" element={<UpdateMeagaMenu />} />
+            <Route path="/admin/products/update-categories" element={<UpdateMegaMenu />} />
             <Route path="/admin/products/view-product" element={<ViewProduct />} />
             <Route path="/admin/products/add-product" element={<AddProduct />} />
             <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />
             <Route path="/admin/custom-email" element={<CustomEmail />} />
-            <Route path="/admin/Pc-Builder" element={<PCBuilder />} />
+            <Route path="/admin/add-Pc-Builder" element={<PCBuilder />} />
             <Route path="/admin/add-cc-builder" element={<AddCCBuilder />} />
             <Route path="/admin/Pc-builder/ViewSystemBuilder" element={<ViewSystemBuilder />} />
             <Route path="/admin/add-cc-item-details" element={<CCItemsDetailsAdd />} />
-            <Route path="/admin/update-cc-item-details" element={<CCBuilderViewItem />} />
+            <Route path="/admin/view-cc-item-details" element={<CCBuilderViewItem />} />
             <Route path="/admin/edit-cc-item-details/:id" element={<EditCCItemDetails />} />
             <Route path="/admin/edit-pc-part/:id" element={<EditPCPart />} />
           </Route>

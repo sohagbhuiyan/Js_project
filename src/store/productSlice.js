@@ -112,7 +112,7 @@ export const updateProductDetails = createAsyncThunk(
         [JSON.stringify(formDataObject.productDetails)],
         { type: 'application/json' }
       );
-      formData.append('productDetails', jsonBlob);
+      formData.append('productdetails', jsonBlob);
       
       // Only append images if they are provided (new uploads)
       if (formDataObject.imagea) formData.append('imagea', formDataObject.imagea);
@@ -157,7 +157,7 @@ export const deleteProductDetails = createAsyncThunk(
       });
       return id;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue( "This prouduct already cart by user! That's why Admin cannot Delete the product immediately!",error.response?.data || error.message );
     }
   }
 );

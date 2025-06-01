@@ -221,9 +221,9 @@ const AdminSidebar = () => {
         {/* PC Builder */}
         <li>
           <Link
-            to="/admin/Pc-Builder"
+            to="/admin/add-Pc-Builder"
             className={`flex items-center p-2 rounded-md ${
-              isActive("admin/Pc-Builder") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
+              isActive("/admin/add-Pc-Builder") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
             }`}
           >
             <BuildCircleRounded className="mr-2" />Add PC Builder
@@ -266,9 +266,9 @@ const AdminSidebar = () => {
         </li>
           <li>
           <Link
-            to="/admin/update-cc-item-details"
+            to="/admin/view-cc-item-details"
             className={`flex items-center p-2 rounded-md ${
-              isActive("/admin/update-cc-item-details")
+              isActive("/admin/view-cc-item-details")
                 ? "bg-gray-700 text-blue-400"
                 : "hover:text-gray-400"
             }`}

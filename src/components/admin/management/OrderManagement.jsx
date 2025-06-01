@@ -482,8 +482,8 @@ const OrderManagement = () => {
           <tbody className="divide-y divide-gray-200">
             {filteredOrders.map((order) => {
               const productName = order.productname || order.pcForPartAdd?.[0]?.name || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
-              const price = order.price || order.ccBuilderItemDitelsList?.[0]?.specialprice || order.ccBuilderItemDitelsList?.[0]?.regularprice || order.pcForPartAdd?.[0]?.regularprice || 0;
-              const total = order.quantity * price;
+              const price = order.price || order.ccBuilderItemDitelsList?.specialprice || order.ccBuilderItemDitelsList?.specialprice || order.pcForPartAdd?.[0]?.specialprice || 0;
+              const total = order.total;
 
               return (
                 <tr key={order.id}>
@@ -628,15 +628,15 @@ const OrderManagement = () => {
                 <div className="border-t pt-4">
                   <div className="flex justify-between mb-2">
                     <span>Regular Price:</span>
-                    <span>{formatPrice(selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.price)}</span>
+                    <span>{formatPrice(selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || selectedOrder.regularprice)}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span>Special Price:</span>
-                    <span>{formatPrice(selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.price)}</span>
+                    <span>{formatPrice(selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.specialprice)}</span>
                   </div>
                   <div className="flex justify-between font-bold">
                     <span>Total Paid:</span>
-                    <span>{formatPrice((selectedOrder.quantity || 1) * (selectedOrder.price || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || 0))}</span>
+                    {/* <span>{formatPrice((selectedOrder.quantity || 1) * (selectedOrder.price || selectedOrder.ccBuilderItemDitelsList?.[0]?.specialprice || selectedOrder.ccBuilderItemDitelsList?.[0]?.regularprice || 0))}</span> */}
                   </div>
                 </div>
               </div>

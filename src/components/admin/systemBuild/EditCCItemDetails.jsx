@@ -182,7 +182,7 @@ const EditCCItemDetails = () => {
       const resultAction = await dispatch(updateCCItemDetails(payload));
       if (updateCCItemDetails.fulfilled.match(resultAction)) {
         setSuccess("Item details updated successfully!");
-        setTimeout(() => navigate("/admin/cc-builder-view-item"), 2000);
+        setTimeout(() => navigate("/admin/view-cc-item-details"), 2000);
       } else {
         setFormError(resultAction.payload || "Failed to update item details.");
       }
@@ -433,7 +433,7 @@ const EditCCItemDetails = () => {
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => navigate("/admin/update-cc-item-details")}
+                  onClick={() => navigate("/admin/view-cc-item-details")}
                   disabled={loading.itemDetails}
                 >
                   Cancel

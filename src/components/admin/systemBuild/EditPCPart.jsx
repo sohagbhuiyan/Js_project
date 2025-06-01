@@ -329,7 +329,7 @@ const EditPCPart = () => {
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => navigate("/admin/pc-builder-view-part")}
+                  onClick={() => navigate("/admin/Pc-builder/ViewSystemBuilder")}
                   disabled={loading.update}
                 >
                   Cancel
