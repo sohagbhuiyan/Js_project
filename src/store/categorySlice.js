@@ -694,11 +694,11 @@ export const fetchCategoriesAndProducts = createAsyncThunk(
             ...product,
             path: `/collections?category=${encodeURIComponent(category.name)}&product=${encodeURIComponent(product.name)}`,
             items: items
-              .filter((item) => item.product?.id === product.id && item.catagory?.id === category.id)
-              .map((item) => ({
-                name: item.productitemname,
-                path: `/collections?category=${encodeURIComponent(category.name)}&product=${encodeURIComponent(product.name)}&item=${encodeURIComponent(item.productitemname)}`,
-              })),
+              // .filter((item) => item.product?.id === product.id && item.catagory?.id === category.id)
+              // .map((item) => ({
+              //   name: item.productitemname,
+              //   path: `/collections?category=${encodeURIComponent(category.name)}&product=${encodeURIComponent(product.name)}&item=${encodeURIComponent(item.productitemname)}`,
+              // })),
           })),
       }));
 

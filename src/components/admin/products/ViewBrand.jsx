@@ -56,7 +56,6 @@ const ViewBrand = () => {
     if (window.confirm('Are you sure you want to delete this brand?')) {
       setSuccessMessage('');
       setErrorMessage('');
-
       try {
         const resultAction = await dispatch(deleteBrand({ id: brandId, token }));
         
@@ -126,10 +125,10 @@ const ViewBrand = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {brands.map((brand) => (
+            {brands.map((brand, index) => (
               <tr key={brand.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {brand.id}
+                  {index + 1}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {editingBrand === brand.id ? (
@@ -178,7 +177,7 @@ const ViewBrand = () => {
                         </svg>
                       </button>
                       <button
-                        onClick={(brand) => handleDelete(brand.id)}
+                        onClick={() => handleDelete(brand.id)}
                         className="text-red-600 hover:text-red-900 p-1"
                         title="Delete Brand"
                         disabled={loading}

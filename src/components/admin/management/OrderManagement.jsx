@@ -87,8 +87,9 @@ const OrderManagement = () => {
     });
   };
 
-  const formatPrice = (price) => {
-    return price != null ? `৳${Number(price).toLocaleString()}` : "N/A";
+  const formatPrice = (num1) => {
+    console.log("This is the num1 \n\n\n", num1);
+    return num1 != null ? `৳${Number(num1).toLocaleString()}` : "N/A";
   };
 
   if (loading) return <div className="text-center py-4">Loading orders...</div>;
@@ -163,8 +164,9 @@ const OrderManagement = () => {
           <tbody className="divide-y divide-gray-200">
             {filteredOrders.map((order) => {
               const productName = order.productname || order.pcForPartAdd?.[0]?.name || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
-              const price = order.price || order.ccBuilderItemDitelsList?.specialprice || order.ccBuilderItemDitelsList?.specialprice || order.pcForPartAdd?.[0]?.specialprice || 0;
+              // const price = order.price || order.ccBuilderItemDitelsList?.specialprice || order.ccBuilderItemDitelsList?.specialprice || order.pcForPartAdd?.[0]?.specialprice || 0;
               const total = order.total;
+              const  price = order.unitPrice;
 
               return (
                 <tr key={order.id}>

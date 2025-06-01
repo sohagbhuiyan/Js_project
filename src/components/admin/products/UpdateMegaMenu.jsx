@@ -929,7 +929,7 @@ const UpdateMegaMenu = () => {
     product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
     product.categoryName.toLowerCase().includes(productSearch.toLowerCase())
   );
-
+console.log("categoriesWithSub \n\n\n: ", categoriesWithSub)
   const filteredItems = categoriesWithSub.flatMap((category) =>
     category.products.flatMap((product) =>
       product.items.map((item) => ({
@@ -1104,9 +1104,7 @@ const UpdateMegaMenu = () => {
     const selectedProductItems = selectedCategory?.products
       .find(prod => String(prod.id) === itemProductId)?.items || [];
     
-    const isDuplicate = selectedProductItems.some(item => 
-      item.name.toLowerCase() === itemName.trim().toLowerCase() && item.id !== selectedProductItem.id
-    );
+    const isDuplicate = selectedProductItems.some(item => item.id !== selectedProductItem.id);
     
     if (isDuplicate) {
       setItemError('An item with this name already exists in the selected product.');
