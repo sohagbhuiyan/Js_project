@@ -383,10 +383,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
 import { fetchCCItemDetailsById, clearCCBError } from "../../../store/ccbuilderSlice";
-import { addToCartAsync } from "../../../store/cartSlice";
-import { addToWishlist } from "../../../store/wishlistSlice";
-import { addToCompare } from "../../../store/compareSlice";
-import { FaShoppingCart, FaHeart, FaExchangeAlt } from "react-icons/fa";
 import { API_BASE_URL } from "../../../store/api";
 import ProductDetails from "../product/ProductDetails";
 
