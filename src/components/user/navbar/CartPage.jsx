@@ -175,10 +175,10 @@ const CartPage = () => {
               <button
                 onClick={handleProceedToCheckout}
                 className="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded text-sm font-medium transition-colors"
-                aria-label="Proceed to checkout"
+                aria-label="Proceed to order"
                 disabled={status === 'loading'}
               >
-                Proceed to Checkout
+                Proceed to order
               </button>
             </div>
           </div>

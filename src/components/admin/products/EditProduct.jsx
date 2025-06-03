@@ -214,8 +214,8 @@ const EditProduct = () => {
     e.preventDefault();
 
     // Validation
-    if (!formState.catagory.id || !formState.product.id || !formState.productItem.id) {
-      alert('Category, product, and product item are required.');
+    if (!formState.catagory.id ) {
+      alert('Category required.');
       return;
     }
 
@@ -316,7 +316,7 @@ const EditProduct = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth >
         <InputLabel>Product (Submenu)</InputLabel>
         <Select
           name="product.id"
@@ -336,7 +336,7 @@ const EditProduct = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth >
         <InputLabel>Product Item (Mega-menu)</InputLabel>
         <Select
           name="productItem.id"
@@ -356,7 +356,7 @@ const EditProduct = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth>
         <InputLabel>Brand</InputLabel>
         <Select
           name="brand.id"
@@ -412,6 +412,7 @@ const EditProduct = () => {
         onChange={handleChange}
         required
         className="w-full"
+        inputProps={{ maxLength: 5000 }} 
       />
       
       <TextField
@@ -422,7 +423,7 @@ const EditProduct = () => {
         value={formState.details}
         onChange={handleChange}
         required
-            inputProps={{ maxLength: 1000 }} 
+        inputProps={{ maxLength: 5000 }} 
         className="w-full"
       />
       
@@ -435,7 +436,7 @@ const EditProduct = () => {
         onChange={handleChange}
         required
         className="w-full"
-            inputProps={{ maxLength: 1000 }} 
+        inputProps={{ maxLength: 2000 }} 
       />
       
       <TextField

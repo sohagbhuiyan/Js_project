@@ -243,7 +243,7 @@ const CartCheckoutPage = () => {
                     src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : "/images/fallback-image.jpg"}
                     alt={item.name}
                     className="w-20 h-20 object-cover rounded border"
-                    onError={(e) => (e.target.src = "/images/fallback-image.jpg")}
+                    // onError={(e) => (e.target.src = "/images/fallback-image.jpg")}
                   />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm sm:text-base">{item.name}</h4>
