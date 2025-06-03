@@ -37,20 +37,20 @@ const ProductDetails = () => {
     }
   };
 
-  // Function to format specification string
-  const formatSpecification = (spec) => {
-    if (!spec) return "No specifications available.";
-    const pairs = spec.split(',').map(item => item.trim());
-    return pairs.map((pair, index) => {
-      const [key, value] = pair.split(':').map(part => part.trim());
-      return (
-        <span key={index}>
-          <strong>{key}</strong>: {value}
-          {index < pairs.length - 1 ? ', ' : ''}
-        </span>
-      );
-    });
-  };
+  // // Function to format specification string
+  // const formatSpecification = (spec) => {
+  //   if (!spec) return "No specifications available.";
+  //   const pairs = spec.split(',').map(item => item.trim());
+  //   return pairs.map((pair, index) => {
+  //     const [key, value] = pair.split(':').map(part => part.trim());
+  //     return (
+  //       <span key={index}>
+  //         <strong>{key}</strong>: {value}
+  //         {index < pairs.length - 1 ? ', ' : ''}
+  //       </span>
+  //     );
+  //   });
+  // };
 
   if (loading) return <p className="p-4">Loading...</p>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
@@ -86,7 +86,7 @@ const ProductDetails = () => {
             <p><strong>Category:</strong> {currentProduct.catagory?.name}</p>
             <p><strong>Item:</strong> {currentProduct.productItem?.productitemname || "items"}</p>
             <p><strong>Brand:</strong> {currentProduct.brand?.brandname || currentProduct.catagory?.name}</p>
-            <p><strong>Specification:</strong> {formatSpecification(currentProduct.specification)}</p>
+            <p><strong>Specification:</strong> {currentProduct.specification}</p>
           </div>
         ) : (
           <p>No product data found.</p>

@@ -95,7 +95,7 @@ const CartPage = () => {
     navigate('/cart-checkout', { state: { cartItems: items, cartTotal: calculateTotal } });
   }, [profile, token, items, calculateTotal, navigate]);
 
-  const fallbackImage = '/images/fallback-image.jpg';
+
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -129,7 +129,7 @@ const CartPage = () => {
                   src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : fallbackImage}
                   alt={item.name}
                   className="w-20 h-20 object-cover rounded"
-                  onError={(e) => (e.target.src = fallbackImage)}
+              
                 />
                 <div>
                   <Link

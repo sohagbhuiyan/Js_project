@@ -422,6 +422,7 @@ const EditProduct = () => {
         value={formState.details}
         onChange={handleChange}
         required
+            inputProps={{ maxLength: 1000 }} 
         className="w-full"
       />
       
@@ -434,6 +435,7 @@ const EditProduct = () => {
         onChange={handleChange}
         required
         className="w-full"
+            inputProps={{ maxLength: 1000 }} 
       />
       
       <TextField

@@ -134,6 +134,9 @@ const UserOrders = () => {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Quantity
                   </th>
+                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Unit price
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Total
                   </th>
@@ -176,17 +179,15 @@ const UserOrders = () => {
                         </td>
 
                         <td className="px-4 py-4 text-sm text-gray-900">
-                          ৳{(
-                            order.quantity *
-                            (
-                              product?.specialprice ||
-                              product?.regularprice ||
-                              order.price ||
-                              0
-                            )
-                          )?.toLocaleString() || "N/A"}
+                          ৳{ 
+                          order.productDetailsList[0]?.specialprice  || order.pcForPartAddList[0]?.specialprice || order.ccBuilderItemDitelsList[0]?.specialprice
+                          ?.toLocaleString() || "N/A"}
                         </td>
-
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          ৳{ 
+                              order.price  
+                          ?.toLocaleString() || "N/A"}
+                        </td>
                       <td className="px-4 py-4 text-sm">
                         <div className="text-gray-900">{order.address || "N/A"}</div>
                         <div className="text-xs text-gray-500">

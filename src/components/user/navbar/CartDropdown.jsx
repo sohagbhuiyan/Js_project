@@ -164,7 +164,7 @@ export const CartDropdown = ({ isOpen, onClose, position = 'desktop', cartIconRe
                   src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : fallbackImage}
                   alt={item.name}
                   className={`${imageSize} object-cover rounded`}
-                  onError={(e) => (e.target.src = fallbackImage)}
+                 
                 />
                 <div className="flex-1 px-2">
                   <p className="text-sm font-semibold group-hover:text-blue-600 transition-colors">

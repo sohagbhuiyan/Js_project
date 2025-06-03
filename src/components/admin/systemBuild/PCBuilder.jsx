@@ -203,6 +203,9 @@ const PCBuilder = () => {
               onChange={(e) => setPartDescription(e.target.value)}
               required
               variant="outlined"
+              multiline
+              rows={2}
+              inputProps={{ maxLength: 5000 }} 
             />
           </Box>
           <Box mb={2}>
@@ -213,6 +216,9 @@ const PCBuilder = () => {
               onChange={(e) => setPartPerformance(e.target.value)}
               required
               variant="outlined"
+              multiline
+              rows={1}
+              inputProps={{ maxLength: 5000 }} 
             />
           </Box>
           <Box mb={2}>
@@ -223,6 +229,9 @@ const PCBuilder = () => {
               onChange={(e) => setPartAbility(e.target.value)}
               required
               variant="outlined"
+              multiline
+              rows={1}
+              inputProps={{ maxLength: 5000 }} 
             />
           </Box>
           <Box mb={2}>

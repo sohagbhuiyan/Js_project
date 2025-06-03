@@ -8,6 +8,7 @@ import monit from '../Utils/monitor.webp'
 import jss from '../Utils/jj.png'
 import t from '../Utils/j.png'
 
+
 export const tech = t
 export const logo = jss
 export const slider = sl1

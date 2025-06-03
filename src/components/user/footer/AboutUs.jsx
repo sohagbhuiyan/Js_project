@@ -128,7 +128,7 @@ const AboutUs = () => {
                     variant="body1"
                     sx={{ color: "text.secondary", lineHeight: 1.8, mb: 4 }}
                   >
-                    Greetings from JS Computer! With over 20 years of experience, our foremost
+                    Greetings from JS Computer! With over many years of experience, our foremost
                     concern has always been satisfying our customers' needs. Our professional team
                     is dedicated to helping you choose the perfect accessories for your computer.
                     Thank you for trusting us, and we assure you of our best services at all times.

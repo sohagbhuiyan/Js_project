@@ -17,7 +17,7 @@ import AboutUs from './components/user/footer/AboutUs';
 import AboutCEO from './components/user/footer/AboutCEO';
 import Specialty from './components/user/footer/Specialty';
 import ServiceCenter from './components/user/footer/ServiceCenter';
-import WishlistPage from './components/user/navbar/WishlistPage';
+// import WishlistPage from './components/user/navbar/WishlistPage';
 import CartPage from './components/user/navbar/CartPage';
 import ComparePage from './components/user/navbar/ComparePage';
 
@@ -104,7 +104,7 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="/brand" element={<BrandSection />} />
           <Route path="product/:id" element={<ProductviewPage />} />
-          <Route path="wishlist" element={<WishlistPage />} />
+          {/* <Route path="wishlist" element={<WishlistPage />} /> */}
           <Route path="/cart" element={<CartPage />} />
           <Route path="compare" element={<ComparePage />} />
           <Route path="/pc-builder" element={<PCBuilderPage />} />

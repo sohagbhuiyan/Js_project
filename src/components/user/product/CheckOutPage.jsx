@@ -174,7 +174,7 @@ const CheckoutPage = () => {
                 src={`${API_BASE_URL}/images/${product.imagea}`}
                 alt={product.name}
                 className="w-24 h-24 object-cover border"
-                onError={(e) => (e.target.src = '/images/fallback-image.jpg')}
+    
               />
               <div>
                 <h4 className="font-medium">{product.name}</h4>

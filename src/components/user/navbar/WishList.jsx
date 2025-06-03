@@ -70,13 +70,13 @@ const Wishlist = ({ isOpen, isMobile, onClose }) => {
           </div>
         ))
       )}
-      {wishlistItems.length > 0 && (
+      {/* {wishlistItems.length > 0 && (
         <div className="mt-4 text-center">
           <Link to="/wishlist" className="text-blue-600 hover:text-blue-800 font-medium text-sm">
             View Full Wishlist →
           </Link>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

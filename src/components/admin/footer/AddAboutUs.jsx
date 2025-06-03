@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Grid } from 'lucide-react';
 
 const AddAboutUs = () => {
   const [formData, setFormData] = useState({
@@ -103,27 +104,6 @@ const AddAboutUs = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: '' });
-  };
-
-  const handleFetchById = async () => {
-    if (!fetchId) {
-      setErrors({ ...errors, fetch: 'About Us ID is required' });
-      toast.error('Please enter an About Us ID', {
-        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
-      });
-      return;
-    }
-    const result = await dispatch(getAboutUsById(fetchId));
-    if (getAboutUsById.fulfilled.match(result)) {
-      toast.success(`Fetched About Us #${fetchId} for editing`, {
-        style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
-      });
-      setFetchId('');
-    } else {
-      toast.error(result.payload || 'Failed to fetch About Us', {
-        style: { background: '#EF4444', color: '#FFFFFF', fontWeight: 'bold' },
-      });
-    }
   };
 
   const handleSubmit = async () => {
@@ -224,35 +204,21 @@ const AddAboutUs = () => {
           {selectedAboutUs ? `Edit About Us #${selectedAboutUs.id}` : 'Add New About Us'}
         </h2>
         {errors.auth && <Alert severity="error" className="mb-4">{errors.auth}</Alert>}
+   
         <div className="space-y-4">
-          <div className="flex gap-4">
-            <TextField
-              label="About Us ID to Fetch"
-              value={fetchId}
-              onChange={(e) => setFetchId(e.target.value)}
-              fullWidth
-              variant="outlined"
-              error={!!errors.fetch}
-              helperText={errors.fetch}
-            />
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleFetchById}
-              disabled={loading}
-            >
-              Fetch
-            </Button>
-          </div>
           <TextField
             label="Mission"
             name="mission"
             value={formData.mission}
             onChange={handleChange}
             fullWidth
+            multiline
             error={!!errors.mission}
             helperText={errors.mission}
             variant="outlined"
+            rows={4}
+            inputProps={{ maxLength: 3000 }} 
+            
           />
           <TextField
             label="Vision"
@@ -260,9 +226,12 @@ const AddAboutUs = () => {
             value={formData.vision}
             onChange={handleChange}
             fullWidth
+            multiline
             error={!!errors.vision}
             helperText={errors.vision}
             variant="outlined"
+            rows={3}
+            inputProps={{ maxLength: 3000 }} 
           />
           <TextField
             label="Achievements"
@@ -270,7 +239,10 @@ const AddAboutUs = () => {
             value={formData.achievements}
             onChange={handleChange}
             fullWidth
+            multiline
+            rows={3}
             variant="outlined"
+            inputProps={{ maxLength: 5000 }} 
           />
           <TextField
             label="Brand/Business Partners"
@@ -279,6 +251,9 @@ const AddAboutUs = () => {
             onChange={handleChange}
             fullWidth
             variant="outlined"
+            multiline
+            rows={4}
+            inputProps={{ maxLength: 5000 }} 
           />
           <TextField
             label="Description"
@@ -289,8 +264,10 @@ const AddAboutUs = () => {
             error={!!errors.description}
             helperText={errors.description}
             multiline
-            rows={4}
+            rows={3}
             variant="outlined"
+            inputProps={{ maxLength: 5000 }} 
+           
           />
           <div className="flex gap-4">
             <Button
@@ -315,6 +292,7 @@ const AddAboutUs = () => {
             </Button>
           </div>
         </div>
+    
       </div>
 
       {/* About Us List Section */}
@@ -394,86 +372,3 @@ const AddAboutUs = () => {
 };
 
 export default AddAboutUs;
-// import { useEffect, useState } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import {
-//   createAboutUs, fetchAboutUsById, updateAboutUs, deleteAboutUs, fetchAllAboutUs, clearSelected
-// } from '../../../store/aboutUsSlice';
-
-// const AddAboutUs = () => {
-//   const dispatch = useDispatch();
-//   const { selected, items } = useSelector(state => state.aboutUs);
-//   const token = localStorage.getItem("token");
-
-//   const [form, setForm] = useState({
-//     mission: '',
-//     vision: '',
-//     achievements: '',
-//     brandbusinesspartners: '',
-//     description: ''
-//   });
-
-//   useEffect(() => {
-//     dispatch(fetchAllAboutUs());
-//   }, [dispatch]);
-
-//   useEffect(() => {
-//     if (selected) {
-//       setForm(selected);
-//     }
-//   }, [selected]);
-
-//   const handleChange = (e) => {
-//     setForm({ ...form, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = () => {
-//     if (form.id) {
-//       dispatch(updateAboutUs({ id: form.id, data: form, token }));
-//     } else {
-//       dispatch(createAboutUs({ data: form, token }));
-//     }
-//     setForm({ mission: '', vision: '', achievements: '', brandbusinesspartners: '', description: '' });
-//     dispatch(clearSelected());
-//   };
-
-//   const handleEdit = (id) => {
-//     dispatch(fetchAboutUsById(id));
-//   };
-
-//   const handleDelete = (id) => {
-//     dispatch(deleteAboutUs({ id, token }));
-//   };
-
-//   return (
-//     <div className="p-4 max-w-xl mx-auto space-y-4">
-//       <h2 className="text-xl font-semibold">Add / Update About Us</h2>
-//       {['mission', 'vision', 'achievements', 'brandbusinesspartners', 'description'].map(field => (
-//         <input
-//           key={field}
-//           name={field}
-//           value={form[field] || ''}
-//           onChange={handleChange}
-//           placeholder={field}
-//           className="w-full border p-2 rounded"
-//         />
-//       ))}
-//       <button onClick={handleSubmit} className="bg-blue-600 text-white px-4 py-2 rounded">
-//         {form.id ? "Update" : "Save"}
-//       </button>
-
-//       <hr />
-//       <h3 className="text-lg font-medium">All About Us Entries</h3>
-//       {items.map(item => (
-//         <div key={item.id} className="border p-2 rounded mb-2">
-//           <p><strong>Mission:</strong> {item.mission}</p>
-//           <p><strong>Vision:</strong> {item.vision}</p>
-//           <button onClick={() => handleEdit(item.id)} className="text-yellow-600 mr-2">Edit</button>
-//           <button onClick={() => handleDelete(item.id)} className="text-red-600">Delete</button>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default AddAboutUs;

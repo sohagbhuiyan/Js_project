@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -34,7 +35,7 @@ const AddProduct = () => {
     catagory: { id: '' },
     product: { id: '' },
     brand: { id: '' },
-    productItem: { id: '' }, // Changed from productitemname to productItem
+    productItem: { id: '' },
   });
 
   const [imagea, setImageA] = useState(null);
@@ -163,8 +164,8 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formState.catagory.id || !formState.product.id || !formState.productItem.id) {
-      alert('Category, product, and product item are required.');
+    if (!formState.catagory.id) {
+      alert('Category and product are required.');
       return;
     }
 
@@ -172,7 +173,7 @@ const AddProduct = () => {
       const formDataObject = {
         productDetails: {
           ...formState,
-          productItem: { id: parseInt(formState.productItem.id) }, // Ensure ID is integer
+          productItem: formState.productItem.id ? { id: parseInt(formState.productItem.id) } : null,
         },
         imagea,
         imageb,
@@ -201,7 +202,7 @@ const AddProduct = () => {
       setImageC(null);
       setMainImagePreview(null);
       setAdditionalImagesPreviews([null, null]);
-      navigate("/admin/products/add-product")
+      navigate("/admin/products/add-product");
     } catch (error) {
       console.error('Error adding product:', error);
       alert('Failed to add product: ' + (error || 'Unknown error'));
@@ -250,7 +251,7 @@ const AddProduct = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth >
         <InputLabel>Product (Submenu)</InputLabel>
         <Select
           name="product.id"
@@ -270,17 +271,19 @@ const AddProduct = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth>
         <InputLabel>Product Item (Mega-menu)</InputLabel>
         <Select
           name="productItem.id"
-          value={formState.productItem.id}
+          value={formState.productItem?.id || ""}
           onChange={handleChange}
           label="Product Item (Mega-menu)"
           disabled={!formState.product.id || productItems.length === 0}
         >
           <MenuItem value="">
-            {productItems.length === 0 ? '-- No Mega-menu Available --' : '-- Select Product Item (Mega-menu) --'}
+            {productItems.length === 0
+              ? '-- No Mega-menu Available --'
+              : '-- Select Product Item (Mega-menu) --'}
           </MenuItem>
           {productItems.map((item) => (
             <MenuItem key={item.id} value={item.id}>
@@ -290,7 +293,7 @@ const AddProduct = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth >
         <InputLabel>Brand</InputLabel>
         <Select
           name="brand.id"
@@ -341,6 +344,7 @@ const AddProduct = () => {
         value={formState.details}
         onChange={handleChange}
         required
+        inputProps={{ maxLength: 1000 }} 
       />
       <TextField
         name="specification"
@@ -351,13 +355,17 @@ const AddProduct = () => {
         value={formState.specification}
         onChange={handleChange}
         required
+        inputProps={{ maxLength: 1000 }} 
       />
       <TextField
         name="title"
         label="Additional Information"
         value={formState.title}
         onChange={handleChange}
-        required  
+        required
+        multiline
+        rows={4} // You can change this number based on desired height
+        inputProps={{ maxLength: 1000 }}  
       />
       <TextField
         name="warranty"

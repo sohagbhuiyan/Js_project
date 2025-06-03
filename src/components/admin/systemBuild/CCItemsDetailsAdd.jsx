@@ -266,7 +266,9 @@ const CCItemsDetailsAdd = () => {
                 disabled={loading.itemDetails}
                 variant="outlined"
                 multiline
-                rows={3}
+                rows={1}
+                inputProps={{ maxLength: 5000 }} 
+
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -279,6 +281,9 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
+                multiline
+                rows={1}
+                inputProps={{ maxLength: 5000 }} 
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -291,6 +296,9 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
+                multiline
+                rows={1}
+                inputProps={{ maxLength: 5000 }} 
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -304,7 +312,7 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
-                inputProps={{ min: 0, step: "0.01" }}
+                inputProps={{ min: 0, step: "0.10" }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -318,7 +326,7 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
-                inputProps={{ min: 0, step: "0.01" }}
+                inputProps={{ min: 0, step: "0.10" }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -358,6 +366,9 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
+                multiline
+                rows={1}
+                inputProps={{ maxLength: 5000 }} 
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -370,6 +381,9 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
+                multiline
+                rows={1}
+                inputProps={{ maxLength: 5000 }} 
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -382,6 +396,9 @@ const CCItemsDetailsAdd = () => {
                 required
                 disabled={loading.itemDetails}
                 variant="outlined"
+                multiline
+                rows={1}
+                inputProps={{ maxLength: 5000 }} 
               />
             </Grid>
             <Grid item xs={12}>

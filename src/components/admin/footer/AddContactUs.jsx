@@ -179,7 +179,7 @@ const AddContactUs = () => {
               disabled={loading}
             />
             <TextField
-              label="Saturday Status"
+              label="Open Status"
               name="saturday"
               value={formData.saturday}
               onChange={handleInputChange}
