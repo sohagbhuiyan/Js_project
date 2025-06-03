@@ -177,7 +177,7 @@ export const fetchOrders = createAsyncThunk(
       return response.data.map(order => ({
         ...order,
         productName: order.items?.[0]?.productname || order.productDetailsList?.name || "Unknown Product",
-        price: order.price || 0,
+        unitPrice: order?.productDetailsList[0]?.specialprice || 0,
         total: order.price || 0, // Assuming total is same as price unless backend provides a separate total
       }));
     } catch (error) {

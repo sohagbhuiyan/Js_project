@@ -102,7 +102,7 @@ const OrderConfirmation = () => {
                     src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : '/images/fallback-image.jpg'}
                     alt={item.name || "Item"}
                     className="w-20 h-20 object-cover rounded border"
-                    onError={(e) => (e.target.src = '/images/fallback-image.jpg')}
+                    // onError={(e) => (e.target.src = '/images/fallback-image.jpg')}
                   />
                   <div className="flex-1">
                     <h5 className="font-medium text-sm sm:text-base">{item.name || item.ccBuilder?.name || item.item?.name || 'N/A'}</h5>

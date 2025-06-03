@@ -168,23 +168,23 @@ const CheckoutPage = () => {
         {/* Order Summary */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-          {products.map((product, index) => (
+          {products.map((item, index) => (
             <div key={index} className="flex gap-4 mb-4">
               <img
-                src={`${API_BASE_URL}/images/${product.imagea}`}
-                alt={product.name}
+                src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : ""}
+                alt={item.name}
                 className="w-24 h-24 object-cover border"
     
               />
               <div>
-                <h4 className="font-medium">{product.name}</h4>
-                <p className="text-sm text-gray-600">ID: {product.productid}</p>
-                <p className="text-sm">Quantity: {product.quantity || 1}</p>
+                <h4 className="font-medium">{item.name}</h4>
+                <p className="text-sm text-gray-600">ID: {item.productid}</p>
+                <p className="text-sm">Quantity: {item.quantity || 1}</p>
                 <p className="text-sm font-bold">
-                  Price: Tk {(product.specialprice || product.regularprice).toFixed(2)}
+                  Price: Tk {(item.specialprice || item.regularprice).toFixed(2)}
                 </p>
                 <p className="text-sm font-bold">
-                  Subtotal: Tk {((product.specialprice || product.regularprice) * (product.quantity || 1)).toFixed(2)}
+                  Subtotal: Tk {((item.specialprice || item.regularprice) * (item.quantity || 1)).toFixed(2)}
                 </p>
               </div>
             </div>

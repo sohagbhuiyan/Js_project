@@ -242,7 +242,7 @@ const cartSlice = createSlice({
           cartId: item.id,
           productId: item.productDetails?.id || item.pcForPartAdd?.id || item.ccBuilderItemDitels?.id || item.productDetailsId,
           name: item.productDetails?.name || item.pcForPartAdd?.name || item.ccBuilderItemDitels?.name || 'Unknown Product',
-          price: item.productDetails?.specialprice || item.productDetails?.regularprice || item.pcForPartAdd?.specialprice || item.pcForPartAdd?.regularprice || item.ccBuilderItemDitels?.specialprice || item.ccBuilderItemDitels?.regularprice || item.price || 0,
+          price: item.productDetails[0]?.specialprice || item.productDetails?.regularprice || item.pcForPartAdd?.specialprice || item.pcForPartAdd?.regularprice || item.ccBuilderItemDitels?.specialprice || item.ccBuilderItemDitels?.regularprice || item.price || 0,
           quantity: item.quantity || 1,
           imagea: item.productDetails?.imagea || item.pcForPartAdd?.imagea || item.ccBuilderItemDitels?.imagea || item.imagea || '',
         }));
