@@ -57,8 +57,6 @@ const Footer = () => {
     </footer>
       <hr />
       <div className="p-3 mb-13 md:mb-0 bg-gray-900">
-      {/* <p className="text-xs text-gray-300 items-center text-center px-10 md:px-60">Prices are subject to change without any prior notice.
-Product data used in this website is based solely on its manufacturer provided information. Authenticity and accuracy are their responsibility only.</p>  */}
       <p className="text-xs md:text-md text-gray-100 text-center ">Copyright © 2025 JS Computers. All Rights Reserved</p> 
       </div>
      </>

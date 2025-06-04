@@ -173,7 +173,6 @@ const UserOrders = () => {
                           ? order.ccBuilderItemDitelsList.map(item => item.name).join(", ")
                           : product?.name || order.productname || "N/A"}
                       </td>
-
                         <td className="px-4 py-4 text-sm text-gray-900">
                           {order.quantity || "multiple"}
                         </td>

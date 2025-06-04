@@ -153,7 +153,7 @@ const OrderManagement = () => {
               <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
               <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
               <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-              <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+              <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit Price</th>
               <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
               <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shipping Address</th>
               <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order Date</th>
@@ -165,7 +165,7 @@ const OrderManagement = () => {
             {filteredOrders.map((order) => {
               const productName = order.productname || order.pcForPartAdd?.[0]?.name || order.ccBuilderItemDitelsList?.[0]?.name || "Unknown Product";
               // const price = order.price || order.ccBuilderItemDitelsList?.specialprice || order.ccBuilderItemDitelsList?.specialprice || order.pcForPartAdd?.[0]?.specialprice || 0;
-              const total = order.total;
+              const total = order.price;
               const  price = order.unitPrice;
 
               return (

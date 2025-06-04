@@ -8,7 +8,7 @@ import {
 import { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { CartDropdown } from "./CartDropdown";
+import CartDropdown  from "./CartDropdown";
 import WishList from "./WishList";
 import CompareDropdown from "./CompareDropdown";
 import { UserDropdown } from "./UserDropdown";
@@ -129,12 +129,12 @@ const NavIcons = ({ variant = "desktop" }) => {
             display: "flex",
             justifyContent: "center",
             borderRadius: "10px",
-            background: "linear-gradient(45deg, #FF416C, #FF4B2B, #FF8E53, #FFD700)",
-            color: "#fff",
+            background: "linear-gradient(45deg, #d2d2d2, #e0e0e0)", // light gray gradient
+            color: "#000",
             textTransform: "none",
             "&:hover": {
-              background: "linear-gradient(45deg, #E0FFFF, #F0FFF0)",
-              color: "#CF212B",
+              background: "linear-gradient(45deg, #f4edda, #c3e6cb)", // light green shades
+              color: "#155724",
             },
             "& .MuiButton-startIcon": {
               margin: isMobile ? "0" : "inherit",

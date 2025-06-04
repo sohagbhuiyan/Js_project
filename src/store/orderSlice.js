@@ -165,21 +165,109 @@ export const updateOrderStatus = createAsyncThunk(
 );
 
 // Fetch All Orders (for admin, no authentication)
+// export const fetchOrders = createAsyncThunk(
+//   "order/fetchAll",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(`${API_BASE_URL}/api/orders/all`);
+
+//       console.log("Fetched all orders:", response.data);
+
+//       // Ensure the response includes product name, price, and total
+//       return response.data.map(order => ({
+//         ...order,
+//         productName: order.items?.[0]?.productname || order.productDetailsList?.name || "Unknown Product",
+//         unitPrice: order?.productDetailsList[0]?.specialprice || 0,
+//         total: order.price || 0, // Assuming total is same as price unless backend provides a separate total
+//       }));
+//     } catch (error) {
+//       const errorMessage = error.response?.data?.message || "Failed to fetch orders";
+//       console.error("Fetch orders error:", error.response?.data);
+//       return rejectWithValue(errorMessage);
+//     }
+//   }
+// );
+// Updated fetchOrders thunk
 export const fetchOrders = createAsyncThunk(
   "order/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/orders/all`);
-
       console.log("Fetched all orders:", response.data);
 
-      // Ensure the response includes product name, price, and total
-      return response.data.map(order => ({
-        ...order,
-        productName: order.items?.[0]?.productname || order.productDetailsList?.name || "Unknown Product",
-        unitPrice: order?.productDetailsList[0]?.specialprice || 0,
-        total: order.price || 0, // Assuming total is same as price unless backend provides a separate total
-      }));
+      // Process orders to handle multiple products properly
+      const processedOrders = [];
+      
+      response.data.forEach(order => {
+        // Handle orders with productDetailsList (multiple products)
+        if (order.productDetailsList && order.productDetailsList.length > 0) {
+          order.productDetailsList.forEach((product, index) => {
+            processedOrders.push({
+              ...order,
+              // Add a unique identifier for each product row
+              uniqueId: `${order.id}-product-${index}`,
+              // Product specific data
+              productName: product.name,
+              unitPrice: order?.productDetailsList[0]?.specialprice|| product.regularprice || 0,
+              productQuantity: product.quantity || 1,
+              // Calculate total for this specific product
+              productTotal: (product.price),
+              // Keep original order data
+              isMultipleProducts: order.productDetailsList.length > 1,
+              productIndex: index,
+              currentProduct: product
+            });
+          });
+        }
+        // Handle orders with pcForPartAddList
+        else if (order.pcForPartAddList && order.pcForPartAddList.length > 0) {
+          order.pcForPartAddList.forEach((product, index) => {
+            processedOrders.push({
+              ...order,
+              uniqueId: `${order.id}-pcpart-${index}`,
+              productName: product.name,
+              unitPrice: product.specialprice || product.regularprice || 0,
+              productQuantity: product.quantity || 1,
+              productTotal: (product.specialprice || product.regularprice || 0) * (product.quantity || 1),
+              isMultipleProducts: order.pcForPartAddList.length > 1,
+              productIndex: index,
+              currentProduct: product
+            });
+          });
+        }
+        // Handle orders with ccBuilderItemDitelsList
+        else if (order.ccBuilderItemDitelsList && order.ccBuilderItemDitelsList.length > 0) {
+          order.ccBuilderItemDitelsList.forEach((product, index) => {
+            processedOrders.push({
+              ...order,
+              uniqueId: `${order.id}-ccbuilder-${index}`,
+              productName: product.name,
+              unitPrice: product.specialprice || product.regularprice || 0,
+              productQuantity: product.quantity || 1,
+              productTotal: (product.specialprice || product.regularprice || 0) * (product.quantity || 1),
+              isMultipleProducts: order.ccBuilderItemDitelsList.length > 1,
+              productIndex: index,
+              currentProduct: product
+            });
+          });
+        }
+        // Handle single product orders or orders without detailed product lists
+        else {
+          processedOrders.push({
+            ...order,
+            uniqueId: `${order.id}-single`,
+            productName: order.productname || "Unknown Product",
+            unitPrice: 0,
+            productQuantity: order.quantity || 1,
+            productTotal: order.price || 0,
+            isMultipleProducts: false,
+            productIndex: 0,
+            currentProduct: null
+          });
+        }
+      });
+
+      return processedOrders;
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Failed to fetch orders";
       console.error("Fetch orders error:", error.response?.data);

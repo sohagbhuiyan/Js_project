@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getAllContactUs, clearError } from '../../../store/contactUsSlice';
+import { MdCall, MdEmail, MdLocationPin } from "react-icons/md";
+import { TbClockHour4 } from "react-icons/tb";
 
 const ContactUs = () => {
   const dispatch = useDispatch();
@@ -33,13 +35,13 @@ const ContactUs = () => {
       ) : contacts.length === 0 ? (
         <div>No contact information available.</div>
       ) : (
-        <div className="space-y-1 text-sm">
+        <div className="space-y-1 text-sm px-4 sm:px-0 ">
           {contacts.map((contact) => (
             <div key={contact.id}>
-              <p>{contact.address}</p>
-              <p>{contact.phonenumbers}</p>
-              <p>{contact.email}</p>
-              <p>{contact.saturday}</p>
+             <span className='flex'><MdLocationPin className='mt-0.5 mr-2'/><p>{contact.address}</p></span>
+              <span className='flex'><MdCall className='mt-0.5 mr-2'/><p>{contact.phonenumbers}</p></span>
+              <span className='flex'><MdEmail className='mt-0.5 mr-2'/><p>{contact.email}</p></span>
+              <span className='flex'><TbClockHour4 className='mt-0.5 mr-2'/><p>{contact.saturday}</p></span>
             </div>
           ))}
         </div>

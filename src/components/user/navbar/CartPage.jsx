@@ -1,8 +1,10 @@
+
 import { useEffect, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import debounce from 'lodash.debounce';
 import {
   fetchCartItemsAsync,
   removeFromCartAsync,
@@ -16,7 +18,6 @@ import {
 import { API_BASE_URL } from '../../../store/api';
 
 const CartPage = () => {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const items = useSelector(selectCartItems);
@@ -28,6 +29,25 @@ const CartPage = () => {
     (prev, next) => prev.profile?.id === next.profile?.id && prev.token === next.token
   );
 
+  // Debounced quantity update
+  const debouncedQuantityChange = useMemo(
+    () =>
+      debounce((cartId, productId, quantity) => {
+        if (quantity >= 1) {
+          if (profile?.id && token && cartId) {
+            dispatch(updateCartQuantityAsync({ id: cartId, quantity }));
+          } else {
+            dispatch({ type: 'cart/updateQuantity', payload: { productId, quantity } });
+            toast.success('Quantity updated!', {
+              duration: 2000,
+              style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
+            });
+          }
+        }
+      }, 500),
+    [dispatch, profile, token]
+  );
+
   useEffect(() => {
     if (profile?.id && profile?.email && token) {
       dispatch(fetchCartItemsAsync());
@@ -35,6 +55,12 @@ const CartPage = () => {
       dispatch(initializeCart({ auth: { profile } }));
     }
   }, [dispatch, profile, token]);
+
+  useEffect(() => {
+    return () => {
+      debouncedQuantityChange.cancel(); // Cleanup debounce on unmount
+    };
+  }, [debouncedQuantityChange]);
 
   const handleRemove = useCallback(
     (cartId, productId, productName) => {
@@ -55,18 +81,9 @@ const CartPage = () => {
     (cartId, productId, newQuantity) => {
       const quantity = parseInt(newQuantity, 10);
       if (isNaN(quantity) || quantity < 1) return;
-
-      if (profile?.id && token && cartId) {
-        dispatch(updateCartQuantityAsync({ id: cartId, quantity }));
-      } else {
-        dispatch({ type: 'cart/updateQuantity', payload: { productId, quantity } });
-        toast.success('Quantity updated!', {
-          duration: 2000,
-          style: { background: '#10B981', color: '#FFFFFF', fontWeight: 'bold' },
-        });
-      }
+      debouncedQuantityChange(cartId, productId, quantity);
     },
-    [dispatch, profile, token]
+    [debouncedQuantityChange]
   );
 
   const calculateTotal = useMemo(
@@ -95,8 +112,6 @@ const CartPage = () => {
     navigate('/cart-checkout', { state: { cartItems: items, cartTotal: calculateTotal } });
   }, [profile, token, items, calculateTotal, navigate]);
 
-
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <h1 className="text-2xl font-bold mb-6">Your Cart ({count} items)</h1>
@@ -104,7 +119,13 @@ const CartPage = () => {
       {status === 'loading' && (
         <p className="text-center text-gray-500 text-sm">Loading cart...</p>
       )}
-      {error && <p className="text-red-500 text-center text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-center text-sm mb-4">
+          {error} <button onClick={() => dispatch(fetchCartItemsAsync())} className="underline">
+            Retry
+          </button>
+        </p>
+      )}
 
       {items.length === 0 && status !== 'loading' ? (
         <div className="text-center text-gray-500">
@@ -126,10 +147,9 @@ const CartPage = () => {
             >
               <div className="flex items-center space-x-4">
                 <img
-                  src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : fallbackImage}
+                  src={item.imagea ? `${API_BASE_URL}/images/${item.imagea}` : '/images/fallback-image.jpg'}
                   alt={item.name}
                   className="w-20 h-20 object-cover rounded"
-              
                 />
                 <div>
                   <Link
@@ -190,3 +210,4 @@ const CartPage = () => {
 };
 
 export default CartPage;
+
