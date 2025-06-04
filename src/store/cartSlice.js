@@ -490,11 +490,8 @@ export const fetchCartItemsAsync = createAsyncThunk(
       console.log('fetchCartItems response:', response.data);
       return response.data || [];
     } catch (error) {
-      const errorMessage =
-        error.response?.status === 401
-          ? 'Session expired. Please log in again.'
-          : error.response?.data?.message || 'Failed to fetch cart items. Please try again.';
-      return rejectWithValue(errorMessage);
+  ("");
+      return rejectWithValue();
     }
   },
   {
