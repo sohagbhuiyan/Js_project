@@ -75,6 +75,9 @@ import CustomEmail from './components/admin/management/CustomEmail';
 import CCBuilderViewItem from './components/admin/systemBuild/CCBuilderViewItem';
 import EditCCItemDetails from './components/admin/systemBuild/EditCCItemDetails';
 import EditPCPart from './components/admin/systemBuild/EditPCPart';
+import ComplainForm from './components/user/footer/ComplainForm';
+import AdminViewComplain from './components/admin/footer/AdminViewComplain';
+import AddDesktop from './components/admin/products/static/AddDesktop';
 
 function App() { 
   const dispatch = useDispatch();
@@ -119,10 +122,11 @@ function App() {
           <Route path="/branch" element={<Branch />} />
 
           {/* About Routes */}
-          <Route path="about-us" element={<AboutUs />} />
-          <Route path="about-ceo" element={<AboutCEO />} />
-          <Route path="specialty" element={<Specialty />} />
-          <Route path="service-center" element={<ServiceCenter />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/about-ceo" element={<AboutCEO />} />
+          <Route path="/specialty" element={<Specialty />} />
+          <Route path="/service-center" element={<ServiceCenter />} />
+          <Route path="/complaint" element={<ComplainForm/>} />
 
           {/* User Protected Routes */}
           <Route element={<UserProtectedRoute />}>
@@ -151,6 +155,7 @@ function App() {
             <Route path="/admin/products/update-categories" element={<UpdateMegaMenu />} />
             <Route path="/admin/products/view-product" element={<ViewProduct />} />
             <Route path="/admin/products/add-product" element={<AddProduct />} />
+            <Route path="/admin/products/add-desktop" element={<AddDesktop />} />
             <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />
@@ -162,6 +167,7 @@ function App() {
             <Route path="/admin/view-cc-item-details" element={<CCBuilderViewItem />} />
             <Route path="/admin/edit-cc-item-details/:id" element={<EditCCItemDetails />} />
             <Route path="/admin/edit-pc-part/:id" element={<EditPCPart />} />
+            <Route path="/admin/view-complain" element={<AdminViewComplain />} />
           </Route>
 
           {/* Fallback Route */}

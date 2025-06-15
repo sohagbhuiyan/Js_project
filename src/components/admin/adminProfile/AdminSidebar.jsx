@@ -16,6 +16,7 @@ import {
   BrandingWatermarkRounded,
   AddBoxSharp,
 } from "@mui/icons-material";
+import { Box } from "lucide-react";
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -133,10 +134,22 @@ const AdminSidebar = () => {
                 : "hover:text-gray-400"
             }`}
           >
-            <AddBox className="mr-2" /> Add Product
+          <AddBox className="mr-2" /> Add Product
           </Link>
         </li>
-          <li>
+        <li>
+          <Link
+            to="/admin/products/add-desktop"
+            className={`flex items-center p-2 rounded-md ${
+              isActive("admin/products/add-desktop")
+                ? "bg-gray-700 text-blue-400"
+                : "hover:text-gray-400"
+            }`}
+          >
+          <AddBox className="mr-2" /> Add Desktop
+          </Link>
+        </li>
+        <li>
           <Link
             to="/admin/add-branch"
             className={`flex items-center p-2 rounded-md ${
@@ -148,7 +161,7 @@ const AdminSidebar = () => {
             <AddBoxSharp className="mr-2" /> Add Branch
           </Link>
         </li>
-                 <li>
+          <li>
           <Link
             to="/admin/add-media"
             className={`flex items-center p-2 rounded-md ${
@@ -276,7 +289,18 @@ const AdminSidebar = () => {
             <BuildCircleTwoTone className="mr-2" /> View CC-Builder
           </Link>
         </li>
-        
+         <li>
+          <Link
+            to="/admin/view-complain"
+            className={`flex items-center p-2 rounded-md ${
+              isActive("/admin/view-complain")
+                ? "bg-gray-700 text-blue-400"
+                : "hover:text-gray-400"
+            }`}
+          >
+            <Box className="mr-2" /> View Complain 
+          </Link>
+        </li>
         
       </ul>
     </div>

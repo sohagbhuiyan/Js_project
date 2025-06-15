@@ -16,6 +16,7 @@ import aboutUsReducer from './aboutUsSlice';
 import mediaReducer from './mediaSlice';
 import contactUsReducer from './contactUsSlice';
 import filterReducer from './filterSlice';
+import desktopReducer from'../store/static/desktopSlice';
 
 export const store = configureStore({
   reducer: {
@@ -36,5 +37,6 @@ export const store = configureStore({
     media: mediaReducer,
     contactUs: contactUsReducer,
     filter: filterReducer,
+    desktops: desktopReducer,
   },
 });

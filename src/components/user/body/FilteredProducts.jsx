@@ -235,9 +235,9 @@ const FilteredProducts = () => {
                     height="100"
                     image={`${API_BASE_URL}/images/${product.imagea || "default.jpg"}`}
                     alt={product.name}
-                    onError={(e) => {
-                      e.target.src = "/fallback.png"; // Fallback if image not found
-                    }}
+                    // onError={(e) => {
+                    //   e.target.src = "/fallback.png"; // Fallback if image not found
+                    // }}
                   />
                   <CardContent>
                     <Typography variant="h6" fontWeight="bold" noWrap>
