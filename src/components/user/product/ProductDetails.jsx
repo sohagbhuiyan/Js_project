@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { fetchProductDetailsById } from "../../../store/productSlice";
 import QuestionAnswer from "./QuestionAnswer";
 import ReviewForm from "./ReviewForm";
+import { Box } from "@mui/material";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -37,26 +38,11 @@ const ProductDetails = () => {
     }
   };
 
-  // // Function to format specification string
-  // const formatSpecification = (spec) => {
-  //   if (!spec) return "No specifications available.";
-  //   const pairs = spec.split(',').map(item => item.trim());
-  //   return pairs.map((pair, index) => {
-  //     const [key, value] = pair.split(':').map(part => part.trim());
-  //     return (
-  //       <span key={index}>
-  //         <strong>{key}</strong>: {value}
-  //         {index < pairs.length - 1 ? ', ' : ''}
-  //       </span>
-  //     );
-  //   });
-  // };
-
   if (loading) return <p className="p-4">Loading...</p>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
-    <div className="px-2 md:p-4 md:px-6">
+    <Box className="px-2 md:p-4 md:px-6">
       {/* Header Tabs */}
       <div className="flex max-w-full space-x-1 md:space-x-14 rounded-t-md bg-gray-800/80 font-medium text-xs md:text-lg">
         {["specifications", "details", "qa", "review"].map((tab) => (
@@ -80,14 +66,36 @@ const ProductDetails = () => {
           Specifications
         </h2>
         {currentProduct ? (
-          <div className="text-sm md:text-lg space-y-1">
-            <p><strong>Title:</strong> {currentProduct.title}</p>
-            <p><strong>Model:</strong> {currentProduct.name}</p>
-            <p><strong>Category:</strong> {currentProduct.catagory?.name}</p>
-            <p><strong>Item:</strong> {currentProduct.productItem?.productitemname || "items"}</p>
-            <p><strong>Brand:</strong> {currentProduct.brand?.brandname || currentProduct.catagory?.name}</p>
-            <p><strong>Specification:</strong> {currentProduct.specification}</p>
-          </div>
+          <Box className="flex justify-between mt-4">
+            <table className="md:w-2xl border-collapse text-sm md:text-lg">
+              <tbody>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Title</td>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.title}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Model</td>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.name}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Category</td>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.catagory?.name}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Item</td>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.productItem?.productitemname || "items"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Brand</td>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.brand?.brandname || currentProduct.catagory?.name}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Specification</td>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.specification}</td>
+                </tr>
+              </tbody>
+            </table>
+          </Box>
         ) : (
           <p>No product data found.</p>
         )}
@@ -122,7 +130,7 @@ const ProductDetails = () => {
         <p className="text-sm md:text-lg">Customer reviews will be shown here.</p>
         <ReviewForm />
       </section>
-    </div>
+    </Box>
   );
 };
 

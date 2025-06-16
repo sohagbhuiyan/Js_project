@@ -25,7 +25,7 @@ export const fetchDesktopById = createAsyncThunk(
   'desktops/fetchById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/Desktoppcall/${id}`);
       return {
         ...response.data,
         regularprice: Number(response.data.regularprice),

@@ -4,10 +4,10 @@ import { API_BASE_URL } from './api';
 // Async thunk to fetch filtered products
 export const fetchFilteredProducts = createAsyncThunk(
   'filter/fetchFilteredProducts',
-  async (filters, { getState, rejectWithValue }) => {
+  async (filters, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const token = state.auth.token || localStorage.getItem('authToken');
+
+
 
       // Build query string from filters
       const queryParams = new URLSearchParams();
@@ -20,7 +20,7 @@ export const fetchFilteredProducts = createAsyncThunk(
         `${API_BASE_URL}/api/productDetails/filter?${queryParams.toString()}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+
             'Content-Type': 'application/json',
           },
         }
