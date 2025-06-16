@@ -78,6 +78,8 @@ import EditPCPart from './components/admin/systemBuild/EditPCPart';
 import ComplainForm from './components/user/footer/ComplainForm';
 import AdminViewComplain from './components/admin/footer/AdminViewComplain';
 import AddDesktop from './components/admin/products/static/AddDesktop';
+import DesktopView from './components/user/static/desktop/DesktopView';
+import DesktopViewPage from './components/user/static/desktop/DesktopViewPage';
 
 function App() { 
   const dispatch = useDispatch();
@@ -99,6 +101,7 @@ function App() {
           {/* Public Routes */}
           <Route index path="/" element={<Home />} />
           <Route path="/collections" element={<Collections />} />
+          <Route path="/desktops" element={<DesktopView />}/>
           <Route path="registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="all-categories" element={<AllCategories />} />
@@ -107,6 +110,8 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="/brand" element={<BrandSection />} />
           <Route path="product/:id" element={<ProductviewPage />} />
+          {/* static data  */}
+          <Route path="/desktop/:id" element={<DesktopViewPage />} />
           {/* <Route path="wishlist" element={<WishlistPage />} /> */}
           <Route path="/cart" element={<CartPage />} />
           <Route path="compare" element={<ComparePage />} />
