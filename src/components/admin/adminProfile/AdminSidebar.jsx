@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dashboard,
@@ -20,13 +20,23 @@ import { Box } from "lucide-react";
 
 const AdminSidebar = () => {
   const location = useLocation();
+  const [isProductAddOpen, setIsProductAddOpen] = useState(false);
+  const [isSystemBuilderOpen, setIsSystemBuilderOpen] = useState(false);
 
   const isActive = (path) => location.pathname === `/${path}`;
+
+  const toggleProductAdd = () => {
+    setIsProductAddOpen(!isProductAddOpen);
+  };
+
+  const toggleSystemBuilder = () => {
+    setIsSystemBuilderOpen(!isSystemBuilderOpen);
+  };
 
   return (
     <div
       className="w-50 bg-gray-800 text-white min-h-screen p-1"
-      style={{ maxHeight: "calc(100vh - 16px)" }} // Adjust for padding/margin if needed
+      style={{ maxHeight: "calc(100vh - 16px)" }}
     >
       <h1 className="text-xl text-gray-400 p-3 mb-2">Admin Panel</h1>
       <ul className="space-y-4 overflow-y-auto" style={{ maxHeight: "calc(100vh - 70px)" }}>
@@ -52,7 +62,7 @@ const AdminSidebar = () => {
             <AddAPhoto className="mr-2" /> Add Slider
           </Link>
         </li>
-          <li>
+        <li>
           <Link
             to="/admin/add-info"
             className={`flex items-center p-2 rounded-md ${
@@ -62,7 +72,6 @@ const AdminSidebar = () => {
             <Info className="mr-2" /> Add Info
           </Link>
         </li>
-
         <li>
           <Link
             to="/admin/products/add-brand"
@@ -75,7 +84,7 @@ const AdminSidebar = () => {
             <BrandingWatermarkRounded className="mr-2" /> Add Brand
           </Link>
         </li>
-                <li>
+        <li>
           <Link
             to="/admin/products/view-brand"
             className={`flex items-center p-2 rounded-md ${
@@ -100,7 +109,6 @@ const AdminSidebar = () => {
             <Category className="mr-2" /> Add Category
           </Link>
         </li>
-
         <li>
           <Link
             to="/admin/products/update-categories"
@@ -125,29 +133,91 @@ const AdminSidebar = () => {
             <ViewList className="mr-2" /> View Product
           </Link>
         </li>
+        {/* Product Add Section */}
         <li>
-          <Link
-            to="/admin/products/add-product"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("admin/products/add-product")
-                ? "bg-gray-700 text-blue-400"
-                : "hover:text-gray-400"
-            }`}
+          <div
+            className="flex items-center p-2 rounded-md cursor-pointer hover:text-gray-400"
+            onClick={toggleProductAdd}
           >
-          <AddBox className="mr-2" /> Add Product
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/admin/products/add-desktop"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("admin/products/add-desktop")
-                ? "bg-gray-700 text-blue-400"
-                : "hover:text-gray-400"
-            }`}
-          >
-          <AddBox className="mr-2" /> Add Desktop
-          </Link>
+            <AddBox className="mr-2" /> Product Add
+            <span className="ml-auto">{isProductAddOpen ? "▲" : "▼"}</span>
+          </div>
+          {isProductAddOpen && (
+            <ul className="pl-6 space-y-2">
+              <li>
+                <Link
+                  to="/admin/products/add-product"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/products/add-product")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <AddBox className="mr-2" /> ALL Product
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/products/add-desktop"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/products/add-desktop")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <AddBox className="mr-2" /> Add Desktop
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/products/add-laptop"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/products/add-laptop")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <AddBox className="mr-2" /> Add Laptop
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/products/add-printer"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/products/add-printer")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <AddBox className="mr-2" /> Add Printer
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/products/add-camera"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/products/add-camera")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <AddBox className="mr-2" /> Add Camera
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/products/add-network"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/products/add-network")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <AddBox className="mr-2" /> Add Network
+                </Link>
+              </li>
+            </ul>
+          )}
         </li>
         <li>
           <Link
@@ -161,7 +231,7 @@ const AdminSidebar = () => {
             <AddBoxSharp className="mr-2" /> Add Branch
           </Link>
         </li>
-          <li>
+        <li>
           <Link
             to="/admin/add-media"
             className={`flex items-center p-2 rounded-md ${
@@ -185,7 +255,6 @@ const AdminSidebar = () => {
             <AddBoxSharp className="mr-2" /> About Us Add
           </Link>
         </li>
-        {/* add contact us */}
         <li>
           <Link
             to="/admin/add-contact-us"
@@ -228,68 +297,84 @@ const AdminSidebar = () => {
               isActive("/admin/custom-email") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
             }`}
           >
-            <Payment className="mr-2" /> Custom Email
+            <Payment className="mr-2" /> Custom Email 
           </Link>
         </li>
-        {/* PC Builder */}
+        {/* System Builder Section */}
         <li>
-          <Link
-            to="/admin/add-Pc-Builder"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("/admin/add-Pc-Builder") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
-            }`}
+          <div
+            className="flex items-center p-2 rounded-md cursor-pointer hover:text-gray-400"
+            onClick={toggleSystemBuilder}
           >
-            <BuildCircleRounded className="mr-2" />Add PC Builder
-          </Link>
+            <BuildCircleRounded className="mr-2" /> System Builder 
+            <span className="ml-auto">{isSystemBuilderOpen ? "▲" : "▼"}</span>
+          </div>
+          {isSystemBuilderOpen && (
+            <ul className="pl-6 space-y-2">
+              <li>
+                <Link
+                  to="/admin/add-Pc-Builder"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("/admin/add-Pc-Builder")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <BuildCircleRounded className="mr-2" /> Add PC Builder
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/add-cc-builder"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("/admin/add-cc-builder")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <BuildCircleRounded className="mr-2" /> Add CC Builder
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/add-cc-item-details"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("/admin/add-cc-item-details")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <BuildCircleRounded className="mr-2" /> Add CC Item Details
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/Pc-builder/ViewSystemBuilder"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("admin/Pc-builder/ViewSystemBuilder")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <BuildCircleTwoTone className="mr-2" /> View PC-Builder
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/view-cc-item-details"
+                  className={`flex items-center p-2 rounded-md ${
+                    isActive("/admin/view-cc-item-details")
+                      ? "bg-gray-700 text-blue-400"
+                      : "hover:text-gray-400"
+                  }`}
+                >
+                  <BuildCircleTwoTone className="mr-2" /> View CC-Builder
+                </Link>
+              </li>
+            </ul>
+          )}
         </li>
-      {/* CC Builder */}
         <li>
-          <Link
-            to="/admin/add-cc-builder"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("/admin/add-cc-builder") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
-            }`}
-          >
-            <BuildCircleRounded className="mr-2" />Add CC Builder
-          </Link>
-        </li>
-              {/* CC Builder details add */}
-        <li>
-          <Link
-            to="/admin/add-cc-item-details"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("/admin/add-cc-item-details") ? "bg-gray-700 text-blue-400" : "hover:text-gray-400"
-            }`}
-          >
-            <BuildCircleRounded className="mr-2" />Add CC Item Details
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            to="/admin/Pc-builder/ViewSystemBuilder"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("admin/Pc-builder/ViewSystemBuilder")
-                ? "bg-gray-700 text-blue-400"
-                : "hover:text-gray-400"
-            }`}
-          >
-            <BuildCircleTwoTone className="mr-2" /> View PC-Builder
-          </Link>
-        </li>
-          <li>
-          <Link
-            to="/admin/view-cc-item-details"
-            className={`flex items-center p-2 rounded-md ${
-              isActive("/admin/view-cc-item-details")
-                ? "bg-gray-700 text-blue-400"
-                : "hover:text-gray-400"
-            }`}
-          >
-            <BuildCircleTwoTone className="mr-2" /> View CC-Builder
-          </Link>
-        </li>
-         <li>
           <Link
             to="/admin/view-complain"
             className={`flex items-center p-2 rounded-md ${
@@ -298,10 +383,9 @@ const AdminSidebar = () => {
                 : "hover:text-gray-400"
             }`}
           >
-            <Box className="mr-2" /> View Complain 
+            <Box className="mr-2" /> View Complain
           </Link>
         </li>
-        
       </ul>
     </div>
   );

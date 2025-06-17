@@ -80,6 +80,7 @@ import AdminViewComplain from './components/admin/footer/AdminViewComplain';
 import AddDesktop from './components/admin/products/static/AddDesktop';
 import DesktopView from './components/user/static/desktop/DesktopView';
 import DesktopViewPage from './components/user/static/desktop/DesktopViewPage';
+import AddLaptop from './components/admin/products/static/AddLaptop';
 
 function App() { 
   const dispatch = useDispatch();
@@ -161,6 +162,7 @@ function App() {
             <Route path="/admin/products/view-product" element={<ViewProduct />} />
             <Route path="/admin/products/add-product" element={<AddProduct />} />
             <Route path="/admin/products/add-desktop" element={<AddDesktop />} />
+            <Route path="/admin/products/add-laptop" element={<AddLaptop />} />
             <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />

@@ -483,8 +483,8 @@ const DesktopView = () => {
     processorTypes: ["Core i3", "Core i5", "Core i7", "Core i9", "Ryzen 3", "Ryzen 5", "Ryzen 7", "Ryzen 9", "Ryzen 11", "Ryzen 13", "Ryzen 15"],
     warranties: ["1", "2", "3","4","5", "6 ", "7 ","8 "],
     displaySizeRanges: ["14", "15", "16","17", "18", "20","21","22", "23", "24"],
-    rams: ["4GB", "8GB", "16GB", "32GB", "64GB"],
-    graphicsMemories: ["Integrated", "2GB", "4GB", "6GB", "8GB","16GB","32GB",],
+    rams: ["4", "8", "16", "32", "64"],
+    graphicsMemories: ["Integrated", "2", "4", "6", "8","16","32",],
     operatingSystems: ["Windows 9", "Windows 10", "Windows 11", "macOS", "Linux"],
     colors: ["Black", "Silver", "White", "Grey", "Pink", "Green", "Blue"],
   });

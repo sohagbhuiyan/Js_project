@@ -107,6 +107,10 @@ const DesktopDetails = () => {
                   <td className="py-2 px-4 text-left border-b">{currentDesktop.graphicsmemory} GB</td>
                 </tr>
                 <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Display Size</td>
+                  <td className="py-2 px-4 text-left border-b">{currentDesktop.displaysizerange} GB</td>
+                </tr>
+                <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Operating System</td>
                   <td className="py-2 px-4 text-left border-b">{currentDesktop.operatingsystem}</td>
                 </tr>

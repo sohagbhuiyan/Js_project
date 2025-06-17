@@ -6,6 +6,7 @@ import { placeOrder } from "../../../store/orderSlice";
 import { placePCPartOrder } from "../../../store/pcbuilderSlice";
 import { placeCCPartOrder } from "../../../store/ccbuilderSlice";
 import { API_BASE_URL } from "../../../store/api";
+import { DesktopPlaceOrder } from "../../../store/static/desktopSlice";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -132,6 +133,8 @@ const CheckoutPage = () => {
         ? { pcForPartAddList: itemsList }
         : orderType === "ccpart"
         ? { ccBuilderItemDitelsList: itemsList }
+        : orderType === "desktopOrder"
+        ? { desktopPcAllList: itemsList }
         : { productDetailsList: itemsList }),
     };
 
@@ -142,6 +145,8 @@ const CheckoutPage = () => {
         ? placePCPartOrder
         : orderType === "ccpart"
         ? placeCCPartOrder
+        : orderType === "desktopOrder"
+        ? DesktopPlaceOrder
         : placeOrder;
 
     dispatch(placeOrderAction(orderPayload))

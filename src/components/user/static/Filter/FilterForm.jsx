@@ -212,7 +212,7 @@ const FilterForm = ({
         </MenuItem>
         {filterOptions.warranties.map((warranty) => (
           <MenuItem key={warranty} value={warranty} sx={{ fontSize: "0.8rem" }}>
-            {warranty}
+            {warranty} years
           </MenuItem>
         ))}
       </Select>
@@ -244,7 +244,7 @@ const FilterForm = ({
         </MenuItem>
         {filterOptions.displaySizeRanges.map((range) => (
           <MenuItem key={range} value={range} sx={{ fontSize: "0.8rem" }}>
-            {range}
+            {range} Inch
           </MenuItem>
         ))}
       </Select>
@@ -274,7 +274,7 @@ const FilterForm = ({
         </MenuItem>
         {filterOptions.rams.map((ram) => (
           <MenuItem key={ram} value={ram} sx={{ fontSize: "0.8rem" }}>
-            {ram}
+            {ram} GB
           </MenuItem>
         ))}
       </Select>
@@ -306,7 +306,7 @@ const FilterForm = ({
         </MenuItem>
         {filterOptions.graphicsMemories.map((memory) => (
           <MenuItem key={memory} value={memory} sx={{ fontSize: "0.8rem" }}>
-            {memory}
+            {memory} GB
           </MenuItem>
         ))}
       </Select>

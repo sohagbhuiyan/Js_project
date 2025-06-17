@@ -18,6 +18,7 @@ import contactUsReducer from './contactUsSlice';
 import filterReducer from './filterSlice';
 import desktopReducer from'../store/static/desktopSlice';
 import allfilterReducer from '../store/filters/allfilterSlice';
+import laptopReducer from '../store/static/laptopSlice';
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,7 @@ export const store = configureStore({
     contactUs: contactUsReducer,
     filter: filterReducer,
     desktops: desktopReducer,
+    laptops: laptopReducer,
     allfilter: allfilterReducer,
   },
 });

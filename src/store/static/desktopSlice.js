@@ -36,6 +36,22 @@ export const fetchDesktopById = createAsyncThunk(
     }
   }
 );
+// Add this to desktopSlice.js
+export const fetchDesktopsByCategory = createAsyncThunk(
+  'desktops/fetchByCategory',
+  async ({catagoryId}, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/DesktopPcAll/byCategory/${catagoryId}`);
+      return response.data.map(desktop => ({
+        ...desktop,
+        regularprice: Number(desktop.regularprice),
+        specialprice: Number(desktop.specialprice)
+      }));
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 // Async thunk to add desktop
 export const addDesktop = createAsyncThunk(
@@ -73,6 +89,62 @@ export const addDesktop = createAsyncThunk(
     }
   }
 );
+
+
+// Place Order
+export const DesktopPlaceOrder = createAsyncThunk(
+  "desktops/desktopOrder",
+  async (orderData, { rejectWithValue, getState }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem("authToken");
+      const profile = state.auth.profile;
+      const user = state.auth.user;
+
+      if (!token || !profile?.email || !user?.id) {
+        return rejectWithValue("User not authenticated. Please log in.");
+      }
+
+      // Construct the order payload to match the Postman structure
+      const orderPayload = {
+        user: {
+          id: user.id,
+        },
+        quantity: orderData.quantity,
+        districts: orderData.districts,
+        upazila: orderData.upazila,
+        address: orderData.address,
+        desktopPcAllList: orderData.desktopPcAllList,
+      };
+
+      console.log("Sending order payload to backend:", orderPayload);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/desktoppc/order/save`,
+        orderPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Order response from backend:", response.data);
+
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || "Order failed";
+      console.error("Order error:", {
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 
 const desktopSlice = createSlice({
   name: 'desktops',
@@ -148,7 +220,39 @@ const desktopSlice = createSlice({
       .addCase(addDesktop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(fetchDesktopsByCategory.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchDesktopsByCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      state.desktops = action.payload.map(desktop => ({
+        ...desktop,
+        imagea: desktop.imagea ? `${API_BASE_URL}/images/${desktop.imagea}` : null,
+        imageb: desktop.imageb ? `${API_BASE_URL}/images/${desktop.imageb}` : null,
+        imagec: desktop.imagec ? `${API_BASE_URL}/images/${desktop.imagec}` : null,
+        regularprice: Number(desktop.regularprice),
+        specialprice: Number(desktop.specialprice)
+      }));
+    })
+    .addCase(fetchDesktopsByCategory.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    })
+    .addCase(DesktopPlaceOrder.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(DesktopPlaceOrder.fulfilled, (state, action) => {
+      state.loading = false;
+      state.orders.push(action.payload);
+      state.userOrders.push(action.payload);
+    })
+    .addCase(DesktopPlaceOrder.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    })
   },
 });
 
