@@ -1,20 +1,17 @@
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchDesktopById } from "../../../../store/static/desktopSlice";
-
+import { fetchLaptopById } from "../../../../store/static/laptopSlice";
 import { Box } from "@mui/material";
 import ReviewForm from "../../product/ReviewForm";
 import QuestionAnswer from "../../product/QuestionAnswer";
 
-const DesktopDetails = () => {
+const LaptopDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("specifications");
 
-  const { currentDesktop, loading, error } = useSelector(
-    (state) => state.desktops
-  );
+  const { currentLaptop, loading, error } = useSelector((state) => state.laptops);
 
   const sectionsRef = {
     specifications: useRef(null),
@@ -25,7 +22,7 @@ const DesktopDetails = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchDesktopById(id));
+      dispatch(fetchLaptopById(id));
     }
   }, [dispatch, id]);
 
@@ -61,82 +58,102 @@ const DesktopDetails = () => {
         ))}
       </div>
 
-      {/* Desktop Specifications */}
+      {/* Laptop Specifications */}
       <section ref={sectionsRef.specifications} className="py-5">
         <h2 className="text-sm md:text-lg font-bold bg-gray-300 w-fit p-1">
           Specifications
         </h2>
-        {currentDesktop ? (
+        {currentLaptop ? (
           <Box className="flex justify-between mt-4">
             <table className="md:w-2xl border-collapse text-sm md:text-lg">
               <tbody>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[150px] text-left border-b">Brand</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.brand?.brandname || currentDesktop.catagory?.name}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.brand?.brandname || currentLaptop.catagory?.name}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Category</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.catagory?.name}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.catagory?.name}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Item</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.productItem?.productitemname || "items"}</td>
-                </tr>
-                {/* <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Specification</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.specification}</td>
-                </tr> */}
-                <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Processor Brand</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.processorbrand}</td>
-                </tr>
-                <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Generation</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.generation}th</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.productItem?.productitemname || "items"}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Processor Type</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.processortype}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.processortype}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Generation</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.generation}th</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">RAM</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.ram}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.ram}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Graphics Memory</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.graphicsmemory}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.graphicsmemory}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Display Size</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.displaysizerange} Inch</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.displaysizerange} Inch</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Operating System</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.operatingsystem}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.operatingsystem}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Color</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.color}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.color}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold text-left border-b">Warranty</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.warranty} Years</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.warranty} Years</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Weight Range</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.weightrange || "N/A"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Fingerprint Sensor</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.fingerprintsensor || "N/A"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">LAN</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.lan || "N/A"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Graphics Chipset</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.graphicschipset || "N/A"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Max RAM Support</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.maxramsupport || "N/A"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Touchscreen</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.touchscreen || "N/A"}</td>
+                </tr>
+                <tr className="even:bg-gray-50">
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Display Resolution</td>
+                  <td className="py-2 px-4 text-left border-b">{currentLaptop.displayresolutionrange || "N/A"}</td>
                 </tr>
               </tbody>
             </table>
           </Box>
         ) : (
-          <p>No desktop data found.</p>
+          <p>No laptop data found.</p>
         )}
       </section>
 
-      {/* Desktop Details */}
+      {/* Laptop Details */}
       <section ref={sectionsRef.details} className="py-6">
         <h2 className="text-md md:text-xl mt-10 font-bold bg-gray-300 w-fit p-1 px-3">
           Details
         </h2>
         <div className="text-sm md:text-lg mt-4">
-          {currentDesktop?.details || "No details available."}
+          {currentLaptop?.details || "No details available."}
         </div>
       </section>
 
@@ -146,7 +163,7 @@ const DesktopDetails = () => {
           Question and Answer
         </h2>
         <p className="text-sm md:text-lg">
-          Ask a question about this desktop.
+          Ask a question about this laptop.
         </p>
         <QuestionAnswer />
       </section>
@@ -163,4 +180,4 @@ const DesktopDetails = () => {
   );
 };
 
-export default DesktopDetails;
+export default LaptopDetails;

@@ -184,6 +184,8 @@
 // };
 
 // export default DesktopMenu;
+
+
 // components/user/navbar/DesktopMenu.jsx
 import { Link } from "react-router-dom";
 import { FaAngleDoubleRight, FaHome } from "react-icons/fa";
@@ -197,8 +199,8 @@ const DesktopMenu = ({ menuItems }) => {
   const [hoverMoreProductIndex, setHoverMoreProductIndex] = useState(null);
   const megamenuRefs = useRef([]);
 
-  const firstTwelveItems = menuItems.slice(0, 10);
-  const remainingItems = menuItems.slice(10);
+  const firstTwelveItems = menuItems.slice(0, 8);
+  const remainingItems = menuItems.slice(8);
   const columnClass = remainingItems.length > 6 ? "grid-cols-3" : "grid-cols-2";
 
   const adjustMegamenuPosition = (element) => {
@@ -234,6 +236,16 @@ const DesktopMenu = ({ menuItems }) => {
       <div className="relative cursor-pointer group">
         <Link to="/desktops" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
           Desktop
+        </Link>
+      </div>
+      <div className="relative cursor-pointer group">
+        <Link to="/laptops" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
+          laptop
+        </Link>
+      </div>
+            <div className="relative cursor-pointer group">
+        <Link to="/printers" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
+          Printer
         </Link>
       </div>
 

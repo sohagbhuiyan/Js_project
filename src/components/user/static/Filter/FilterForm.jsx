@@ -6,7 +6,8 @@ import {
   FormControl,
   Button,
   Typography,
-} from "@mui/material";
+  Slider,
+} from '@mui/material';
 
 const FilterForm = ({
   filters,
@@ -14,367 +15,190 @@ const FilterForm = ({
   handleApplyFilters,
   handleResetFilters,
   filterOptions,
-}) => (
-  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, maxWidth: 240 }}>
-    
-    <Box sx={{ display: "flex", gap: 5,mb:2 }}>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleApplyFilters}
-        disabled={!Object.values(filters).some((v) => v)}
-        sx={{
-          fontSize: "0.7rem",
-          bgcolor: "#1976d2",
-          borderRadius: "8px",
-          "&:hover": {
-            bgcolor: "#1565c0",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          },
-          "&:disabled": { bgcolor: "#b0bec5" },
-          transition: "all 0.2s ease-in-out",
-        }}
-      >
-        Apply
-      </Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        onClick={handleResetFilters}
-        sx={{
-          fontSize: "0.7rem",
-          borderColor: "#f50057",
-          color: "#f50057",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#fce4ec", borderColor: "#d81b60" },
-          transition: "all 0.2s ease-in-out",
-        }}
-      >
-        Reset
-      </Button>
-    </Box>
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>Brand</InputLabel>
+  productType ='desktop', // 'desktop', 'laptop', or 'printer'
+}) => {
+
+  const renderFilterField = (name, label, options, unit = '') => (
+    <FormControl fullWidth size="small" key={name}>
+      <InputLabel sx={{ fontSize: '0.9rem', color: '#555' }}>{label}</InputLabel>
       <Select
-        name="brandName"
-        value={filters.brandName || ""}
+        name={name}
+        value={filters[name] || ''}
         onChange={handleChange}
-        label="Brand"
+        label={label}
         renderValue={(selected) =>
-          selected || <span style={{ color: "#999" }}>All</span>
+          selected ? `${selected}${unit}` : <span style={{ color: '#999' }}>All</span>
         }
         sx={{
-          fontSize: "0.8rem",
+          fontSize: '0.8rem',
           height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
+          bgcolor: '#fff',
+          borderRadius: '8px',
+          '&:hover': { bgcolor: '#f1f5f9' },
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e0e0e0' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1976d2',
           },
         }}
       >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
+        <MenuItem value="" sx={{ fontSize: '0.8rem' }}>
           All
         </MenuItem>
-        {filterOptions.brands.map((brand) => (
-          <MenuItem
-            key={brand.id}
-            value={brand.brandname}
-            sx={{ fontSize: "0.8rem" }}
-          >
-            {brand.brandname}
+        {options.map((option) => (
+          <MenuItem key={option.id || option} value={option.brandname || option} sx={{ fontSize: '0.8rem' }}>
+            {option.brandname || option}{unit}
           </MenuItem>
         ))}
       </Select>
     </FormControl>
+  );
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Processor Brand
-      </InputLabel>
-      <Select
-        name="processorbrand"
-        value={filters.processorbrand || ""}
-        onChange={handleChange}
-        label="Processor Brand"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.processorBrands.map((brand) => (
-          <MenuItem key={brand} value={brand} sx={{ fontSize: "0.8rem" }}>
-            {brand}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const handlePriceChange = (event, newValue) => {
+    handleChange({
+      target: {
+        name: 'regularprice',
+        value: newValue[1], // Use max value for single price filter
+      },
+    });
+  };
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Generation
-      </InputLabel>
-      <Select
-        name="generation"
-        value={filters.generation || ""}
-        onChange={handleChange}
-        label="Generation"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.generations.map((gen) => (
-          <MenuItem key={gen} value={gen} sx={{ fontSize: "0.8rem" }}>
-            {gen}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const priceRange = filters.regularprice ? [0, filters.regularprice] : [0, filterOptions.maxPrice || 200000];
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Processor Type
-      </InputLabel>
-      <Select
-        name="processortype"
-        value={filters.processortype || ""}
-        onChange={handleChange}
-        label="Processor Type"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.processorTypes.map((type) => (
-          <MenuItem key={type} value={type} sx={{ fontSize: "0.8rem" }}>
-            {type}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const commonFields = [
+    { name: 'regularprice', label: 'Price', type: 'slider' },
+    { name: 'brandName', label: 'Brand', options: filterOptions.brands },
+    { name: 'warranty', label: 'Warranty (Years)', options: filterOptions.warranties, unit: ' years' },
+  ];
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Warranty (Years)
-      </InputLabel>
-      <Select
-        name="warranty"
-        value={filters.warranty || ""}
-        onChange={handleChange}
-        label="Warranty (Years)"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.warranties.map((warranty) => (
-          <MenuItem key={warranty} value={warranty} sx={{ fontSize: "0.8rem" }}>
-            {warranty} years
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const desktopFields = [
+    { name: 'processorbrand', label: 'Processor Brand', options: filterOptions.processorBrands || [] },
+    { name: 'generation', label: 'Generation', options: filterOptions.generations || [] },
+    { name: 'processortype', label: 'Processor Type', options: filterOptions.processortypes || [] },
+    { name: 'displaysizerange', label: 'Display Size Range', options: filterOptions.displaySizeRanges || [], unit: ' inch' },
+    { name: 'ram', label: 'RAM', options: filterOptions.rams || [], unit: ' GB' },
+    { name: 'graphicsmemory', label: 'Graphics Memory', options: filterOptions.graphicsMemories || [], unit: ' GB' },
+    { name: 'operatingsystem', label: 'Operating System', options: filterOptions.operatingSystems || [] },
+    { name: 'color', label: 'Color', options: filterOptions.colors || [] },
+  ];
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Display Size Range
-      </InputLabel>
-      <Select
-        name="displaysizerange"
-        value={filters.displaysizerange || ""}
-        onChange={handleChange}
-        label="Display Size Range"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.displaySizeRanges.map((range) => (
-          <MenuItem key={range} value={range} sx={{ fontSize: "0.8rem" }}>
-            {range} Inch
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const laptopFields = [
+    { name: 'generation', label: 'Generation', options: filterOptions.generations || [], unit: 'th' },
+    { name: 'processortype', label: 'Processor Type', options: filterOptions.processorTypes || [] },
+    { name: 'displaysizerange', label: 'Display Size Range', options: filterOptions.displaySizeRanges || [], unit: ' inch' },
+    { name: 'ram', label: 'RAM', options: filterOptions.rams || [], unit: ' GB' },
+    { name: 'graphicsmemory', label: 'Graphics Memory', options: filterOptions.graphicsMemories || [], unit: ' GB' },
+    { name: 'operatingsystem', label: 'Operating System', options: filterOptions.operatingSystems || [] },
+    { name: 'color', label: 'Color', options: filterOptions.colors || [] },
+    { name: 'weightrange', label: 'Weight Range', options: filterOptions.weightRanges || ['<1.5kg', '1.5-2kg', '>2kg'] },
+    { name: 'fingerprintsensor', label: 'Fingerprint Sensor', options: filterOptions.fingerprintSensors || ['Yes', 'No'] },
+    { name: 'lan', label: 'LAN', options: filterOptions.lans || ['Yes', 'No', 'Gigabit Ethernet'] },
+    { name: 'graphicschipset', label: 'Graphics Chipset', options: filterOptions.graphicsChipsets || ['Intel Iris Xe', 'NVIDIA GeForce GTX', 'NVIDIA GeForce RTX', 'AMD Radeon'] },
+    { name: 'maxramsupport', label: 'Max RAM Support', options: filterOptions.maxRamSupports || ['16GB', '32GB', '64GB', '128GB'] },
+    { name: 'touchscreen', label: 'Touchscreen', options: filterOptions.touchscreens || ['Yes', 'No'] },
+    { name: 'displayresolutionrange', label: 'Display Resolution', options: filterOptions.displayResolutionRanges || ['1366x768', '1920x1080', '2560x1440', '3840x2160'] },
+  ];
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>RAM</InputLabel>
-      <Select
-        name="ram"
-        value={filters.ram || ""}
-        onChange={handleChange}
-        label="RAM"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.rams.map((ram) => (
-          <MenuItem key={ram} value={ram} sx={{ fontSize: "0.8rem" }}>
-            {ram} GB
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  const printerFields = [
+    { name: 'type', label: 'Printer Type', options: filterOptions.type || [] },
+    { name: 'printspeed', label: 'Print Speed', options: filterOptions.printspeed || [] },
+    { name: 'printwidth', label: 'Print Width', options: filterOptions.printwidth || [] },
+    { name: 'printresolution', label: 'Print Resolution', options: filterOptions.printresolution || [] },
+    { name: 'interfaces', label: 'Interfaces', options: filterOptions.interfaces || [] },
+    { name: 'bodycolor', label: 'Body Color', options: filterOptions.bodycolor || [] },
+ ];
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Graphics Memory
-      </InputLabel>
-      <Select
-        name="graphicsmemory"
-        value={filters.graphicsmemory || ""}
-        onChange={handleChange}
-        label="Graphics Memory"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.graphicsMemories.map((memory) => (
-          <MenuItem key={memory} value={memory} sx={{ fontSize: "0.8rem" }}>
-            {memory} GB
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, maxWidth: 240 }}>
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>
-        Operating System
-      </InputLabel>
-      <Select
-        name="operatingsystem"
-        value={filters.operatingsystem || ""}
-        onChange={handleChange}
-        label="Operating System"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.operatingSystems.map((os) => (
-          <MenuItem key={os} value={os} sx={{ fontSize: "0.8rem" }}>
-            {os}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+      {/* Apply and Reset Buttons */}
+      <Box sx={{ display: 'flex', gap: 5, mb: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleApplyFilters}
+          disabled={!Object.values(filters).some((v) => v && (Array.isArray(v) ? v.length > 0 : true))}
+          sx={{
+            fontSize: '0.7rem',
+            bgcolor: '#1976d2',
+            borderRadius: '8px',
+            '&:hover': {
+              bgcolor: '#1565c0',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            },
+            '&:disabled': { bgcolor: '#b0bec5' },
+            transition: 'all 0.2s ease-in-out',
+          }}
+        >
+          Apply
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={handleResetFilters}
+          sx={{
+            fontSize: '0.7rem',
+            borderColor: '#f50057',
+            color: '#f50057',
+            borderRadius: '8px',
+            '&:hover': { bgcolor: '#fce4ec', borderColor: '#d81b60' },
+            transition: 'all 0.2s ease-in-out',
+          }}
+        >
+          Reset
+        </Button>
+      </Box>
 
-    <FormControl fullWidth size="small">
-      <InputLabel sx={{ fontSize: "0.9rem", color: "#555" }}>Color</InputLabel>
-      <Select
-        name="color"
-        value={filters.color || ""}
-        onChange={handleChange}
-        label="Color"
-        sx={{
-          fontSize: "0.8rem",
-          height: 40,
-          bgcolor: "#fff",
-          borderRadius: "8px",
-          "&:hover": { bgcolor: "#f1f5f9" },
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#e0e0e0" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        }}
-      >
-        <MenuItem value="" sx={{ fontSize: "0.8rem" }}>
-          All
-        </MenuItem>
-        {filterOptions.colors.map((color) => (
-          <MenuItem key={color} value={color} sx={{ fontSize: "0.8rem" }}>
-            {color}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+      {/* Common Filter Fields */}
+      {commonFields.map((field) =>
+        field.type === 'slider' ? (
+          <Box key={field.name} sx={{ px: 1 }}>
+            <Typography variant="body2" sx={{ fontSize: '0.9rem', color: '#555', mb: 1 }}>
+              {field.label}: Tk {priceRange[0]} - Tk {priceRange[1]}
+            </Typography>
+            <Slider
+              value={priceRange}
+              onChange={handlePriceChange}
+              valueLabelDisplay="auto"
+              min={0}
+              max={filterOptions.maxPrice || 200000}
+              step={50}
+              sx={{
+                color: '#1976d2',
+                '& .MuiSlider-thumb': {
+                  height: 18,
+                  width: 18,
+                  bgcolor: '#fff',
+                  border: '2px solid #1976d2',
+                  '&:hover': { boxShadow: '0 0 0 8px rgba(25, 118, 210, 0.16)' },
+                },
+                '& .MuiSlider-track': { height: 4 },
+                '& .MuiSlider-rail': { height: 4, bgcolor: '#e0e0e0' },
+                '& .MuiSlider-valueLabel': {
+                  fontSize: '0.75rem',
+                  bgcolor: '#1976d2',
+                  color: '#fff',
+                  borderRadius: '4px',
+                  padding: '2px 6px',
+                },
+              }}
+            />
+          </Box>
+        ) : (
+          renderFilterField(field.name, field.label, field.options, field.unit || '')
+        )
+      )}
 
-  </Box>
-);
+      {/* Product-Specific Filter Fields */}
+      {productType === 'desktop' &&
+        desktopFields.map((field) => renderFilterField(field.name, field.label, field.options, field.unit || ''))}
+
+      {productType === 'laptop' &&
+        laptopFields.map((field) => renderFilterField(field.name, field.label, field.options, field.unit || ''))}
+
+      {productType === 'printer' &&
+        printerFields.map((field) => renderFilterField(field.name, field.label, field.options, field.unit || ''))}
+    </Box>
+  );
+};
 
 export default FilterForm;

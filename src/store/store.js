@@ -19,6 +19,7 @@ import filterReducer from './filterSlice';
 import desktopReducer from'../store/static/desktopSlice';
 import allfilterReducer from '../store/filters/allfilterSlice';
 import laptopReducer from '../store/static/laptopSlice';
+import printerReducer from '../store/static/printerSlice'
 
 export const store = configureStore({
   reducer: {
@@ -42,5 +43,6 @@ export const store = configureStore({
     desktops: desktopReducer,
     laptops: laptopReducer,
     allfilter: allfilterReducer,
+    printers: printerReducer,
   },
 });

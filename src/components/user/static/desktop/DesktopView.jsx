@@ -479,7 +479,7 @@ const DesktopView = () => {
   const [filterOptions, setFilterOptions] = useState({
     brands: [],
     processorBrands: ["Intel", "AMD", "Apple"],
-    generations: ["8", "9","10", "11", "12", "13", "14", "15", "16t", "17", "18"],
+    generations: ["8th", "9th","10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th"],
     processorTypes: ["Core i3", "Core i5", "Core i7", "Core i9", "Ryzen 3", "Ryzen 5", "Ryzen 7", "Ryzen 9", "Ryzen 11", "Ryzen 13", "Ryzen 15"],
     warranties: ["1", "2", "3","4","5", "6 ", "7 ","8 "],
     displaySizeRanges: ["14", "15", "16","17", "18", "20","21","22", "23", "24"],
@@ -668,6 +668,7 @@ const DesktopView = () => {
               handleApplyFilters={handleApplyFilters}
               handleResetFilters={handleResetFilters}
               filterOptions={filterOptions}
+              productType="desktop"
             />
           </Paper>
         </>

@@ -1,31 +1,29 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchDesktopById } from "../../../../store/static/desktopSlice";
-
+import { fetchAllPrinters } from "../../../../store/static/printersSlice";
 import { Box } from "@mui/material";
 import ReviewForm from "../../product/ReviewForm";
 import QuestionAnswer from "../../product/QuestionAnswer";
 
-const DesktopDetails = () => {
+const PrinterDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("specifications");
 
-  const { currentDesktop, loading, error } = useSelector(
-    (state) => state.desktops
-  );
+  const { printers, loading, error } = useSelector((state) => state.printers);
+  const currentPrinter = printers.find(printer => printer.id === parseInt(id));
 
   const sectionsRef = {
-    specifications: useRef(null),
-    details: useRef(null),
-    qa: useRef(null),
-    review: useRef(null),
+    specifications: [],
+    details: "",
+    qa: null,
+    review: [],
   };
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchDesktopById(id));
+      dispatch(fetchAllPrinters());
     }
   }, [dispatch, id]);
 
@@ -61,82 +59,70 @@ const DesktopDetails = () => {
         ))}
       </div>
 
-      {/* Desktop Specifications */}
+      {/* Printer Specifications */}
       <section ref={sectionsRef.specifications} className="py-5">
         <h2 className="text-sm md:text-lg font-bold bg-gray-300 w-fit p-1">
           Specifications
         </h2>
-        {currentDesktop ? (
+        {currentPrinter ? (
           <Box className="flex justify-between mt-4">
             <table className="md:w-2xl border-collapse text-sm md:text-lg">
               <tbody>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[150px] text-left border-b">Brand</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.brand?.brandname || currentDesktop.catagory?.name}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.brand?.brandname || currentPrinter.catagory?.name}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Category</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.catagory?.name}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.catagory?.name}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Item</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.productItem?.productitemname || "items"}</td>
-                </tr>
-                {/* <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Specification</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.specification}</td>
-                </tr> */}
-                <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Processor Brand</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.processorbrand}</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.productItem?.productitemname || "items"}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Generation</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.generation}th</td>
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Printer Type</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.type}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Processor Type</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.processortype}</td>
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Print Speed</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.printspeed}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">RAM</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.ram}</td>
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Print Width</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.printwidth}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Graphics Memory</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.graphicsmemory}</td>
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Print Resolution</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.printresolution}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Display Size</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.displaysizerange} Inch</td>
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Interfaces</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.interfaces}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Operating System</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.operatingsystem}</td>
-                </tr>
-                <tr className="even:bg-gray-50">
-                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Color</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.color}</td>
+                  <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Body Color</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.bodycolor}</td>
                 </tr>
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold text-left border-b">Warranty</td>
-                  <td className="py-2 px-4 text-left border-b">{currentDesktop.warranty} Years</td>
+                  <td className="py-2 px-4 text-left border-b">{currentPrinter.warranty} Years</td>
                 </tr>
               </tbody>
             </table>
           </Box>
         ) : (
-          <p>No desktop data found.</p>
+          <p>No printer data found.</p>
         )}
       </section>
 
-      {/* Desktop Details */}
+      {/* Printer Details */}
       <section ref={sectionsRef.details} className="py-6">
         <h2 className="text-md md:text-xl mt-10 font-bold bg-gray-300 w-fit p-1 px-3">
           Details
         </h2>
         <div className="text-sm md:text-lg mt-4">
-          {currentDesktop?.details || "No details available."}
+          {currentPrinter?.details || "No details available."}
         </div>
       </section>
 
@@ -146,7 +132,7 @@ const DesktopDetails = () => {
           Question and Answer
         </h2>
         <p className="text-sm md:text-lg">
-          Ask a question about this desktop.
+          Ask a question about this printer.
         </p>
         <QuestionAnswer />
       </section>
@@ -163,4 +149,4 @@ const DesktopDetails = () => {
   );
 };
 
-export default DesktopDetails;
+export default PrinterDetails;

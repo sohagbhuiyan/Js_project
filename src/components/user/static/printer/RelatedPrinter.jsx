@@ -1,20 +1,20 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchDesktopsByCategory } from '../../../../store/static/desktopSlice';
+import { fetchPrintersByCategory } from '../../../../store/static/printerSlice';
 import {
   Card, CardContent, CardMedia, Typography, Box
 } from '@mui/material';
 import { API_BASE_URL } from '../../../../store/api';
 
-const RelatedDesktop = ({ categoryId }) => {
+const RelatedPrinter = ({ categoryId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { desktops, loading, error, currentDesktop } = useSelector((state) => state.desktops);
+  const { printers, loading, error, currentPrinter } = useSelector((state) => state.printers);
 
   useEffect(() => {
     if (categoryId) {
-      dispatch(fetchDesktopsByCategory({ catagoryId: categoryId }));
+      dispatch(fetchPrintersByCategory({ catagoryId: categoryId }));
     }
   }, [dispatch, categoryId]);
 
@@ -27,35 +27,35 @@ const RelatedDesktop = ({ categoryId }) => {
     []
   );
 
-  // Handle card click to navigate to DesktopView
+  // Handle card click to navigate to PrinterView
   const handleCardClick = (id) => {
-    navigate(`/desktop/${id}`);
+    navigate(`/printer/${id}`);
   };
 
   if (!categoryId) return null;
-  if (loading) return <div className="text-center py-4 text-gray-600">Loading related desktops...</div>;
+  if (loading) return <div className="text-center py-4 text-gray-600">Loading related printers...</div>;
   if (error) return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
     <div className="px-2 py-3">
       <p className="text-lg md:text-xl font-semibold bg-gray-100 p-2 rounded-t-md text-gray-800">
-        Related Desktops
+        Related Printers
       </p>
       <hr className="mb-4 border-gray-300" />
       <Box className="flex flex-col space-y-4">
-        {desktops.length > 0 ? (
-          desktops
-            .filter((desktop) => desktop.id !== currentDesktop?.id)
-            .map((desktop) => {
-              const currentPrice = desktop.specialprice > 0 ? desktop.specialprice : desktop.regularprice;
-              const discount = desktop.specialprice > 0
-                ? Math.round(((desktop.regularprice - desktop.specialprice) / desktop.regularprice) * 100)
+        {printers.length > 0 ? (
+          printers
+            .filter((printer) => printer.id !== currentPrinter?.id)
+            .map((printer) => {
+              const currentPrice = printer.specialprice > 0 ? printer.specialprice : printer.regularprice;
+              const discount = printer.specialprice > 0
+                ? Math.round(((printer.regularprice - printer.specialprice) / printer.regularprice) * 100)
                 : 0;
 
               return (
                 <Card
-                  key={desktop.id}
-                  onClick={() => handleCardClick(desktop.id)}
+                  key={printer.id}
+                  onClick={() => handleCardClick(printer.id)}
                   className="w-full max-w-md mx-auto cursor-pointer relative"
                   sx={{
                     display: 'flex',
@@ -79,8 +79,8 @@ const RelatedDesktop = ({ categoryId }) => {
                   )}
                   <CardMedia
                     component="img"
-                    image={desktop.imagea || '/images/fallback.jpg'}
-                    alt={desktop.name || 'Desktop'}
+                    image={printer.imagea || '/images/fallback.jpg'}
+                    alt={printer.name || 'Printer'}
                     sx={{
                       objectFit: 'contain',
                       width: { xs: 100, sm: 120 },
@@ -96,25 +96,25 @@ const RelatedDesktop = ({ categoryId }) => {
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
-                      title={desktop.name}
+                      title={printer.name}
                       sx={{ mb: 0.5 }}
                     >
-                      {desktop.name || 'Unnamed Desktop'}
+                      {printer.name || 'Unnamed Printer'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {desktop.catagory?.name || 'Uncategorized'}
+                      {printer.catagory?.name || 'Uncategorized'}
                     </Typography>
                     <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="subtitle1" color="primary" fontWeight="bold">
                         {formatPrice(currentPrice)}
                       </Typography>
-                      {desktop.specialprice > 0 && (
+                      {printer.specialprice > 0 && (
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           sx={{ textDecoration: 'line-through' }}
                         >
-                          {formatPrice(desktop.regularprice)}
+                          {formatPrice(printer.regularprice)}
                         </Typography>
                       )}
                     </Box>
@@ -123,11 +123,11 @@ const RelatedDesktop = ({ categoryId }) => {
               );
             })
         ) : (
-          <Typography className="text-center p-4 text-gray-500">No related desktops found</Typography>
+          <Typography className="text-center p-4 text-gray-500">No related printers found</Typography>
         )}
       </Box>
     </div>
   );
 };
 
-export default RelatedDesktop;
+export default RelatedPrinter;

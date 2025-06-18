@@ -1,20 +1,20 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchDesktopsByCategory } from '../../../../store/static/desktopSlice';
+import { fetchLaptopsByCategory } from '../../../../store/static/laptopSlice';
 import {
   Card, CardContent, CardMedia, Typography, Box
 } from '@mui/material';
 import { API_BASE_URL } from '../../../../store/api';
 
-const RelatedDesktop = ({ categoryId }) => {
+const RelatedLaptop = ({ categoryId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { desktops, loading, error, currentDesktop } = useSelector((state) => state.desktops);
+  const { laptops, loading, error, currentLaptop } = useSelector((state) => state.laptops);
 
   useEffect(() => {
     if (categoryId) {
-      dispatch(fetchDesktopsByCategory({ catagoryId: categoryId }));
+      dispatch(fetchLaptopsByCategory({ catagoryId: categoryId }));
     }
   }, [dispatch, categoryId]);
 
@@ -27,35 +27,35 @@ const RelatedDesktop = ({ categoryId }) => {
     []
   );
 
-  // Handle card click to navigate to DesktopView
+  // Handle card click to navigate to LaptopView
   const handleCardClick = (id) => {
-    navigate(`/desktop/${id}`);
+    navigate(`/laptop/${id}`);
   };
 
   if (!categoryId) return null;
-  if (loading) return <div className="text-center py-4 text-gray-600">Loading related desktops...</div>;
+  if (loading) return <div className="text-center py-4 text-gray-600">Loading related laptops...</div>;
   if (error) return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
     <div className="px-2 py-3">
       <p className="text-lg md:text-xl font-semibold bg-gray-100 p-2 rounded-t-md text-gray-800">
-        Related Desktops
+        Related Laptops
       </p>
       <hr className="mb-4 border-gray-300" />
       <Box className="flex flex-col space-y-4">
-        {desktops.length > 0 ? (
-          desktops
-            .filter((desktop) => desktop.id !== currentDesktop?.id)
-            .map((desktop) => {
-              const currentPrice = desktop.specialprice > 0 ? desktop.specialprice : desktop.regularprice;
-              const discount = desktop.specialprice > 0
-                ? Math.round(((desktop.regularprice - desktop.specialprice) / desktop.regularprice) * 100)
+        {laptops.length > 0 ? (
+          laptops
+            .filter((laptop) => laptop.id !== currentLaptop?.id)
+            .map((laptop) => {
+              const currentPrice = laptop.specialprice > 0 ? laptop.specialprice : laptop.regularprice;
+              const discount = laptop.specialprice > 0
+                ? Math.round(((laptop.regularprice - laptop.specialprice) / laptop.regularprice) * 100)
                 : 0;
 
               return (
                 <Card
-                  key={desktop.id}
-                  onClick={() => handleCardClick(desktop.id)}
+                  key={laptop.id}
+                  onClick={() => handleCardClick(laptop.id)}
                   className="w-full max-w-md mx-auto cursor-pointer relative"
                   sx={{
                     display: 'flex',
@@ -79,8 +79,8 @@ const RelatedDesktop = ({ categoryId }) => {
                   )}
                   <CardMedia
                     component="img"
-                    image={desktop.imagea || '/images/fallback.jpg'}
-                    alt={desktop.name || 'Desktop'}
+                    image={laptop.imagea || '/images/fallback.jpg'}
+                    alt={laptop.name || 'Laptop'}
                     sx={{
                       objectFit: 'contain',
                       width: { xs: 100, sm: 120 },
@@ -96,25 +96,25 @@ const RelatedDesktop = ({ categoryId }) => {
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
-                      title={desktop.name}
+                      title={laptop.name}
                       sx={{ mb: 0.5 }}
                     >
-                      {desktop.name || 'Unnamed Desktop'}
+                      {laptop.name || 'Unnamed Laptop'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {desktop.catagory?.name || 'Uncategorized'}
+                      {laptop.catagory?.name || 'Uncategorized'}
                     </Typography>
                     <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="subtitle1" color="primary" fontWeight="bold">
                         {formatPrice(currentPrice)}
                       </Typography>
-                      {desktop.specialprice > 0 && (
+                      {laptop.specialprice > 0 && (
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           sx={{ textDecoration: 'line-through' }}
                         >
-                          {formatPrice(desktop.regularprice)}
+                          {formatPrice(laptop.regularprice)}
                         </Typography>
                       )}
                     </Box>
@@ -123,11 +123,11 @@ const RelatedDesktop = ({ categoryId }) => {
               );
             })
         ) : (
-          <Typography className="text-center p-4 text-gray-500">No related desktops found</Typography>
+          <Typography className="text-center p-4 text-gray-500">No related laptops found</Typography>
         )}
       </Box>
     </div>
   );
 };
 
-export default RelatedDesktop;
+export default RelatedLaptop;

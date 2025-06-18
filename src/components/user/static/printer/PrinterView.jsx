@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchLaptops } from "../../../../store/static/laptopSlice";
-import LaptopViewCard from "./LaptopViewCard";
+import { fetchAllPrinters } from "../../../../store/static/printerSlice";
+import PrinterViewCard from "./PrinterViewCard";
 import { useSearchParams } from "react-router-dom";
 import {
   Box,
@@ -13,38 +13,36 @@ import {
 } from "@mui/material";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import { API_BASE_URL } from "../../../../store/api";
-import { fetchFilteredLaptops, resetFilters, setFilters } from "../../../../store/filters/allFilterSlice";
+import { fetchFilteredPrinters, resetFilters, setFilters } from "../../../../store/filters/allFilterSlice";
 import FilterForm from "../Filter/FilterForm";
 
-const LaptopView = () => {
+const PrinterView = () => {
   const [searchParams] = useSearchParams();
   const searchParam = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const { laptops, loading: laptopsLoading, error: laptopsError } = useSelector(
-    (state) => state.laptops
+  const { printers, loading: printersLoading, error: printersError } = useSelector(
+    (state) => state.printers
   );
-  const { filteredLaptops, filters, loading: filterLoading, error: filterError } = useSelector(
+  const { filteredPrinters, filters, loading: filterLoading, error: filterError } = useSelector(
     (state) => state.allfilter
   );
 
   const [filterOptions, setFilterOptions] = useState({
     brands: [],
-    processorBrands: ["Intel", "AMD", "Apple"],
-    generations: ["7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th"],
-    processorTypes: ["Core i3", "Core i5", "Core i7", "Core i9", "Ryzen 3", "Ryzen 5", "Ryzen 7", "Ryzen 9"],
+    type: ["Inkjet", "Laser", "Dot Matrix", "Thermal", "3D"],
+    printspeed: ["5 ppm", "8 ppm", "10 ppm", "15 ppm", "20 ppm", "30 ppm", "40 ppm"],
+    printwidth: ["A4", "A3", "Letter", "Legal", "Tabloid"],
+    printresolution: ["600x600", "1200x1200", "2400x600", "4800x1200", "5760x1440"],
+    interfaces: ["USB", "Wi-Fi", "Ethernet", "Bluetooth", "USB+Wi-Fi", "USB+Ethernet"],
+    bodycolor: ["Black", "White", "Grey", "Silver", "Blue"],
     warranties: ["1", "2", "3", "4"],
-    displaySizeRanges: ["13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"],
-    rams: ["4", "8", "16", "32", "64"],
-    graphicsMemories: ["2", "4", "6", "8", "10", "12"],
-    operatingSystems: ["Windows 7", "Windows 9", "Windows 10", "Windows 11", "Windows 12", "macOS", "Linux"],
-    colors: ["Silver", "Black", "Space Grey", "Gold", "White"],
   });
 
   useEffect(() => {
-    dispatch(fetchLaptops());
+    dispatch(fetchAllPrinters());
     const fetchFilterOptions = async () => {
       try {
         const [brandsRes] = await Promise.all([
@@ -72,7 +70,7 @@ const LaptopView = () => {
   };
 
   const handleApplyFilters = () => {
-    dispatch(fetchFilteredLaptops(filters));
+    dispatch(fetchFilteredPrinters(filters));
     setIsFilterOpen(false);
   };
 
@@ -81,20 +79,20 @@ const LaptopView = () => {
     setIsFilterOpen(false);
   };
 
-  const urlFilteredLaptops = laptops.filter((laptop) => {
+  const urlFilteredPrinters = printers.filter((printer) => {
     if (searchQuery) {
       return (
-        laptop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        laptop.catagory?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        laptop.product?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        laptop.ram?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        laptop.productItem?.productitemname?.toLowerCase().includes(searchQuery.toLowerCase())
+        printer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        printer.catagory?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        printer.product?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        printer.type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        printer.productItem?.productitemname?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     return true;
   });
 
-  const displayLaptops = filteredLaptops.length > 0 ? filteredLaptops : urlFilteredLaptops;
+  const displayPrinters = filteredPrinters.length > 0 ? filteredPrinters : urlFilteredPrinters;
 
   return (
     <Box
@@ -191,6 +189,7 @@ const LaptopView = () => {
               handleApplyFilters={handleApplyFilters}
               handleResetFilters={handleResetFilters}
               filterOptions={filterOptions}
+              productType="printer"
             />
           </Drawer>
 
@@ -218,23 +217,23 @@ const LaptopView = () => {
               handleApplyFilters={handleApplyFilters}
               handleResetFilters={handleResetFilters}
               filterOptions={filterOptions}
-              productType="laptop"
+              productType="printer"
             />
           </Paper>
         </>
 
-        {/* Laptops Section */}
+        {/* Printers Section */}
         <Box sx={{ flexGrow: 1 }}>
-          {filterLoading || laptopsLoading ? (
+          {filterLoading || printersLoading ? (
             <Box sx={{ textAlign: "center", py: 10 }}>
               <Typography variant="body1" color="textSecondary">
                 Loading...
               </Typography>
             </Box>
-          ) : filterError || laptopsError ? (
+          ) : filterError || printersError ? (
             <Box sx={{ textAlign: "center", py: 6, color: "error.main" }}>
               <Typography variant="body1">
-                Error: {filterError || laptopsError}
+                Error: {filterError || printersError}
               </Typography>
             </Box>
           ) : (
@@ -252,10 +251,10 @@ const LaptopView = () => {
                 p: 4,
               }}
             >
-              {displayLaptops.length > 0 ? (
-                displayLaptops.map((laptop) => (
+              {displayPrinters.length > 0 ? (
+                displayPrinters.map((printer) => (
                   <Box
-                    key={laptop.id}
+                    key={printer.id}
                     sx={{
                       transition:
                         "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
@@ -265,14 +264,14 @@ const LaptopView = () => {
                       },
                     }}
                   >
-                    <LaptopViewCard
-                      id={laptop.id}
-                      imagea={laptop.imagea}
-                      category={laptop.catagory?.name || "Uncategorized"}
-                      name={laptop.name}
-                      ram={laptop.ram}
-                      regularprice={laptop.regularprice}
-                      specialprice={laptop.specialprice}
+                    <PrinterViewCard
+                      id={printer.id}
+                      imagea={printer.imagea}
+                      category={printer.catagory?.name || "Uncategorized"}
+                      name={printer.name}
+                      type={printer.type}
+                      regularprice={printer.regularprice}
+                      specialprice={printer.specialprice}
                     />
                   </Box>
                 ))
@@ -285,7 +284,7 @@ const LaptopView = () => {
                     py: 6,
                   }}
                 >
-                  No laptops found
+                  No printers found
                 </Typography>
               )}
             </Box>
@@ -296,4 +295,4 @@ const LaptopView = () => {
   );
 };
 
-export default LaptopView;
+export default PrinterView;

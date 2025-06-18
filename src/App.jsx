@@ -81,6 +81,12 @@ import AddDesktop from './components/admin/products/static/AddDesktop';
 import DesktopView from './components/user/static/desktop/DesktopView';
 import DesktopViewPage from './components/user/static/desktop/DesktopViewPage';
 import AddLaptop from './components/admin/products/static/AddLaptop';
+import LaptopView from './components/user/static/laptop/LaptopView';
+import LaptopViewPage from './components/user/static/laptop/LaptopViewPage';
+import AddPrinter from './components/admin/products/static/AddPrinter';
+import PrinterView from './components/user/static/printer/PrinterView';
+import PrinterViewPage from './components/user/static/printer/PrinterViewPage';
+ 
 
 function App() { 
   const dispatch = useDispatch();
@@ -103,6 +109,8 @@ function App() {
           <Route index path="/" element={<Home />} />
           <Route path="/collections" element={<Collections />} />
           <Route path="/desktops" element={<DesktopView />}/>
+          <Route path="/laptops" element={<LaptopView />} />
+          <Route path="/printers" element={<PrinterView />} />
           <Route path="registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="all-categories" element={<AllCategories />} />
@@ -113,6 +121,8 @@ function App() {
           <Route path="product/:id" element={<ProductviewPage />} />
           {/* static data  */}
           <Route path="/desktop/:id" element={<DesktopViewPage />} />
+          <Route path="/laptop/:id" element={<LaptopViewPage />} />
+          <Route path="/printer/:id" element={<PrinterViewPage />} />
           {/* <Route path="wishlist" element={<WishlistPage />} /> */}
           <Route path="/cart" element={<CartPage />} />
           <Route path="compare" element={<ComparePage />} />
@@ -163,6 +173,7 @@ function App() {
             <Route path="/admin/products/add-product" element={<AddProduct />} />
             <Route path="/admin/products/add-desktop" element={<AddDesktop />} />
             <Route path="/admin/products/add-laptop" element={<AddLaptop />} />
+            <Route path="/admin/products/add-printer" element={<AddPrinter />} />
             <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { savePrinter } from '../../../../store/static/printerSlice';
 import {
   TextField,
   MenuItem,
@@ -11,32 +13,29 @@ import {
   Select,
   Avatar,
   Alert,
+  CircularProgress,
 } from '@mui/material';
-import { addDesktop } from '../../../../store/static/desktopSlice';
 import { API_BASE_URL } from '../../../../store/api';
-import { useNavigate } from 'react-router-dom';
 
-const AddDesktop = () => {
+const AddPrinter = () => {
   const dispatch = useDispatch();
-  const { loading, error, successMessage } = useSelector((state) => state.desktops);
-  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
   const navigate = useNavigate();
+  const { loading, error, printers } = useSelector((state) => state.printers);
+  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
 
   const [formState, setFormState] = useState({
     productid: '',
     name: '',
+    type: '',
+    printspeed: '',
+    printwidth: '',
+    printresolution: '',
+    interfaces: '',
+    bodycolor: '',
     quantity: '',
     regularprice: '',
     specialprice: '',
-    processorbrand: '',
-    generation: '',
-    processortype: '',
     warranty: '',
-    displaysizerange: '',
-    ram: '',
-    graphicsmemory: '',
-    operatingsystem: '',
-    color: '',
     title: '',
     details: '',
     specification: '',
@@ -59,24 +58,13 @@ const AddDesktop = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const dropdownOptions = {
-    processorbrand: ['Intel', 'AMD', 'Apple'],
-    generation: ['7th', '8th', '9th', '10th', '11th', '12th', '13th', '14th', '15th', '16th', '17th', '18th', '19th'],
-    processortype: [
-      'Intel Core i3',
-      'Intel Core i5',
-      'Intel Core i7',
-      'Intel Core i9',
-      'AMD Ryzen 3',
-      'AMD Ryzen 5',
-      'AMD Ryzen 7',
-      'AMD Ryzen 9',
-    ],
-    warranty: ['1', '2', '3', '4'],
-    displaysizerange: ['13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25'],
-    ram: ['4GB', '8GB', '16GB', '32GB', '64GB'],
-    graphicsmemory: ['2GB', '4GB', '6GB', '8GB', '10GB', '12GB'],
-    operatingsystem: ['Windows 7', 'Windows 9', 'Windows 10', 'Windows 11', 'Windows 12', 'Linux'],
-    color: ['Silver', 'Black', 'Space Grey', 'White'],
+    type: ['Inkjet', 'Laser', 'Dot Matrix', 'Thermal', '3D'],
+    printspeed: ['5 ppm', '8 ppm', '10 ppm', '15 ppm', '20 ppm', '30 ppm', '40 ppm'],
+    printwidth: ['A4', 'A3', 'Letter', 'Legal', 'Tabloid'],
+    printresolution: ['600x600', '1200x1200', '2400x600', '4800x1200', '5760x1440'],
+    interfaces: ['USB', 'Wi-Fi', 'Ethernet', 'Bluetooth', 'USB+Wi-Fi', 'USB+Ethernet'],
+    bodycolor: ['Black', 'White', 'Grey', 'Silver', 'Blue'],
+    warranty: ['1', '2', '3','4'],
   };
 
   useEffect(() => {
@@ -113,7 +101,10 @@ const AddDesktop = () => {
       const fetchProductItems = async () => {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/api/item/findbyproductid/get/${formState.product.id}`
+            `${API_BASE_URL}/api/item/findbyproductid/get/${formState.product.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
           );
           if (!response.ok) {
             throw new Error('Failed to fetch product items');
@@ -129,26 +120,23 @@ const AddDesktop = () => {
     } else {
       setProductItems([]);
     }
-  }, [formState.product.id]);
+  }, [formState.product.id, token]);
 
   const validateForm = () => {
     const errors = {};
     if (!formState.productid) errors.productid = 'Product ID is required';
-    if (!formState.name) errors.name = 'Desktop name is required';
+    if (!formState.name) errors.name = 'Printer name is required';
+    if (!formState.type) errors.type = 'Type is required';
+    if (!formState.printspeed) errors.printspeed = 'Print speed is required';
+    if (!formState.printwidth) errors.printwidth = 'Print width is required';
+    if (!formState.printresolution) errors.printresolution = 'Print resolution is required';
+    if (!formState.interfaces) errors.interfaces = 'Interfaces is required';
+    if (!formState.bodycolor) errors.bodycolor = 'Body color is required';
     if (!formState.quantity || formState.quantity <= 0) errors.quantity = 'Valid quantity is required';
     if (!formState.regularprice || formState.regularprice <= 0) errors.regularprice = 'Valid regular price is required';
     if (!formState.specialprice || formState.specialprice < 0) errors.specialprice = 'Valid special price is required';
-    if (!formState.processorbrand) errors.processorbrand = 'Processor brand is required';
-    if (!formState.generation) errors.generation = 'Generation is required';
-    if (!formState.processortype) errors.processortype = 'Processor type is required';
     if (!formState.warranty) errors.warranty = 'Warranty is required';
-    if (!formState.displaysizerange) errors.displaysizerange = 'Display size is required';
-    if (!formState.ram) errors.ram = 'RAM is required';
-    if (!formState.graphicsmemory) errors.graphicsmemory = 'Graphics memory is required';
-    if (!formState.operatingsystem) errors.operatingsystem = 'Operating system is required';
-    if (!formState.color) errors.color = 'Color is required';
     if (!formState.catagory.id) errors.catagory = 'Category is required';
-    if (!formState.brand.id) errors.brand = 'Brand is required';
     if (!imagea) errors.imagea = 'Main image is required';
     return errors;
   };
@@ -239,7 +227,7 @@ const AddDesktop = () => {
 
     try {
       const formDataObject = {
-        desktoppcall: {
+        allPrinter: {
           ...formState,
           quantity: parseInt(formState.quantity),
           regularprice: parseFloat(formState.regularprice),
@@ -255,23 +243,21 @@ const AddDesktop = () => {
         imagec,
       };
 
-      await dispatch(addDesktop({ formDataObject, token })).unwrap();
-      alert('Desktop added successfully!');
+      await dispatch(savePrinter({ formDataObject, token })).unwrap();
+      alert('Printer added successfully!');
       setFormState({
         productid: '',
         name: '',
+        type: '',
+        printspeed: '',
+        printwidth: '',
+        printresolution: '',
+        interfaces: '',
+        bodycolor: '',
         quantity: '',
         regularprice: '',
         specialprice: '',
-        processorbrand: '',
-        generation: '',
-        processortype: '',
         warranty: '',
-        displaysizerange: '',
-        ram: '',
-        graphicsmemory: '',
-        operatingsystem: '',
-        color: '',
         title: '',
         details: '',
         specification: '',
@@ -286,10 +272,10 @@ const AddDesktop = () => {
       setMainImagePreview(null);
       setAdditionalImagesPreviews([null, null]);
       setFormErrors({});
-      navigate('/admin/desktops/add-desktop');
+      navigate('/admin/products/add-printer');
     } catch (err) {
-      console.error('Error adding desktop:', err);
-      alert(`Failed to add desktop: ${err.message || 'Unknown error'}`);
+      console.error('Error adding printer:', err);
+      alert(`Failed to add printer: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -300,12 +286,14 @@ const AddDesktop = () => {
       sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600, mx: 'auto', p: 2 }}
     >
       <Typography variant="h5" fontWeight={600}>
-        Add Desktop
+        Add Printer
       </Typography>
 
       {formErrors.api && <Alert severity="error">{formErrors.api}</Alert>}
       {error && <Alert severity="error">Error: {error}</Alert>}
-      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+      {printers.length > 0 && (
+        <Alert severity="success">Printer added successfully!</Alert>
+      )}
 
       <TextField
         name="productid"
@@ -318,7 +306,7 @@ const AddDesktop = () => {
       />
       <TextField
         name="name"
-        label="Desktop Name"
+        label="Printer Name"
         value={formState.name}
         onChange={handleChange}
         required
@@ -368,7 +356,7 @@ const AddDesktop = () => {
         <InputLabel>Product Item (Mega-menu)</InputLabel>
         <Select
           name="productItem.id"
-          value={formState.productItem?.id || ''}
+          value={formState.productItem.id || ''}
           onChange={handleChange}
           label="Product Item (Mega-menu)"
           disabled={!formState.product.id || productItems.length === 0}
@@ -437,15 +425,13 @@ const AddDesktop = () => {
       />
 
       {[
-        { name: 'processorbrand', label: 'Processor Brand', options: dropdownOptions.processorbrand },
-        { name: 'generation', label: 'Generation', options: dropdownOptions.generation },
-        { name: 'processortype', label: 'Processor Type', options: dropdownOptions.processortype },
+        { name: 'type', label: 'Printer Type', options: dropdownOptions.type },
+        { name: 'printspeed', label: 'Print Speed', options: dropdownOptions.printspeed },
+        { name: 'printwidth', label: 'Print Width', options: dropdownOptions.printwidth },
+        { name: 'printresolution', label: 'Print Resolution', options: dropdownOptions.printresolution },
+        { name: 'interfaces', label: 'Interfaces', options: dropdownOptions.interfaces },
+        { name: 'bodycolor', label: 'Body Color', options: dropdownOptions.bodycolor },
         { name: 'warranty', label: 'Warranty (Years)', options: dropdownOptions.warranty },
-        { name: 'displaysizerange', label: 'Display Size Range (Inch)', options: dropdownOptions.displaysizerange },
-        { name: 'ram', label: 'RAM', options: dropdownOptions.ram },
-        { name: 'graphicsmemory', label: 'Graphics Memory', options: dropdownOptions.graphicsmemory },
-        { name: 'operatingsystem', label: 'Operating System', options: dropdownOptions.operatingsystem },
-        { name: 'color', label: 'Color', options: dropdownOptions.color },
       ].map((field) => (
         <FormControl fullWidth required key={field.name} error={!!formErrors[field.name]}>
           <InputLabel>{field.label}</InputLabel>
@@ -488,18 +474,20 @@ const AddDesktop = () => {
       />
       <TextField
         name="title"
-        label="Additional Information"
+        label="Additional info"
+        multiline
+        fullWidth
+        rows={4}
         value={formState.title}
         onChange={handleChange}
-        multiline
-        rows={4}
         inputProps={{ maxLength: 1000 }}
       />
 
       <Box>
-        <Typography variant="subtitle1">Image A (Main)</Typography>
+        <Typography variant="subtitle1">Image A (Main Image)</Typography>
         {mainImagePreview && (
-          <Avatar src={mainImagePreview} variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
+          <Avatar src={mainImagePreview}
+ variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
         )}
         <Button component="label" variant="outlined" color={formErrors.imagea ? 'error' : 'primary'}>
           Upload Image A
@@ -526,10 +514,10 @@ const AddDesktop = () => {
       ))}
 
       <Button type="submit" variant="contained" color="primary" disabled={loading}>
-        {loading ? 'Uploading...' : 'Add Desktop'}
+        {loading ? <CircularProgress size={24} /> : 'Add Printer'}
       </Button>
     </Box>
   );
 };
 
-export default AddDesktop;
+export default AddPrinter;

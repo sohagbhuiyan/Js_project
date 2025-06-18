@@ -528,12 +528,13 @@ const Collections = ({ isHomePage = false, sx }) => {
   const displayProducts = filteredProducts.length > 0 ? filteredProducts : urlFilteredProducts;
 
   return (
+   < >
+    <h2 className="bg-gray-300 text-gray-900 text-lg py-1 px-4">Collections</h2>
 <Box
   sx={{
     py: { xs: 1, md: 1 },
     px: { xs: 1, md: 1 },
     bgcolor: "#ffffff",
-    borderRadius: "12px",
     boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
     ...sx,
   }}
@@ -704,7 +705,7 @@ const Collections = ({ isHomePage = false, sx }) => {
         </Box>
       </Box>
     </Box>
-  );
+</>);
 };
 
 // Updated FilterForm Component

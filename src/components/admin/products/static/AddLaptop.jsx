@@ -17,11 +17,11 @@ import { API_BASE_URL } from '../../../../store/api';
 import { useNavigate } from 'react-router-dom';
 
 const AddLaptop = () => {
-
   const dispatch = useDispatch();
   const { loading, error, successMessage } = useSelector((state) => state.laptops);
   const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
   const navigate = useNavigate();
+
   const [formState, setFormState] = useState({
     productid: '',
     name: '',
@@ -43,9 +43,9 @@ const AddLaptop = () => {
     fingerprintsensor: '',
     weightrange: '',
     color: '',
-    title:'',
-    details:'',
-    specification:'',
+    title: '',
+    details: '',
+    specification: '',
     catagory: { id: '' },
     product: { id: '' },
     brand: { id: '' },
@@ -62,28 +62,58 @@ const AddLaptop = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [productItems, setProductItems] = useState([]);
+  const [formErrors, setFormErrors] = useState({});
+
+  const dropdownOptions = {
+    processortype: [
+      'Intel Core i3',
+      'Intel Core i5',
+      'Intel Core i7',
+      'Intel Core i9',
+      'AMD Ryzen 3',
+      'AMD Ryzen 5',
+      'AMD Ryzen 7',
+      'AMD Ryzen 9',
+    ],
+    generation: ['7th', '8th', '9th', '10th', '11th', '12th', '13th', '14th', '15th', '16th', '17th', '18th', '19th'],
+    warranty: ['1', '2', '3', '4'],
+    displaysizerange: ['13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25'],
+    ram: ['4GB', '8GB', '16GB', '32GB', '64GB'],
+    graphicsmemory: ['2GB', '4GB', '6GB', '8GB', '10GB', '12GB'],
+    operatingsystem: ['Windows 7', 'Windows 9', 'Windows 10', 'Windows 11', 'Windows 12', 'macOS', 'Linux'],
+    displayresolutionrange: ['1366x768', '1920x1080', '2560x1440', '3840x2160'],
+    touchscreen: ['Yes', 'No'],
+    maxramsupport: ['16GB', '32GB', '64GB', '128GB'],
+    graphicschipset: ['Intel Iris Xe', 'NVIDIA GeForce GTX', 'NVIDIA GeForce RTX', 'AMD Radeon'],
+    lan: ['Yes', 'No', 'Gigabit Ethernet'],
+    fingerprintsensor: ['Yes', 'No'],
+    weightrange: ['<1.5kg', '1.5-2kg', '>2kg'],
+    color: ['Silver', 'Black', 'Space Grey', 'Gold', 'White'],
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, prodRes, brandsRes, itemsRes] = await Promise.all([
+        const [catRes, prodRes, brandsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/api/catagories/get`),
           fetch(`${API_BASE_URL}/api/Product/getall`),
           fetch(`${API_BASE_URL}/api/brands/get/all`),
-          fetch(`${API_BASE_URL}/api/product/items/get`),
         ]);
+
+        if (!catRes.ok || !prodRes.ok || !brandsRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
 
         const catData = await catRes.json();
         const prodData = await prodRes.json();
         const brandsData = await brandsRes.json();
-        const itemsData = await itemsRes.json();
 
         setCategories(catData);
         setProducts(prodData);
         setBrands(brandsData);
-        setProductItems(itemsData);
       } catch (err) {
         console.error('Failed to fetch data:', err);
+        setFormErrors({ api: 'Failed to load categories, products, or brands' });
       }
     };
 
@@ -97,10 +127,14 @@ const AddLaptop = () => {
           const response = await fetch(
             `${API_BASE_URL}/api/item/findbyproductid/get/${formState.product.id}`
           );
+          if (!response.ok) {
+            throw new Error('Failed to fetch product items');
+          }
           const data = await response.json();
           setProductItems(data);
         } catch (err) {
           console.error('Failed to fetch product items:', err);
+          setFormErrors((prev) => ({ ...prev, productItems: 'Failed to load product items' }));
         }
       };
       fetchProductItems();
@@ -108,6 +142,34 @@ const AddLaptop = () => {
       setProductItems([]);
     }
   }, [formState.product.id]);
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formState.productid) errors.productid = 'Product ID is required';
+    if (!formState.name) errors.name = 'Laptop name is required';
+    if (!formState.quantity || formState.quantity <= 0) errors.quantity = 'Valid quantity is required';
+    if (!formState.regularprice || formState.regularprice <= 0) errors.regularprice = 'Valid regular price is required';
+    if (!formState.specialprice || formState.specialprice < 0) errors.specialprice = 'Valid special price is required';
+    if (!formState.generation) errors.generation = 'Generation is required';
+    if (!formState.processortype) errors.processortype = 'Processor type is required';
+    if (!formState.warranty) errors.warranty = 'Warranty is required';
+    if (!formState.displaysizerange) errors.displaysizerange = 'Display size is required';
+    if (!formState.ram) errors.ram = 'RAM is required';
+    if (!formState.graphicsmemory) errors.graphicsmemory = 'Graphics memory is required';
+    if (!formState.operatingsystem) errors.operatingsystem = 'Operating system is required';
+    if (!formState.displayresolutionrange) errors.displayresolutionrange = 'Display resolution is required';
+    if (!formState.touchscreen) errors.touchscreen = 'Touchscreen is required';
+    if (!formState.maxramsupport) errors.maxramsupport = 'Max RAM support is required';
+    if (!formState.graphicschipset) errors.graphicschipset = 'Graphics chipset is required';
+    if (!formState.lan) errors.lan = 'LAN is required';
+    if (!formState.fingerprintsensor) errors.fingerprintsensor = 'Fingerprint sensor is required';
+    if (!formState.weightrange) errors.weightrange = 'Weight range is required';
+    if (!formState.color) errors.color = 'Color is required';
+    if (!formState.catagory.id) errors.catagory = 'Category is required';
+    if (!formState.brand.id) errors.brand = 'Brand is required';
+    if (!imagea) errors.imagea = 'Main image is required';
+    return errors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -144,17 +206,25 @@ const AddLaptop = () => {
         [name]: value,
       }));
     }
+
+    setFormErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleImageChange = (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      setFormErrors((prev) => ({ ...prev, [`image${index}`]: 'Please upload an image file' }));
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       if (index === 0) {
         setImageA(file);
         setMainImagePreview(reader.result);
+        setFormErrors((prev) => ({ ...prev, imagea: '' }));
       } else if (index === 1) {
         setImageB(file);
         setAdditionalImagesPreviews((prev) => {
@@ -178,8 +248,10 @@ const AddLaptop = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formState.catagory.id) {
-      alert('Category is required.');
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      alert('Please fill out all required fields correctly.');
       return;
     }
 
@@ -187,7 +259,14 @@ const AddLaptop = () => {
       const formDataObject = {
         allLaptop: {
           ...formState,
+          quantity: parseInt(formState.quantity),
+          regularprice: parseFloat(formState.regularprice),
+          specialprice: parseFloat(formState.specialprice),
+          warranty: parseInt(formState.warranty),
           productItem: formState.productItem.id ? { id: parseInt(formState.productItem.id) } : null,
+          catagory: { id: parseInt(formState.catagory.id) },
+          product: formState.product.id ? { id: parseInt(formState.product.id) } : null,
+          brand: { id: parseInt(formState.brand.id) },
         },
         imagea,
         imageb,
@@ -217,6 +296,9 @@ const AddLaptop = () => {
         fingerprintsensor: '',
         weightrange: '',
         color: '',
+        title: '',
+        details: '',
+        specification: '',
         catagory: { id: '' },
         product: { id: '' },
         brand: { id: '' },
@@ -227,38 +309,12 @@ const AddLaptop = () => {
       setImageC(null);
       setMainImagePreview(null);
       setAdditionalImagesPreviews([null, null]);
+      setFormErrors({});
       navigate('/admin/products/add-laptop');
-    } catch (error) {
-      console.error('Error adding laptop:', error);
-      alert('Failed to add laptop: ' + (error || 'Unknown error'));
+    } catch (err) {
+      console.error('Error adding laptop:', err);
+      alert(`Failed to add laptop: ${err.message || 'Unknown error'}`);
     }
-  };
-
-  const dropdownOptions = {
-    processortype: [
-      'Intel Core i3',
-      'Intel Core i5',
-      'Intel Core i7',
-      'Intel Core i9',
-      'AMD Ryzen 3',
-      'AMD Ryzen 5',
-      'AMD Ryzen 7',
-      'AMD Ryzen 9',
-    ],
-    generation:['7th', '8th', '9th','10th','11th', '12th', '13th','14th','15th','16th', '17th', '18th','19th'],
-    warranty: ['1', '2', '3','4'],
-    displaysizerange: ['13"', '14"', '15"', '16"', '17"','18"', '19"', '20"', '21"','22"', '23"', '24"', '25"'],
-    ram: ['4GB', '8GB', '16GB', '32GB', '64GB'],
-    graphicsmemory: ['2GB', '4GB', '6GB', '8GB','10GB', '12GB'],
-    operatingsystem: ['Windows 7','Windows 9', 'Windows 10','Windows 11','Windows 12', 'macOS', 'Linux'],
-    displayresolutionrange: ['1366x768', '1920x1080', '2560x1440', '3840x2160'],
-    touchscreen: ['Yes', 'No'],
-    maxramsupport: ['16GB', '32GB', '64GB', '128GB'],
-    graphicschipset: ['Intel Iris Xe', 'NVIDIA GeForce GTX', 'NVIDIA GeForce RTX', 'AMD Radeon'],
-    lan: ['Yes', 'No', 'Gigabit Ethernet'],
-    fingerprintsensor: ['Yes', 'No'],
-    weightrange: ['<1.5kg', '1.5-2kg', '>2kg'],
-    color: ['Silver', 'Black', 'Space Grey', 'Gold', 'White'],
   };
 
   return (
@@ -271,12 +327,18 @@ const AddLaptop = () => {
         Add Laptop
       </Typography>
 
+      {formErrors.api && <Alert severity="error">{formErrors.api}</Alert>}
+      {error && <Alert severity="error">Error: {error}</Alert>}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+
       <TextField
         name="productid"
         label="Product ID"
         value={formState.productid}
         onChange={handleChange}
         required
+        error={!!formErrors.productid}
+        helperText={formErrors.productid}
       />
       <TextField
         name="name"
@@ -284,9 +346,11 @@ const AddLaptop = () => {
         value={formState.name}
         onChange={handleChange}
         required
+        error={!!formErrors.name}
+        helperText={formErrors.name}
       />
 
-      <FormControl fullWidth required>
+      <FormControl fullWidth required error={!!formErrors.catagory}>
         <InputLabel>Category (Menu)</InputLabel>
         <Select
           name="catagory.id"
@@ -301,6 +365,7 @@ const AddLaptop = () => {
             </MenuItem>
           ))}
         </Select>
+        {!!formErrors.catagory && <Typography color="error" variant="caption">{formErrors.catagory}</Typography>}
       </FormControl>
 
       <FormControl fullWidth>
@@ -343,9 +408,10 @@ const AddLaptop = () => {
             </MenuItem>
           ))}
         </Select>
+        {!!formErrors.productItems && <Typography color="error" variant="caption">{formErrors.productItems}</Typography>}
       </FormControl>
 
-      <FormControl fullWidth>
+      <FormControl fullWidth required error={!!formErrors.brand}>
         <InputLabel>Brand</InputLabel>
         <Select
           name="brand.id"
@@ -360,6 +426,7 @@ const AddLaptop = () => {
             </MenuItem>
           ))}
         </Select>
+        {!!formErrors.brand && <Typography color="error" variant="caption">{formErrors.brand}</Typography>}
       </FormControl>
 
       <TextField
@@ -369,6 +436,8 @@ const AddLaptop = () => {
         value={formState.quantity}
         onChange={handleChange}
         required
+        error={!!formErrors.quantity}
+        helperText={formErrors.quantity}
       />
       <TextField
         name="regularprice"
@@ -377,6 +446,8 @@ const AddLaptop = () => {
         value={formState.regularprice}
         onChange={handleChange}
         required
+        error={!!formErrors.regularprice}
+        helperText={formErrors.regularprice}
       />
       <TextField
         name="specialprice"
@@ -385,263 +456,47 @@ const AddLaptop = () => {
         value={formState.specialprice}
         onChange={handleChange}
         required
+        error={!!formErrors.specialprice}
+        helperText={formErrors.specialprice}
       />
 
-      <FormControl fullWidth required>
-        <InputLabel>Generation</InputLabel>
-        <Select
-          name="generation"
-          value={formState.generation}
-          onChange={handleChange}
-          label="Generation"
-        >
-          <MenuItem value="">-- Select Generation --</MenuItem>
-          {dropdownOptions.generation.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {[
+        { name: 'generation', label: 'Generation', options: dropdownOptions.generation },
+        { name: 'processortype', label: 'Processor Type', options: dropdownOptions.processortype },
+        { name: 'warranty', label: 'Warranty (Years)', options: dropdownOptions.warranty },
+        { name: 'displaysizerange', label: 'Display Size Range (Inch)', options: dropdownOptions.displaysizerange },
+        { name: 'ram', label: 'RAM', options: dropdownOptions.ram },
+        { name: 'graphicsmemory', label: 'Graphics Memory', options: dropdownOptions.graphicsmemory },
+        { name: 'operatingsystem', label: 'Operating System', options: dropdownOptions.operatingsystem },
+        { name: 'displayresolutionrange', label: 'Display Resolution', options: dropdownOptions.displayresolutionrange },
+        { name: 'touchscreen', label: 'Touchscreen', options: dropdownOptions.touchscreen },
+        { name: 'maxramsupport', label: 'Max RAM Support', options: dropdownOptions.maxramsupport },
+        { name: 'graphicschipset', label: 'Graphics Chipset', options: dropdownOptions.graphicschipset },
+        { name: 'lan', label: 'LAN', options: dropdownOptions.lan },
+        { name: 'fingerprintsensor', label: 'Fingerprint Sensor', options: dropdownOptions.fingerprintsensor },
+        { name: 'weightrange', label: 'Weight Range', options: dropdownOptions.weightrange },
+        { name: 'color', label: 'Color', options: dropdownOptions.color },
+      ].map((field) => (
+        <FormControl fullWidth required key={field.name} error={!!formErrors[field.name]}>
+          <InputLabel>{field.label}</InputLabel>
+          <Select
+            name={field.name}
+            value={formState[field.name]}
+            onChange={handleChange}
+            label={field.label}
+          >
+            <MenuItem value="">-- Select {field.label} --</MenuItem>
+            {field.options.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+          {!!formErrors[field.name] && <Typography color="error" variant="caption">{formErrors[field.name]}</Typography>}
+        </FormControl>
+      ))}
 
-      <FormControl fullWidth required>
-        <InputLabel>Processor Type</InputLabel>
-        <Select
-          name="processortype"
-          value={formState.processortype}
-          onChange={handleChange}
-          label="Processor Type"
-        >
-          <MenuItem value="">-- Select Processor Type --</MenuItem>
-          {dropdownOptions.processortype.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Warranty (Years)</InputLabel>
-        <Select
-          name="warranty"
-          value={formState.warranty}
-          onChange={handleChange}
-          label="Warranty (Years)"
-        >
-          <MenuItem value="">-- Select Warranty --</MenuItem>
-          {dropdownOptions.warranty.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Display Size Range</InputLabel>
-        <Select
-          name="displaysizerange"
-          value={formState.displaysizerange}
-          onChange={handleChange}
-          label="Display Size Range"
-        >
-          <MenuItem value="">-- Select Display Size --</MenuItem>
-          {dropdownOptions.displaysizerange.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>RAM</InputLabel>
-        <Select
-          name="ram"
-          value={formState.ram}
-          onChange={handleChange}
-          label="RAM"
-        >
-          <MenuItem value="">-- Select RAM --</MenuItem>
-          {dropdownOptions.ram.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Graphics Memory</InputLabel>
-        <Select
-          name="graphicsmemory"
-          value={formState.graphicsmemory}
-          onChange={handleChange}
-          label="Graphics Memory"
-        >
-          <MenuItem value="">-- Select Graphics Memory --</MenuItem>
-          {dropdownOptions.graphicsmemory.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Operating System</InputLabel>
-        <Select
-          name="operatingsystem"
-          value={formState.operatingsystem}
-          onChange={handleChange}
-          label="Operating System"
-        >
-          <MenuItem value="">-- Select Operating System --</MenuItem>
-          {dropdownOptions.operatingsystem.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Display Resolution Range</InputLabel>
-        <Select
-          name="displayresolutionrange"
-          value={formState.displayresolutionrange}
-          onChange={handleChange}
-          label="Display Resolution Range"
-        >
-          <MenuItem value="">-- Select Resolution --</MenuItem>
-          {dropdownOptions.displayresolutionrange.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Touchscreen</InputLabel>
-        <Select
-          name="touchscreen"
-          value={formState.touchscreen}
-          onChange={handleChange}
-          label="Touchscreen"
-        >
-          <MenuItem value="">-- Select Touchscreen --</MenuItem>
-          {dropdownOptions.touchscreen.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Max RAM Support</InputLabel>
-        <Select
-          name="maxramsupport"
-          value={formState.maxramsupport}
-          onChange={handleChange}
-          label="Max RAM Support"
-        >
-          <MenuItem value="">-- Select Max RAM Support --</MenuItem>
-          {dropdownOptions.maxramsupport.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Graphics Chipset</InputLabel>
-        <Select
-          name="graphicschipset"
-          value={formState.graphicschipset}
-          onChange={handleChange}
-          label="Graphics Chipset"
-        >
-          <MenuItem value="">-- Select Graphics Chipset --</MenuItem>
-          {dropdownOptions.graphicschipset.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>LAN</InputLabel>
-        <Select
-          name="lan"
-          value={formState.lan}
-          onChange={handleChange}
-          label="LAN"
-        >
-          <MenuItem value="">-- Select LAN --</MenuItem>
-          {dropdownOptions.lan.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Fingerprint Sensor</InputLabel>
-        <Select
-          name="fingerprintsensor"
-          value={formState.fingerprintsensor}
-          onChange={handleChange}
-          label="Fingerprint Sensor"
-        >
-          <MenuItem value="">-- Select Fingerprint Sensor --</MenuItem>
-          {dropdownOptions.fingerprintsensor.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Weight Range</InputLabel>
-        <Select
-          name="weightrange"
-          value={formState.weightrange}
-          onChange={handleChange}
-          label="Weight Range"
-        >
-          <MenuItem value="">-- Select Weight Range --</MenuItem>
-          {dropdownOptions.weightrange.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth required>
-        <InputLabel>Color</InputLabel>
-        <Select
-          name="color"
-          value={formState.color}
-          onChange={handleChange}
-          label="Color"
-        >
-          <MenuItem value="">-- Select Color --</MenuItem>
-          {dropdownOptions.color.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-<TextField
+      <TextField
         name="details"
         label="Details"
         fullWidth
@@ -670,15 +525,17 @@ const AddLaptop = () => {
         rows={4}
         inputProps={{ maxLength: 1000 }}
       />
+
       <Box>
         <Typography variant="subtitle1">Image A (Main)</Typography>
         {mainImagePreview && (
           <Avatar src={mainImagePreview} variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
         )}
-        <Button component="label" variant="outlined">
+        <Button component="label" variant="outlined" color={formErrors.imagea ? 'error' : 'primary'}>
           Upload Image A
-          <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, 0)} required />
+          <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, 0)} />
         </Button>
+        {!!formErrors.imagea && <Typography color="error" variant="caption">{formErrors.imagea}</Typography>}
       </Box>
 
       {[1, 2].map((index) => (
@@ -693,7 +550,7 @@ const AddLaptop = () => {
           )}
           <Button component="label" variant="outlined">
             Upload Image {index}
-            <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} required />
+            <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
           </Button>
         </Box>
       ))}
@@ -701,9 +558,6 @@ const AddLaptop = () => {
       <Button type="submit" variant="contained" color="primary" disabled={loading}>
         {loading ? 'Uploading...' : 'Add Laptop'}
       </Button>
-
-      {error && <Alert severity="error">Error: {error}</Alert>}
-      {successMessage && <Alert severity="success">{successMessage}</Alert>}
     </Box>
   );
 };

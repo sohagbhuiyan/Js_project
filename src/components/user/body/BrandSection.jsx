@@ -15,14 +15,14 @@ const BrandSection = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="p-4 md:px-10">
-      <h2 className="text-md md:text-2xl text-white bg-gray-800 font-semibold mb-4">All Brands</h2>
+    <div className="px-3 md:px-10">
+      <h2 className="text-md md:text-2xl px-4 text-white bg-gray-800 font-semibold mb-4">All Brands</h2>
       <div className="flex flex-wrap gap-6">
         {brands.map((brand) => (
           <Link
             key={brand.id}
             to={`/brand/${brand.id}/products`}
-            className="px-6 py-3 font-semibold bg-gray-300 rounded shadow-md hover:bg-gray-400 transition"
+            className="px-4 py-1 font-semibold bg-gray-300 rounded shadow-sm hover:bg-gray-400 transition"
           >
             {brand.brandname}
           </Link>

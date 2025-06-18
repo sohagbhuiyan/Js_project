@@ -25,7 +25,7 @@ export const fetchLaptopById = createAsyncThunk(
   'laptops/fetchById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/allLaptop/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/AllLaptop/${id}`);
       return {
         ...response.data,
         regularprice: Number(response.data.regularprice),
@@ -42,7 +42,7 @@ export const fetchLaptopsByCategory = createAsyncThunk(
   'laptops/fetchByCategory',
   async ({ catagoryId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/allLaptop/byCategory/${catagoryId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/AllLaptop/byCategory/${catagoryId}`);
       return response.data.map(laptop => ({
         ...laptop,
         regularprice: Number(laptop.regularprice),
@@ -109,7 +109,7 @@ export const LaptopPlaceOrder = createAsyncThunk(
         allLaptopList: orderData.allLaptopList,
       };
 
-      const response = await axios.post(`${API_BASE_URL}/api/laptop/order/save`, orderPayload, {
+      const response = await axios.post(`${API_BASE_URL}/api/alllaptoaporder/save`, orderPayload, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

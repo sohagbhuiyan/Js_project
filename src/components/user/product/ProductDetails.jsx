@@ -69,10 +69,10 @@ const ProductDetails = () => {
           <Box className="flex justify-between mt-4">
             <table className="md:w-2xl border-collapse text-sm md:text-lg">
               <tbody>
-                <tr className="even:bg-gray-50">
+                {/* <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Title</td>
-                  <td className="py-2 px-4 text-left border-b">{currentProduct.title}</td>
-                </tr>
+                  <td className="py-2 px-4 text-left border-b">{currentProduct.name}</td>
+                </tr> */}
                 <tr className="even:bg-gray-50">
                   <td className="py-2 px-4 font-bold min-w-[100px] text-left border-b">Model</td>
                   <td className="py-2 px-4 text-left border-b">{currentProduct.name}</td>
