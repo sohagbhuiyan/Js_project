@@ -51,6 +51,22 @@ export const fetchAllPrinters = createAsyncThunk(
     }
   }
 );
+// Fetch single printer by ID
+export const fetchPrinterById = createAsyncThunk(
+  'printers/fetchById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/AllPrinter/${id}`);
+      return {
+        ...response.data,
+        regularprice: Number(response.data.regularprice),
+        specialprice: Number(response.data.specialprice)
+      };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 export const savePrinterOrder = createAsyncThunk(
   'printers/saveOrder',

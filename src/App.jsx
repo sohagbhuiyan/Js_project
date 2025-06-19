@@ -86,6 +86,8 @@ import LaptopViewPage from './components/user/static/laptop/LaptopViewPage';
 import AddPrinter from './components/admin/products/static/AddPrinter';
 import PrinterView from './components/user/static/printer/PrinterView';
 import PrinterViewPage from './components/user/static/printer/PrinterViewPage';
+import AddNetwork from './components/admin/products/static/AddNetwork';
+import AddCamera from './components/admin/products/static/AddCamera';
  
 
 function App() { 
@@ -174,6 +176,8 @@ function App() {
             <Route path="/admin/products/add-desktop" element={<AddDesktop />} />
             <Route path="/admin/products/add-laptop" element={<AddLaptop />} />
             <Route path="/admin/products/add-printer" element={<AddPrinter />} />
+            <Route path="/admin/products/add-network" element={<AddNetwork />} />
+            <Route path="admin/products/add-camera" element={<AddCamera />} />
             <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />

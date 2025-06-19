@@ -5,7 +5,7 @@ import { fetchPrintersByCategory } from '../../../../store/static/printerSlice';
 import {
   Card, CardContent, CardMedia, Typography, Box
 } from '@mui/material';
-import { API_BASE_URL } from '../../../../store/api';
+
 
 const RelatedPrinter = ({ categoryId }) => {
   const dispatch = useDispatch();

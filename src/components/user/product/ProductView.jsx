@@ -8,7 +8,13 @@ import {
   Button,
   Typography,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
+import {
+  WhatsApp as WhatsAppIcon,
+  Facebook as FacebookIcon,
+  Instagram as InstagramIcon,
+} from "@mui/icons-material";
 
 const ProductView = () => {
   const { id } = useParams();
@@ -19,6 +25,9 @@ const ProductView = () => {
   const [quantity, setQuantity] = useState(1);
   const [mainImage, setMainImage] = useState("/images/fallback.jpg");
   const [zoomStyle, setZoomStyle] = useState({ display: "none" });
+
+  // Detect if device is touch-based
+  const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
   // Fetch product details
   useEffect(() => {
@@ -36,7 +45,7 @@ const ProductView = () => {
     }
   }, [currentProduct]);
 
-  // Memoize gallery images to prevent recalculation on every render
+  // Memoize gallery images
   const galleryImages = useMemo(() => {
     if (!currentProduct) return [];
     return [
@@ -55,9 +64,10 @@ const ProductView = () => {
     []
   );
 
-  // Memoize mouse move handler
+  // Memoize mouse move handler (disabled on touch devices)
   const handleMouseMove = useCallback(
     (e) => {
+      if (isTouchDevice) return;
       const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
       const x = ((e.pageX - left) / width) * 100;
       const y = ((e.pageY - top) / height) * 100;
@@ -69,13 +79,14 @@ const ProductView = () => {
         display: "block",
       });
     },
-    [mainImage]
+    [mainImage, isTouchDevice]
   );
 
   // Memoize mouse leave handler
   const handleMouseLeave = useCallback(() => {
+    if (isTouchDevice) return;
     setZoomStyle({ display: "none" });
-  }, []);
+  }, [isTouchDevice]);
 
   // Memoize place order handler
   const handlePlaceOrderClick = useCallback(() => {
@@ -84,16 +95,43 @@ const ProductView = () => {
       navigate("/login", { state: { from: `/product/${id}` } });
       return;
     }
-    // Pass product as an array to match CheckoutPage expectation
     navigate("/checkout", {
       state: {
-        products: [{
-          ...currentProduct,
-          quantity, // Include selected quantity
-        }],
+        products: [{ ...currentProduct, quantity }],
       },
     });
   }, [user, profile, token, currentProduct, quantity, navigate, id]);
+
+  // Share functionality
+  const shareUrl = window.location.href;
+  const shareText = `Check out this product: ${currentProduct?.name || "Product"} - Tk ${currentProduct?.specialprice || ""}`;
+
+  const handleShare = useCallback(
+    (platform) => {
+      let url;
+      switch (platform) {
+        case "whatsapp":
+          url = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+            shareText + " " + shareUrl
+          )}`;
+          break;
+        case "facebook":
+          url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+            shareUrl
+          )}`;
+          break;
+        case "instagram":
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            toast.success("Link copied! Paste it in Instagram.");
+          });
+          return;
+        default:
+          return;
+      }
+      window.open(url, "_blank");
+    },
+    [shareUrl, shareText]
+  );
 
   // Render loading, error, or not found states
   if (loading)
@@ -116,94 +154,186 @@ const ProductView = () => {
     );
 
   return (
-    <Box sx={{ p: 4, display: "flex", flexDirection: { xs: "column", md: "row-reverse" }, gap: 4 }}>
+    <Box
+      sx={{
+        p: { xs: 2, sm: 4 }, // Reduced padding on mobile
+        display: "flex",
+        flexDirection: { xs: "column", md: "row-reverse" },
+        gap: 2,
+      }}
+    >
       {/* Product Details */}
-      <Box sx={{ flex: 1, px: { xs: 2, md: 4 } }}>
-        <Typography variant="h6" fontWeight="bold">
+      <Box sx={{ flex: 1, px: { xs: 1, sm: 2, md: 4 } }}>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}
+        >
           {currentProduct.name}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+        >
           Product ID: {currentProduct.productid}
         </Typography>
-        <Typography variant="h6" color="error" fontWeight="bold" sx={{ mt: 1 }}>
+        <Typography
+          variant="h6"
+          color="error"
+          fontWeight="bold"
+          sx={{ mt: 1, fontSize: { xs: "1rem", sm: "1.25rem" } }}
+        >
           Special Price: Tk {currentProduct.specialprice}
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ mt: 1, fontSize: { xs: "0.875rem", sm: "1rem" } }}
+        >
           Regular Price: Tk {currentProduct.regularprice}
         </Typography>
         {currentProduct.specialprice < currentProduct.regularprice && (
-          <Typography variant="body2" color="secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            color="secondary"
+            sx={{ mt: 1, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+          >
             Save Tk {currentProduct.regularprice - currentProduct.specialprice} on online order
           </Typography>
         )}
-        <Typography variant="h6" fontWeight="medium" sx={{ mt: 2 }}>
+        <Typography
+          variant="h6"
+          fontWeight="medium"
+          sx={{ mt: 2, fontSize: { xs: "1rem", sm: "1.25rem" } }}
+        >
           Quick Overview
         </Typography>
-        <ul className="list-disc pl-6 text-sm text-gray-600">
+        <ul className="list-disc pl-5 text-gray-600" style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}>
           {currentProduct.details &&
             currentProduct.details.split(", ").map((detail, index) => (
               <li key={index}>{detail}</li>
             ))}
         </ul>
-        <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={decreaseQuantity}
+                disabled={loading}
+                sx={{ minWidth: "40px" }}
+              >
+                -
+              </Button>
+              <Typography sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+                {quantity}
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={increaseQuantity}
+                disabled={loading}
+                sx={{ minWidth: "40px" }}
+              >
+                +
+              </Button>
+            </Box>
             <Button
-              variant="outlined"
-              size="small"
-              onClick={decreaseQuantity}
+              variant="contained"
+              color="success"
+              onClick={handlePlaceOrderClick}
               disabled={loading}
+              sx={{ px: 3, py: 1, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
             >
-              -
-            </Button>
-            <Typography>{quantity}</Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={increaseQuantity}
-              disabled={loading}
-            >
-              +
+              {loading ? "Processing..." : "Proceed to Order"}
             </Button>
           </Box>
-          <Button
-            variant="contained"
-            color="success"
-            size="small"
-            onClick={handlePlaceOrderClick}
-            disabled={loading}
-            sx={{ px: 3, py: 1 }}
-          >
-            {loading ? "Processing..." : "Proceed to Order"}
-          </Button>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
+              Share:
+            </Typography>
+            <IconButton
+              onClick={() => handleShare("whatsapp")}
+              color="success"
+              sx={{ p: 1 }}
+              aria-label="Share on WhatsApp"
+            >
+              <WhatsAppIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={() => handleShare("facebook")}
+              color="success"
+              sx={{ p: 1 }}
+              aria-label="Share on Facebook"
+            >
+              <FacebookIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={() => handleShare("instagram")}
+              color="success"
+              sx={{ p: 1 }}
+              aria-label="Share on Instagram"
+            >
+              <InstagramIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </Box>
       </Box>
 
       {/* Product Images */}
-      <Box sx={{ display: "flex", px: 5, py:2, flexDirection: { xs: "column-reverse", md: "row" }, gap: 2 }}>
-        <Box sx={{ display: "flex", flexDirection: { xs: "row", md: "column" }, gap: 1, px: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          px: { xs: 1, sm: 2 },
+          py: 2,
+          flexDirection: { xs: "column-reverse", md: "row" },
+          gap: 2,
+          alignItems: { xs: "center", md: "flex-start" },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "row", md: "column" },
+            gap: 1,
+            px: 1,
+            overflowX: { xs: "auto", md: "visible" },
+          }}
+        >
           {galleryImages.map((img, index) => (
             <img
               key={index}
               src={img}
-              alt={`thumbnail-${index}`}
-              className="w-12 h-12 sm:w-16 sm:h-16 border border-gray-300 cursor-pointer object-cover"
-              onMouseEnter={() => setMainImage(img)}
+              alt={`Thumbnail ${index + 1}`}
+              className="border border-gray-300 cursor-pointer object-cover"
+              style={{
+                width: "clamp(40px, 12vw, 60px)",
+                height: "clamp(40px, 12vw, 60px)",
+              }}
+              onMouseEnter={() => !isTouchDevice && setMainImage(img)}
               onClick={() => setMainImage(img)}
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "/images/fallback.jpg";
               }}
+              loading="lazy"
             />
           ))}
         </Box>
         <Box
           sx={{
             position: "relative",
-            width: { xs: "250px", sm: "420px" },
-            height: { xs: "180px", sm: "360px" },
+            width: { xs: "100%", sm: "min(90vw, 420px)" },
+            maxWidth: "420px",
+            aspectRatio: "4/3", // Maintain aspect ratio
             border: "1px solid #ccc",
             overflow: "hidden",
-           
           }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -211,23 +341,31 @@ const ProductView = () => {
           <img
             src={mainImage}
             alt={currentProduct.name || "Product"}
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              userSelect: "none",
+            }}
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "/images/fallback.jpg";
             }}
+            loading="lazy"
           />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              cursor: "zoom-in",
-            }}
-            style={zoomStyle}
-          />
+          {!isTouchDevice && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                cursor: "zoom-in",
+              }}
+              style={zoomStyle}
+            />
+          )}
         </Box>
       </Box>
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
-import { fetchAllPrinters } from "../../../../store/static/printerSlice";
+import { fetchPrinterById, savePrinterOrder } from "../../../../store/static/printerSlice";
 import {
   Box,
   Button,
@@ -25,7 +25,7 @@ const PrinterViewItem = () => {
   // Fetch printer details
   useEffect(() => {
     if (id) {
-      dispatch(fetchAllPrinters());
+      dispatch(fetchPrinterById());
     }
   }, [dispatch, id]);
 

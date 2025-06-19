@@ -19,7 +19,10 @@ import filterReducer from './filterSlice';
 import desktopReducer from'../store/static/desktopSlice';
 import allfilterReducer from '../store/filters/allfilterSlice';
 import laptopReducer from '../store/static/laptopSlice';
-import printerReducer from '../store/static/printerSlice'
+import printerReducer from '../store/static/printerSlice';
+import networkReducer from '../store/static/networkSlice';
+import cameraReducer from '../store/static/cameraSlice';
+
 
 export const store = configureStore({
   reducer: {
@@ -44,5 +47,7 @@ export const store = configureStore({
     laptops: laptopReducer,
     allfilter: allfilterReducer,
     printers: printerReducer,
+    networks: networkReducer,
+    cameras: cameraReducer,
   },
 });

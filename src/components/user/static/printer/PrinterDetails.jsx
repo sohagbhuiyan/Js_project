@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchAllPrinters } from "../../../../store/static/printersSlice";
 import { Box } from "@mui/material";
 import ReviewForm from "../../product/ReviewForm";
 import QuestionAnswer from "../../product/QuestionAnswer";
+import { fetchPrinterById } from "../../../../store/static/printerSlice";
 
 const PrinterDetails = () => {
   const { id } = useParams();
@@ -23,7 +23,7 @@ const PrinterDetails = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchAllPrinters());
+      dispatch(fetchPrinterById());
     }
   }, [dispatch, id]);
 

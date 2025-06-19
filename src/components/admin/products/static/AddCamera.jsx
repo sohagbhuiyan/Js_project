@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { savePrinter } from '../../../../store/static/printerSlice';
+import toast, { Toaster } from 'react-hot-toast';
+import { addCamera, clearMessages } from '../../../../store/static/cameraSlice';
 import {
   TextField,
   MenuItem,
@@ -17,21 +18,19 @@ import {
 } from '@mui/material';
 import { API_BASE_URL } from '../../../../store/api';
 
-const AddPrinter = () => {
+const AddCamera = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, printers } = useSelector((state) => state.printers);
-  const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
+  const { loading, error, successMessage, cameras } = useSelector((state) => state.cameras);
+  const { token, user } = useSelector((state) => state.auth);
 
   const [formState, setFormState] = useState({
     productid: '',
     name: '',
-    type: '',
-    printspeed: '',
-    printwidth: '',
-    printresolution: '',
-    interfaces: '',
-    bodycolor: '',
+    totalpixel: '',
+    displaysize: '',
+    digitalzoom: '',
+    opticalzoom: '',
     quantity: '',
     regularprice: '',
     specialprice: '',
@@ -58,15 +57,14 @@ const AddPrinter = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const dropdownOptions = {
-    type: ['Inkjet', 'Laser', 'Dot Matrix', 'Thermal', '3D'],
-    printspeed: ['5 ppm', '8 ppm', '10 ppm', '15 ppm', '20 ppm', '30 ppm', '40 ppm'],
-    printwidth: ['A4', 'A3', 'Letter', 'Legal', 'Tabloid'],
-    printresolution: ['600x600', '1200x1200', '2400x600', '4800x1200', '5760x1440'],
-    interfaces: ['USB', 'Wi-Fi', 'Ethernet', 'Bluetooth', 'USB+Wi-Fi', 'USB+Ethernet'],
-    bodycolor: ['Black', 'White', 'Grey', 'Silver', 'Blue'],
-    warranty: ['1', '2', '3','4'],
+    totalpixel: ['5MP', '8MP', '12MP', '16MP', '20MP', '32MP','48MP', '64MP', '128MP', '144MP', '160MP', '200MP','228MP', '256MP', '260MP', '180MP'],
+    displaysize: ['2.7 inch', '3.0 inch', '3.5 inch', '4.0 inch','4.5 inch', '5.0 inch','6.5 inch', '7.0 inch'],
+    digitalzoom: ['2x', '4x', '8x', '16x','32x','64x'],
+    opticalzoom: ['2x', '4x', '8x', '12x','24x','48x','64x'],
+    warranty: ['1', '2', '3', '4','5','6']
   };
 
+  // Fetch categories, products, and brands
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -96,6 +94,7 @@ const AddPrinter = () => {
     fetchData();
   }, []);
 
+  // Fetch product items based on selected product
   useEffect(() => {
     if (formState.product.id) {
       const fetchProductItems = async () => {
@@ -122,21 +121,65 @@ const AddPrinter = () => {
     }
   }, [formState.product.id, token]);
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!token || !user?.id) {
+      toast.error('Please log in to add a camera.', { duration: 2000 });
+      navigate('/login', { state: { from: '/admin/products/add-camera' } });
+    }
+  }, [token, user, navigate]);
+
+  // Handle success and error messages
+  useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage, { duration: 2000 });
+      dispatch(clearMessages());
+      setFormState({
+        productid: '',
+        name: '',
+        totalpixel: '',
+        displaysize: '',
+        digitalzoom: '',
+        opticalzoom: '',
+        quantity: '',
+        regularprice: '',
+        specialprice: '',
+        warranty: '',
+        title: '',
+        details: '',
+        specification: '',
+        catagory: { id: '' },
+        product: { id: '' },
+        brand: { id: '' },
+        productItem: { id: '' },
+      });
+      setImageA(null);
+      setImageB(null);
+      setImageC(null);
+      setMainImagePreview(null);
+      setAdditionalImagesPreviews([null, null]);
+      setFormErrors({});
+    }
+    if (error) {
+      toast.error(error, { duration: 2000 });
+      dispatch(clearMessages());
+    }
+  }, [successMessage, error, dispatch]);
+
   const validateForm = () => {
     const errors = {};
     if (!formState.productid) errors.productid = 'Product ID is required';
-    if (!formState.name) errors.name = 'Printer name is required';
-    if (!formState.type) errors.type = 'Type is required';
-    if (!formState.printspeed) errors.printspeed = 'Print speed is required';
-    if (!formState.printwidth) errors.printwidth = 'Print width is required';
-    if (!formState.printresolution) errors.printresolution = 'Print resolution is required';
-    if (!formState.interfaces) errors.interfaces = 'Interfaces is required';
-    if (!formState.bodycolor) errors.bodycolor = 'Body color is required';
+    if (!formState.name) errors.name = 'Camera name is required';
+    if (!formState.totalpixel) errors.totalpixel = 'Total pixel is required';
+    if (!formState.displaysize) errors.displaysize = 'Display size is required';
+    if (!formState.digitalzoom) errors.digitalzoom = 'Digital zoom is required';
+    if (!formState.opticalzoom) errors.opticalzoom = 'Optical zoom is required';
     if (!formState.quantity || formState.quantity <= 0) errors.quantity = 'Valid quantity is required';
     if (!formState.regularprice || formState.regularprice <= 0) errors.regularprice = 'Valid regular price is required';
     if (!formState.specialprice || formState.specialprice < 0) errors.specialprice = 'Valid special price is required';
     if (!formState.warranty) errors.warranty = 'Warranty is required';
     if (!formState.catagory.id) errors.catagory = 'Category is required';
+    if (!formState.brand.id) errors.brand = 'Brand is required';
     if (!imagea) errors.imagea = 'Main image is required';
     return errors;
   };
@@ -221,61 +264,41 @@ const AddPrinter = () => {
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      alert('Please fill out all required fields correctly.');
+      toast.error('Please fill out all required fields correctly.', { duration: 2000 });
       return;
     }
 
     try {
       const formDataObject = {
-        allPrinter: {
-          ...formState,
+        allCamera: {
+          productid: formState.productid,
+          name: formState.name,
+          totalpixel: formState.totalpixel,
+          displaysize: formState.displaysize,
+          digitalzoom: formState.digitalzoom,
+          opticalzoom: formState.opticalzoom,
           quantity: parseInt(formState.quantity),
           regularprice: parseFloat(formState.regularprice),
           specialprice: parseFloat(formState.specialprice),
           warranty: parseInt(formState.warranty),
-          productItem: formState.productItem.id ? { id: parseInt(formState.productItem.id) } : null,
+          title: formState.title,
+          details: formState.details,
+          specification: formState.specification,
           catagory: { id: parseInt(formState.catagory.id) },
           product: formState.product.id ? { id: parseInt(formState.product.id) } : null,
           brand: { id: parseInt(formState.brand.id) },
+          productItem: formState.productItem.id ? { id: parseInt(formState.productItem.id) } : null,
         },
         imagea,
         imageb,
         imagec,
       };
 
-      await dispatch(savePrinter({ formDataObject, token })).unwrap();
-      alert('Printer added successfully!');
-      setFormState({
-        productid: '',
-        name: '',
-        type: '',
-        printspeed: '',
-        printwidth: '',
-        printresolution: '',
-        interfaces: '',
-        bodycolor: '',
-        quantity: '',
-        regularprice: '',
-        specialprice: '',
-        warranty: '',
-        title: '',
-        details: '',
-        specification: '',
-        catagory: { id: '' },
-        product: { id: '' },
-        brand: { id: '' },
-        productItem: { id: '' },
-      });
-      setImageA(null);
-      setImageB(null);
-      setImageC(null);
-      setMainImagePreview(null);
-      setAdditionalImagesPreviews([null, null]);
-      setFormErrors({});
-      navigate('/admin/products/add-printer');
+      await dispatch(addCamera({ formDataObject, token })).unwrap();
+      navigate('/admin/cameras/add-camera');
     } catch (err) {
-      console.error('Error adding printer:', err);
-      alert(`Failed to add printer: ${err.message || 'Unknown error'}`);
+      console.error('Error adding camera:', err);
+      toast.error(`Failed to add camera: ${err.message || 'Unknown error'}`, { duration: 2000 });
     }
   };
 
@@ -283,16 +306,27 @@ const AddPrinter = () => {
     <Box
       component="form"
       onSubmit={handleSubmit}
-      sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600, mx: 'auto', p: 2 }}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        maxWidth: 600,
+        mx: 'auto',
+        p: { xs: 2, sm: 3 },
+        mt: 4,
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        boxShadow: 3,
+      }}
     >
-      <Typography variant="h5" fontWeight={600}>
-        Add Printer
+      <Typography variant="h5" fontWeight={600} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+        Add Camera
       </Typography>
 
       {formErrors.api && <Alert severity="error">{formErrors.api}</Alert>}
       {error && <Alert severity="error">Error: {error}</Alert>}
-      {printers.length > 0 && (
-        <Alert severity="success">Printer added successfully!</Alert>
+      {cameras.length > 0 && successMessage && (
+        <Alert severity="success">Camera added successfully!</Alert>
       )}
 
       <TextField
@@ -301,20 +335,26 @@ const AddPrinter = () => {
         value={formState.productid}
         onChange={handleChange}
         required
+        fullWidth
+        size="small"
         error={!!formErrors.productid}
         helperText={formErrors.productid}
+        sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
       />
       <TextField
         name="name"
-        label="Printer Name"
+        label="Camera Name"
         value={formState.name}
         onChange={handleChange}
         required
+        fullWidth
+        size="small"
         error={!!formErrors.name}
         helperText={formErrors.name}
+        sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
       />
 
-      <FormControl fullWidth required error={!!formErrors.catagory}>
+      <FormControl fullWidth required size="small" error={!!formErrors.catagory}>
         <InputLabel>Category (Menu)</InputLabel>
         <Select
           name="catagory.id"
@@ -332,7 +372,7 @@ const AddPrinter = () => {
         {!!formErrors.catagory && <Typography color="error" variant="caption">{formErrors.catagory}</Typography>}
       </FormControl>
 
-      <FormControl fullWidth>
+      <FormControl fullWidth size="small">
         <InputLabel>Product (Submenu)</InputLabel>
         <Select
           name="product.id"
@@ -352,7 +392,7 @@ const AddPrinter = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth>
+      <FormControl fullWidth size="small">
         <InputLabel>Product Item (Mega-menu)</InputLabel>
         <Select
           name="productItem.id"
@@ -375,7 +415,7 @@ const AddPrinter = () => {
         {!!formErrors.productItems && <Typography color="error" variant="caption">{formErrors.productItems}</Typography>}
       </FormControl>
 
-      <FormControl fullWidth required error={!!formErrors.brand}>
+      <FormControl fullWidth required size="small" error={!!formErrors.brand}>
         <InputLabel>Brand</InputLabel>
         <Select
           name="brand.id"
@@ -400,6 +440,9 @@ const AddPrinter = () => {
         value={formState.quantity}
         onChange={handleChange}
         required
+        fullWidth
+        size="small"
+        inputProps={{ min: 0 }}
         error={!!formErrors.quantity}
         helperText={formErrors.quantity}
       />
@@ -410,6 +453,9 @@ const AddPrinter = () => {
         value={formState.regularprice}
         onChange={handleChange}
         required
+        fullWidth
+        size="small"
+        inputProps={{ min: 0 }}
         error={!!formErrors.regularprice}
         helperText={formErrors.regularprice}
       />
@@ -420,20 +466,21 @@ const AddPrinter = () => {
         value={formState.specialprice}
         onChange={handleChange}
         required
+        fullWidth
+        size="small"
+        inputProps={{ min: 0 }}
         error={!!formErrors.specialprice}
         helperText={formErrors.specialprice}
       />
 
       {[
-        { name: 'type', label: 'Printer Type', options: dropdownOptions.type },
-        { name: 'printspeed', label: 'Print Speed', options: dropdownOptions.printspeed },
-        { name: 'printwidth', label: 'Print Width', options: dropdownOptions.printwidth },
-        { name: 'printresolution', label: 'Print Resolution', options: dropdownOptions.printresolution },
-        { name: 'interfaces', label: 'Interfaces', options: dropdownOptions.interfaces },
-        { name: 'bodycolor', label: 'Body Color', options: dropdownOptions.bodycolor },
+        { name: 'totalpixel', label: 'Total Pixel', options: dropdownOptions.totalpixel },
+        { name: 'displaysize', label: 'Display Size', options: dropdownOptions.displaysize },
+        { name: 'digitalzoom', label: 'Digital Zoom', options: dropdownOptions.digitalzoom },
+        { name: 'opticalzoom', label: 'Optical Zoom', options: dropdownOptions.opticalzoom },
         { name: 'warranty', label: 'Warranty (Years)', options: dropdownOptions.warranty },
       ].map((field) => (
-        <FormControl fullWidth required key={field.name} error={!!formErrors[field.name]}>
+        <FormControl fullWidth required key={field.name} size="small" error={!!formErrors[field.name]}>
           <InputLabel>{field.label}</InputLabel>
           <Select
             name={field.name}
@@ -453,14 +500,24 @@ const AddPrinter = () => {
       ))}
 
       <TextField
+        name="title"
+        label="Aditional Info"
+        fullWidth
+        value={formState.title}
+        onChange={handleChange}
+        inputProps={{ maxLength: 5000 }}
+        size="small"
+      />
+      <TextField
         name="details"
-        label="Details"
+        label="Details (comma-separated)"
         fullWidth
         multiline
         rows={4}
         value={formState.details}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
+        size="small"
       />
       <TextField
         name="specification"
@@ -470,26 +527,23 @@ const AddPrinter = () => {
         rows={3}
         value={formState.specification}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
-      />
-      <TextField
-        name="title"
-        label="Additional info"
-        multiline
-        fullWidth
-        rows={4}
-        value={formState.title}
-        onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
+        size="small"
       />
 
       <Box>
-        <Typography variant="subtitle1">Image A (Main Image)</Typography>
+        <Typography variant="subtitle1" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+          Image A (Main Image)
+        </Typography>
         {mainImagePreview && (
-          <Avatar src={mainImagePreview}
- variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
+          <Avatar src={mainImagePreview} variant="rounded" sx={{ width: 80, height: 80, mb: 1 }} />
         )}
-        <Button component="label" variant="outlined" color={formErrors.imagea ? 'error' : 'primary'}>
+        <Button
+          component="label"
+          variant="outlined"
+          color={formErrors.imagea ? 'error' : 'primary'}
+          sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+        >
           Upload Image A
           <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, 0)} />
         </Button>
@@ -498,7 +552,9 @@ const AddPrinter = () => {
 
       {[1, 2].map((index) => (
         <Box key={index}>
-          <Typography variant="subtitle1">Image {index} (Gallery)</Typography>
+          <Typography variant="subtitle1" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+            Image {index} (Gallery)
+          </Typography>
           {additionalImagesPreviews[index - 1] && (
             <Avatar
               src={additionalImagesPreviews[index - 1]}
@@ -506,18 +562,29 @@ const AddPrinter = () => {
               sx={{ width: 60, height: 60, mb: 1 }}
             />
           )}
-          <Button component="label" variant="outlined">
+          <Button
+            component="label"
+            variant="outlined"
+            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+          >
             Upload Image {index}
             <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(e, index)} />
           </Button>
         </Box>
       ))}
 
-      <Button type="submit" variant="contained" color="primary" disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : 'Add Printer'}
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={loading}
+        sx={{ mt: 2, py: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}
+      >
+        {loading ? <CircularProgress size={24} /> : 'Add Camera'}
       </Button>
+      <Toaster />
     </Box>
   );
 };
 
-export default AddPrinter;
+export default AddCamera;
