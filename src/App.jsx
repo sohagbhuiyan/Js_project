@@ -88,6 +88,10 @@ import PrinterView from './components/user/static/printer/PrinterView';
 import PrinterViewPage from './components/user/static/printer/PrinterViewPage';
 import AddNetwork from './components/admin/products/static/AddNetwork';
 import AddCamera from './components/admin/products/static/AddCamera';
+import CameraViewPage from './components/user/static/camera/CameraViewPage';
+import CameraView from './components/user/static/camera/CameraView';
+import NetworkView from './components/user/static/network/NetworkView';
+import NetworkViewPage from './components/user/static/network/NetworkViewPage';
  
 
 function App() { 
@@ -113,21 +117,25 @@ function App() {
           <Route path="/desktops" element={<DesktopView />}/>
           <Route path="/laptops" element={<LaptopView />} />
           <Route path="/printers" element={<PrinterView />} />
-          <Route path="registration" element={<Registration />} />
+          <Route path="/camera" element={<CameraView />} />
+          <Route path="/network" element={<NetworkView/>} />
+          <Route path="/registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
-          <Route path="all-categories" element={<AllCategories />} />
-          <Route path="exclusive-offers" element={<ExclusiveOffer />} />
-          <Route path="news-media" element={<NewsMedia />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="/all-categories" element={<AllCategories />} />
+          <Route path="/exclusive-offers" element={<ExclusiveOffer />} />
+          <Route path="/news-media" element={<NewsMedia />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/brand" element={<BrandSection />} />
-          <Route path="product/:id" element={<ProductviewPage />} />
+          <Route path="/product/:id" element={<ProductviewPage />} />
           {/* static data  */}
           <Route path="/desktop/:id" element={<DesktopViewPage />} />
           <Route path="/laptop/:id" element={<LaptopViewPage />} />
           <Route path="/printer/:id" element={<PrinterViewPage />} />
+          <Route path="/camera/:id" element={<CameraViewPage />} />
+          <Route path="/network/:id" element={<NetworkViewPage />} />
           {/* <Route path="wishlist" element={<WishlistPage />} /> */}
           <Route path="/cart" element={<CartPage />} />
-          <Route path="compare" element={<ComparePage />} />
+          <Route path="/compare" element={<ComparePage />} />
           <Route path="/pc-builder" element={<PCBuilderPage />} />
           <Route path="/pc-builder/:categoryName" element={<ComponentProductsPage />} />
           <Route path="/pc-builder/pc-part/:id" element={<PcPartView />} />
@@ -169,7 +177,7 @@ function App() {
             <Route path="/admin/add-media" element={<AddMedia />} />
             <Route path="/admin/add-aboutus" element={<AddAboutUs />} /> 
             <Route path="/admin/add-contact-us" element={<AddContactUs />} /> 
-            <Route path="admin/products/add-category" element={<AddCategory />} />
+            <Route path="/admin/products/add-category" element={<AddCategory />} />
             <Route path="/admin/products/update-categories" element={<UpdateMegaMenu />} />
             <Route path="/admin/products/view-product" element={<ViewProduct />} />
             <Route path="/admin/products/add-product" element={<AddProduct />} />
@@ -177,7 +185,7 @@ function App() {
             <Route path="/admin/products/add-laptop" element={<AddLaptop />} />
             <Route path="/admin/products/add-printer" element={<AddPrinter />} />
             <Route path="/admin/products/add-network" element={<AddNetwork />} />
-            <Route path="admin/products/add-camera" element={<AddCamera />} />
+            <Route path="/admin/products/add-camera" element={<AddCamera />} />
             <Route path="/admin/products/edit/:id" element={<EditProduct />} />
             <Route path="/admin/orders" element={<OrderManagement />} />
             <Route path="/admin/customers" element={<CustomerManagement />} />

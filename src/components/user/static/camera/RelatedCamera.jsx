@@ -1,20 +1,20 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchLaptopsByCategory } from '../../../../store/static/laptopSlice';
+import { fetchCamerasByCategory } from '../../../../store/static/cameraSlice';
 import {
   Card, CardContent, CardMedia, Typography, Box
 } from '@mui/material';
 import { API_BASE_URL } from '../../../../store/api';
 
-const RelatedLaptop = ({ categoryId }) => {
+const RelatedCamera = ({ categoryId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { laptops, loading, error, currentLaptop } = useSelector((state) => state.laptops);
+  const { cameras, loading, error, currentCamera } = useSelector((state) => state.cameras);
 
   useEffect(() => {
     if (categoryId) {
-      dispatch(fetchLaptopsByCategory({ catagoryId: categoryId }));
+      dispatch(fetchCamerasByCategory({ catagoryId: categoryId }));
     }
   }, [dispatch, categoryId]);
 
@@ -27,35 +27,35 @@ const RelatedLaptop = ({ categoryId }) => {
     []
   );
 
-  // Handle card click to navigate to LaptopView
+  // Handle card click to navigate to CameraView
   const handleCardClick = (id) => {
-    navigate(`/laptop/${id}`);
+    navigate(`/camera/${id}`);
   };
 
   if (!categoryId) return null;
-  if (loading) return <div className="text-center py-4 text-gray-600">Loading related laptops...</div>;
+  if (loading) return <div className="text-center py-4 text-gray-600">Loading related cameras...</div>;
   if (error) return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
     <div className="px-2 py-3">
       <p className="text-lg md:text-xl font-semibold bg-gray-100 p-2 rounded-t-md text-gray-800">
-        Related Laptops
+        Related Cameras
       </p>
       <hr className="mb-4 border-gray-300" />
       <Box className="flex flex-col space-y-4">
-        {laptops.length > 0 ? (
-          laptops
-            .filter((laptop) => laptop.id !== currentLaptop?.id)
-            .map((laptop) => {
-              const currentPrice = laptop.specialprice > 0 ? laptop.specialprice : laptop.regularprice;
-              const discount = laptop.specialprice > 0
-                ? Math.round(((laptop.regularprice - laptop.specialprice) / laptop.regularprice) * 100)
+        {cameras.length > 0 ? (
+          cameras
+            .filter((camera) => camera.id !== currentCamera?.id)
+            .map((camera) => {
+              const currentPrice = camera.specialprice > 0 ? camera.specialprice : camera.regularprice;
+              const discount = camera.specialprice > 0
+                ? Math.round(((camera.regularprice - camera.specialprice) / camera.regularprice) * 100)
                 : 0;
 
               return (
                 <Card
-                  key={laptop.id}
-                  onClick={() => handleCardClick(laptop.id)}
+                  key={camera.id}
+                  onClick={() => handleCardClick(camera.id)}
                   className="w-full max-w-md mx-auto cursor-pointer relative"
                   sx={{
                     display: 'flex',
@@ -79,8 +79,8 @@ const RelatedLaptop = ({ categoryId }) => {
                   )}
                   <CardMedia
                     component="img"
-                    image={laptop.imagea || '/images/fallback.jpg'}
-                    alt={laptop.name || 'Laptop'}
+                    image={camera.imagea || '/images/fallback.jpg'}
+                    alt={camera.name || 'Camera'}
                     sx={{
                       objectFit: 'contain',
                       width: { xs: 100, sm: 120 },
@@ -88,33 +88,33 @@ const RelatedLaptop = ({ categoryId }) => {
                       padding: 2,
                       backgroundColor: '#f5f5f5',
                     }}
-                    // onError={(e) => {
-                    //   e.currentTarget.src = '/images/fallback.jpg';
-                    // }}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/fallback.jpg';
+                    }}
                   />
                   <CardContent sx={{ flexGrow: 1, py: 2, px: 3, '&:last-child': { pb: 2 } }}>
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
-                      title={laptop.name}
+                      title={camera.name}
                       sx={{ mb: 0.5 }}
                     >
-                      {laptop.name || 'Unnamed Laptop'}
+                      {camera.name || 'Unnamed Camera'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {laptop.catagory?.name || 'Uncategorized'}
+                      {camera.catagory?.name || 'Uncategorized'}
                     </Typography>
                     <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="subtitle1" color="primary" fontWeight="bold">
                         {formatPrice(currentPrice)}
                       </Typography>
-                      {laptop.specialprice > 0 && (
+                      {camera.specialprice > 0 && (
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           sx={{ textDecoration: 'line-through' }}
                         >
-                          {formatPrice(laptop.regularprice)}
+                          {formatPrice(camera.regularprice)}
                         </Typography>
                       )}
                     </Box>
@@ -123,11 +123,11 @@ const RelatedLaptop = ({ categoryId }) => {
               );
             })
         ) : (
-          <Typography className="text-center p-4 text-gray-500">No related laptops found</Typography>
+          <Typography className="text-center p-4 text-gray-500">No related cameras found</Typography>
         )}
       </Box>
     </div>
   );
 };
 
-export default RelatedLaptop;
+export default RelatedCamera;

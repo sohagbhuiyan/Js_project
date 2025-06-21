@@ -1,20 +1,20 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchLaptopsByCategory } from '../../../../store/static/laptopSlice';
+import { fetchNetworksByCategory } from '../../../../store/static/networkSlice';
 import {
   Card, CardContent, CardMedia, Typography, Box
 } from '@mui/material';
 import { API_BASE_URL } from '../../../../store/api';
 
-const RelatedLaptop = ({ categoryId }) => {
+const RelatedNetwork = ({ categoryId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { laptops, loading, error, currentLaptop } = useSelector((state) => state.laptops);
+  const { networks, loading, error, currentNetwork } = useSelector((state) => state.networks);
 
   useEffect(() => {
     if (categoryId) {
-      dispatch(fetchLaptopsByCategory({ catagoryId: categoryId }));
+      dispatch(fetchNetworksByCategory({ catagoryId: categoryId }));
     }
   }, [dispatch, categoryId]);
 
@@ -27,35 +27,35 @@ const RelatedLaptop = ({ categoryId }) => {
     []
   );
 
-  // Handle card click to navigate to LaptopView
+  // Handle card click to navigate to NetworkView
   const handleCardClick = (id) => {
-    navigate(`/laptop/${id}`);
+    navigate(`/network/${id}`);
   };
 
   if (!categoryId) return null;
-  if (loading) return <div className="text-center py-4 text-gray-600">Loading related laptops...</div>;
+  if (loading) return <div className="text-center py-4 text-gray-600">Loading related networks...</div>;
   if (error) return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
     <div className="px-2 py-3">
       <p className="text-lg md:text-xl font-semibold bg-gray-100 p-2 rounded-t-md text-gray-800">
-        Related Laptops
+        Related Networks
       </p>
       <hr className="mb-4 border-gray-300" />
       <Box className="flex flex-col space-y-4">
-        {laptops.length > 0 ? (
-          laptops
-            .filter((laptop) => laptop.id !== currentLaptop?.id)
-            .map((laptop) => {
-              const currentPrice = laptop.specialprice > 0 ? laptop.specialprice : laptop.regularprice;
-              const discount = laptop.specialprice > 0
-                ? Math.round(((laptop.regularprice - laptop.specialprice) / laptop.regularprice) * 100)
+        {networks.length > 0 ? (
+          networks
+            .filter((network) => network.id !== currentNetwork?.id)
+            .map((network) => {
+              const currentPrice = network.specialprice > 0 ? network.specialprice : network.regularprice;
+              const discount = network.specialprice > 0
+                ? Math.round(((network.regularprice - network.specialprice) / network.regularprice) * 100)
                 : 0;
 
               return (
                 <Card
-                  key={laptop.id}
-                  onClick={() => handleCardClick(laptop.id)}
+                  key={network.id}
+                  onClick={() => handleCardClick(network.id)}
                   className="w-full max-w-md mx-auto cursor-pointer relative"
                   sx={{
                     display: 'flex',
@@ -79,8 +79,8 @@ const RelatedLaptop = ({ categoryId }) => {
                   )}
                   <CardMedia
                     component="img"
-                    image={laptop.imagea || '/images/fallback.jpg'}
-                    alt={laptop.name || 'Laptop'}
+                    image={network.imagea || '/images/fallback.jpg'}
+                    alt={network.name || 'Network Device'}
                     sx={{
                       objectFit: 'contain',
                       width: { xs: 100, sm: 120 },
@@ -88,33 +88,33 @@ const RelatedLaptop = ({ categoryId }) => {
                       padding: 2,
                       backgroundColor: '#f5f5f5',
                     }}
-                    // onError={(e) => {
-                    //   e.currentTarget.src = '/images/fallback.jpg';
-                    // }}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/fallback.jpg';
+                    }}
                   />
                   <CardContent sx={{ flexGrow: 1, py: 2, px: 3, '&:last-child': { pb: 2 } }}>
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
-                      title={laptop.name}
+                      title={network.name}
                       sx={{ mb: 0.5 }}
                     >
-                      {laptop.name || 'Unnamed Laptop'}
+                      {network.name || 'Unnamed Network Device'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {laptop.catagory?.name || 'Uncategorized'}
+                      {network.catagory?.name || 'Uncategorized'}
                     </Typography>
                     <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="subtitle1" color="primary" fontWeight="bold">
                         {formatPrice(currentPrice)}
                       </Typography>
-                      {laptop.specialprice > 0 && (
+                      {network.specialprice > 0 && (
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           sx={{ textDecoration: 'line-through' }}
                         >
-                          {formatPrice(laptop.regularprice)}
+                          {formatPrice(network.regularprice)}
                         </Typography>
                       )}
                     </Box>
@@ -123,11 +123,11 @@ const RelatedLaptop = ({ categoryId }) => {
               );
             })
         ) : (
-          <Typography className="text-center p-4 text-gray-500">No related laptops found</Typography>
+          <Typography className="text-center p-4 text-gray-500">No related networks found</Typography>
         )}
       </Box>
     </div>
   );
 };
 
-export default RelatedLaptop;
+export default RelatedNetwork;

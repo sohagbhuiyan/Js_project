@@ -199,8 +199,8 @@ const DesktopMenu = ({ menuItems }) => {
   const [hoverMoreProductIndex, setHoverMoreProductIndex] = useState(null);
   const megamenuRefs = useRef([]);
 
-  const firstTwelveItems = menuItems.slice(0, 8);
-  const remainingItems = menuItems.slice(8);
+  const firstTwelveItems = menuItems.slice(0, 7);
+  const remainingItems = menuItems.slice(7);
   const columnClass = remainingItems.length > 6 ? "grid-cols-3" : "grid-cols-2";
 
   const adjustMegamenuPosition = (element) => {
@@ -243,9 +243,19 @@ const DesktopMenu = ({ menuItems }) => {
           laptop
         </Link>
       </div>
-            <div className="relative cursor-pointer group">
+      <div className="relative cursor-pointer group">
         <Link to="/printers" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
           Printer
+        </Link>
+      </div>
+      <div className="relative cursor-pointer group">
+        <Link to="/camera" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
+          Camera
+        </Link>
+      </div>
+      <div className="relative cursor-pointer group">
+        <Link to="/network" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
+          Network
         </Link>
       </div>
 

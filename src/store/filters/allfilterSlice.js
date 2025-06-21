@@ -126,12 +126,92 @@ export const fetchFilteredPrinters = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch filtered cameras
+export const fetchFilteredCameras = createAsyncThunk(
+  'allfilter/fetchFilteredCameras',
+  async (filters, { rejectWithValue }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters.name) queryParams.append('name', filters.name);
+      if (filters.totalpixel) queryParams.append('totalpixel', filters.totalpixel);
+      if (filters.displaysize) queryParams.append('displaysize', filters.displaysize);
+      if (filters.digitalzoom) queryParams.append('digitalzoom', filters.digitalzoom);
+      if (filters.opticalzoom) queryParams.append('opticalzoom', filters.opticalzoom);
+      if (filters.regularprice) queryParams.append('regularprice', filters.regularprice);
+      if (filters.specialprice) queryParams.append('specialprice', filters.specialprice);
+      if (filters.warranty) queryParams.append('warranty', filters.warranty);
+      if (filters.brandName) queryParams.append('brandName', filters.brandName);
+      if (filters.catagoryName) queryParams.append('catagoryName', filters.catagoryName);
+      if (filters.productName) queryParams.append('productName', filters.productName);
+      if (filters.productItemName) queryParams.append('productItemName', filters.productItemName);
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/allcamera/filter?${queryParams.toString()}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch filtered cameras');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Async thunk to fetch filtered networks
+export const fetchFilteredNetworks = createAsyncThunk(
+  'allfilter/fetchFilteredNetworks',
+  async (filters, { rejectWithValue }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters.portside) queryParams.append('portside', filters.portside);
+      if (filters.color) queryParams.append('color', filters.color);
+      if (filters.regularprice) queryParams.append('regularprice', filters.regularprice);
+      if (filters.warranty) queryParams.append('warranty', filters.warranty);
+      if (filters.brandName) queryParams.append('brandName', filters.brandName);
+      if (filters.catagoryName) queryParams.append('catagoryName', filters.catagoryName);
+      if (filters.productName) queryParams.append('productName', filters.productName);
+      if (filters.productItemName) queryParams.append('productItemName', filters.productItemName);
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/allnetwork/filter?${queryParams.toString()}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch filtered networks');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const allfilterSlice = createSlice({
   name: 'allfilter',
   initialState: {
     filteredDesktops: [],
     filteredLaptops: [],
     filteredPrinters: [],
+    filteredCameras: [],
+    filteredNetworks: [],
     filters: {
       processorbrand: '',
       generation: '',
@@ -160,6 +240,13 @@ const allfilterSlice = createSlice({
       catagoryName: '',
       productName: '',
       productItemName: '',
+      name: '',
+      totalpixel: '',
+      displaysize: '',
+      digitalzoom: '',
+      opticalzoom: '',
+      specialprice: '',
+      portside: '',
     },
     loading: false,
     error: null,
@@ -197,10 +284,19 @@ const allfilterSlice = createSlice({
         catagoryName: '',
         productName: '',
         productItemName: '',
+        name: '',
+        totalpixel: '',
+        displaysize: '',
+        digitalzoom: '',
+        opticalzoom: '',
+        specialprice: '',
+        portside: '',
       };
       state.filteredDesktops = [];
       state.filteredLaptops = [];
       state.filteredPrinters = [];
+      state.filteredCameras = [];
+      state.filteredNetworks = [];
     },
   },
   extraReducers: (builder) => {
@@ -241,6 +337,32 @@ const allfilterSlice = createSlice({
         state.filteredPrinters = action.payload;
       })
       .addCase(fetchFilteredPrinters.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Camera filtering
+      .addCase(fetchFilteredCameras.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFilteredCameras.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredCameras = action.payload;
+      })
+      .addCase(fetchFilteredCameras.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Network filtering
+      .addCase(fetchFilteredNetworks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFilteredNetworks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredNetworks = action.payload;
+      })
+      .addCase(fetchFilteredNetworks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

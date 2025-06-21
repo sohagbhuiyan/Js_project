@@ -281,6 +281,7 @@ const AddCamera = () => {
           regularprice: parseFloat(formState.regularprice),
           specialprice: parseFloat(formState.specialprice),
           warranty: parseInt(formState.warranty),
+          
           title: formState.title,
           details: formState.details,
           specification: formState.specification,

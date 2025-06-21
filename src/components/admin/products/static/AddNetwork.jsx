@@ -35,9 +35,22 @@ const AddNetwork = () => {
     specialprice: '',
     warranty: '',
     details: '',
+    color:'',
     specification: '',
     catagory: { id: '' },
     brand: { id: '' },
+    productItem: { id: '' },
+    portside: '',
+    mimotechnology: '',
+    vpnsupport: '',
+    wificoveragerange: '',
+    datatransferrate: '',
+    datatransferratewifi: '',
+    numberoflanport: '',
+    numberofwanport: '',
+    wannetworkstandard: '',
+    lannetworkstandard: '',
+    wifigeneration: '',
   });
 
   const [imagea, setImageA] = useState(null);
@@ -47,6 +60,7 @@ const AddNetwork = () => {
   const [additionalImagesPreviews, setAdditionalImagesPreviews] = useState([null, null]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [productItems, setProductItems] = useState([]);
   const [formErrors, setFormErrors] = useState({});
 
   const dropdownOptions = {
@@ -54,29 +68,43 @@ const AddNetwork = () => {
     speed: ['100 Mbps', '1 Gbps', '10 Gbps', '25 Gbps', '100 Gbps'],
     frequency: ['2.4 GHz', '5 GHz', '6 GHz', 'Dual Band', 'Tri Band'],
     warranty: ['1', '2', '3', '4'],
+    mimotechnology: ['2x2', '4x4', '8x8'],
+    vpnsupport: ['Yes', 'No'],
+    wificoveragerange: ['100m', '200m', '300m', '500m', '1000m'],
+    datatransferrate: ['100Mbps', '1Gbps', '2.5Gbps', '5Gbps', '10Gbps'],
+    datatransferratewifi: ['300Mbps', '600Mbps', '1200Mbps', '2400Mbps', '4800Mbps'],
+    numberoflanport: ['1', '2', '4', '8', '16'],
+    numberofwanport: ['1', '2', '4'],
+    wannetworkstandard: ['10/100', 'Gigabit', '2.5GbE', '10GbE'],
+    lannetworkstandard: ['10/100', 'Gigabit', '2.5GbE', '10GbE'],
+    wifigeneration: ['Wi-Fi 4', 'Wi-Fi 5', 'Wi-Fi 6', 'Wi-Fi 6E', 'Wi-Fi 7'],
+    color: ['Black', 'White', 'Grey', 'Silver', 'Red', 'Green' ],
   };
 
-  // Fetch categories and brands
+  // Fetch categories, brands, and product items
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, brandsRes] = await Promise.all([
+        const [catRes, brandsRes, itemsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/api/catagories/get`),
           fetch(`${API_BASE_URL}/api/brands/get/all`),
+          fetch(`${API_BASE_URL}/api/product/items/get`),
         ]);
 
-        if (!catRes.ok || !brandsRes.ok) {
+        if (!catRes || !brandsRes || !itemsRes) {
           throw new Error('Failed to fetch data');
         }
 
         const catData = await catRes.json();
         const brandsData = await brandsRes.json();
+        const itemsData = await itemsRes.json();
 
         setCategories(catData);
         setBrands(brandsData);
+        setProductItems(itemsData);
       } catch (err) {
         console.error('Failed to fetch data:', err);
-        setFormErrors({ api: 'Failed to load categories or brands' });
+        setFormErrors({ api: 'Failed to load categories, brands, or product items' });
       }
     };
 
@@ -108,8 +136,21 @@ const AddNetwork = () => {
         warranty: '',
         details: '',
         specification: '',
+        color:'',
         catagory: { id: '' },
         brand: { id: '' },
+        productItem: { id: '' },
+        portside: '',
+        mimotechnology: '',
+        vpnsupport: '',
+        wificoveragerange: '',
+        datatransferrate: '',
+        datatransferratewifi: '',
+        numberoflanport: '',
+        numberofwanport: '',
+        wannetworkstandard: '',
+        lannetworkstandard: '',
+        wifigeneration: '',
       });
       setImageA(null);
       setImageB(null);
@@ -136,7 +177,6 @@ const AddNetwork = () => {
     if (!formState.specialprice || formState.specialprice < 0) errors.specialprice = 'Valid special price is required';
     if (!formState.warranty) errors.warranty = 'Warranty is required';
     if (!formState.catagory.id) errors.catagory = 'Category is required';
-    if (!formState.brand.id) errors.brand = 'Brand is required';
     if (!imagea) errors.imagea = 'Main image is required';
     return errors;
   };
@@ -153,6 +193,11 @@ const AddNetwork = () => {
       setFormState((prev) => ({
         ...prev,
         brand: { id: value },
+      }));
+    } else if (name === 'productItem.id') {
+      setFormState((prev) => ({
+        ...prev,
+        productItem: { id: value },
       }));
     } else {
       setFormState((prev) => ({
@@ -222,9 +267,22 @@ const AddNetwork = () => {
           specialprice: parseFloat(formState.specialprice),
           warranty: parseInt(formState.warranty),
           details: formState.details,
+          color: formState.color,
           specification: formState.specification,
           catagoryId: parseInt(formState.catagory.id),
           brandId: parseInt(formState.brand.id),
+          productItemId: parseInt(formState.productItem.id),
+          portside: formState.portside,
+          mimotechnology: formState.mimotechnology,
+          vpnsupport: formState.vpnsupport,
+          wificoveragerange: formState.wificoveragerange,
+          datatransferrate: formState.datatransferrate,
+          datatransferratewifi: formState.datatransferratewifi,
+          numberoflanport: parseInt(formState.numberoflanport) || 0,
+          numberofwanport: parseInt(formState.numberofwanport) || 0,
+          wannetworkstandard: formState.wannetworkstandard,
+          lannetworkstandard: formState.lannetworkstandard,
+          wifigeneration: formState.wifigeneration,
         },
         imagea,
         imageb,
@@ -327,6 +385,24 @@ const AddNetwork = () => {
         {!!formErrors.brand && <Typography color="error" variant="caption">{formErrors.brand}</Typography>}
       </FormControl>
 
+      <FormControl fullWidth required size="small" error={!!formErrors.productItem}>
+        <InputLabel>Product Item</InputLabel>
+        <Select
+          name="productItem.id"
+          value={formState.productItem.id}
+          onChange={handleChange}
+          label="Product Item"
+        >
+          <MenuItem value="">-- Select Product Item --</MenuItem>
+          {productItems.map((item) => (
+            <MenuItem key={item.id} value={item.id}>
+              {item.productitemname}
+            </MenuItem>
+          ))}
+        </Select>
+        {!!formErrors.productItem && <Typography color="error" variant="caption">{formErrors.productItem}</Typography>}
+      </FormControl>
+
       <TextField
         name="quantity"
         type="number"
@@ -366,14 +442,34 @@ const AddNetwork = () => {
         error={!!formErrors.specialprice}
         helperText={formErrors.specialprice}
       />
+      <TextField
+        name="portside"
+        label="Port Side"
+        value={formState.portside}
+        onChange={handleChange}
+        fullWidth
+        size="small"
+      />
 
       {[
         { name: 'technology', label: 'Technology', options: dropdownOptions.technology },
         { name: 'speed', label: 'Speed', options: dropdownOptions.speed },
         { name: 'frequency', label: 'Frequency', options: dropdownOptions.frequency },
         { name: 'warranty', label: 'Warranty (Years)', options: dropdownOptions.warranty },
+        { name: 'mimotechnology', label: 'MIMO Technology', options: dropdownOptions.mimotechnology },
+        { name: 'vpnsupport', label: 'VPN Support', options: dropdownOptions.vpnsupport },
+        { name: 'wificoveragerange', label: 'WiFi Coverage Range', options: dropdownOptions.wificoveragerange },
+        { name: 'datatransferrate', label: 'Data Transfer Rate', options: dropdownOptions.datatransferrate },
+        { name: 'datatransferratewifi', label: 'WiFi Data Transfer Rate', options: dropdownOptions.datatransferratewifi },
+        { name: 'numberoflanport', label: 'Number of LAN Ports', options: dropdownOptions.numberoflanport },
+        { name: 'numberofwanport', label: 'Number of WAN Ports', options: dropdownOptions.numberofwanport },
+        { name: 'color', label: 'Color', options: dropdownOptions.color },
+        { name: 'wannetworkstandard', label: 'WAN Network Standard', options: dropdownOptions.wannetworkstandard },
+        { name: 'lannetworkstandard', label: 'LAN Network Standard', options: dropdownOptions.lannetworkstandard },
+        { name: 'wifigeneration', label: 'WiFi Generation', options: dropdownOptions.wifigeneration },
+
       ].map((field) => (
-        <FormControl fullWidth required key={field.name} size="small" error={!!formErrors[field.name]}>
+        <FormControl fullWidth required={field.name in ['technology', 'speed', 'frequency', 'warranty']} key={field.name} size="small" error={!!formErrors[field.name]}>
           <InputLabel>{field.label}</InputLabel>
           <Select
             name={field.name}
