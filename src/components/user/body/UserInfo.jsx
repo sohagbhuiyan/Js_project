@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchInfo } from '../../../store/infoSlice';
+import { FaCreditCard, FaMoneyBillAlt, FaTruck, FaUserClock } from 'react-icons/fa';
 
 const UserInfo = () => {
   const dispatch = useDispatch();
@@ -37,19 +38,32 @@ const UserInfo = () => {
   }
 
   return (
-    <div className="flex flex-row justify-around items-center gap-4 p-1 sm:gap-6 px-4 bg-[#c8a071] text-white text-center">
-      <div className="text-xs  md:text-sm font-medium">
-        {info.emi}
+    <div className="flex flex-row justify-around items-center gap-4 p-1 sm:gap-6 px-4 bg-black text-white text-center">
+      <div className="flex items-center gap-1 text-green-600">
+        <FaMoneyBillAlt className="text-[15px] mr-1" />
+        <span className="text-white font-medium">{info.emi}</span>
       </div>
-      <div className="text-xs  md:text-sm font-medium">
-        {info.support}
+       <span className="text-gray-400">|</span>
+
+      <div className="flex items-center gap-1 text-green-600">
+        <FaUserClock className="text-[15px] mr-1" />
+        <span className="text-white font-medium">  {info.support}</span>
       </div>
-      <div className="text-xs  md:text-sm font-medium">
-        {info.payment}
+
+      <span className="text-gray-400">|</span>
+
+      <div className="flex items-center gap-1 text-green-600">
+        <FaCreditCard className="text-[15px] mr-1" />
+        <span className="text-white font-medium"> {info.payment}</span>
       </div>
-      <div className="text-xs  md:text-sm font-medium">
-        {info.delivery}
+
+      <span className="text-gray-400">|</span>
+
+      <div className="flex items-center gap-1 text-green-600">
+        <FaTruck className="text-[15px] mr-1" />
+        <span className="text-white font-medium">{info.delivery}</span>
       </div>
+
     </div>
   );
 };

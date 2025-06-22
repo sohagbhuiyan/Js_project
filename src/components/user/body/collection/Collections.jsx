@@ -401,7 +401,6 @@
 // );
 
 // export default Collections;
-
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../../../../store/productSlice";
@@ -420,11 +419,11 @@ import {
   Drawer,
   Typography,
   Paper,
-  Fab,
   Fade,
 } from "@mui/material";
 import { FaFilter, FaTimes } from "react-icons/fa";
 import { API_BASE_URL } from "../../../../store/api";
+import AllProductsPage from "./AllProductsPage";
 
 const Collections = ({ isHomePage = false, sx }) => {
   const [searchParams] = useSearchParams();
@@ -435,6 +434,8 @@ const Collections = ({ isHomePage = false, sx }) => {
   const searchParam = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(searchParam);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortOption, setSortOption] = useState("customized");
+  const [viewType, setViewType] = useState("grid");
 
   const dispatch = useDispatch();
   const { products, loading: productsLoading, error: productsError } = useSelector(
@@ -527,188 +528,222 @@ const Collections = ({ isHomePage = false, sx }) => {
 
   const displayProducts = filteredProducts.length > 0 ? filteredProducts : urlFilteredProducts;
 
+  // Sort products based on sortOption
+  const sortedProducts = [...displayProducts].sort((a, b) => {
+    if (sortOption === "priceLowToHigh") {
+      return (a.specialprice || a.regularprice) - (b.specialprice || b.regularprice);
+    } else if (sortOption === "priceHighToLow") {
+      return (b.specialprice || b.regularprice) - (a.specialprice || a.regularprice);
+    } else if (sortOption === "newest") {
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0); // Fallback to 0 if createdAt is missing
+    }
+    return 0; // "customized" - no sorting
+  });
+
+  // Dynamic title based on filter parameters
+  const getDynamicTitle = () => {
+    if (searchQuery) return `Search Results for "${searchQuery}"`;
+    if (itemParam) return `${itemParam} Products`;
+    if (productParam) return `${productParam} Collection`;
+    if (categoryParam) return `${categoryParam} Category`;
+    if (brandnameParam) return `${brandnameParam} Brand`;
+    return "All Products";
+  };
+
   return (
-   < >
-    <h2 className="bg-gray-300 text-gray-900 text-lg py-1 px-4">Collections</h2>
-<Box
-  sx={{
-    py: { xs: 1, md: 1 },
-    px: { xs: 1, md: 1 },
-    bgcolor: "#ffffff",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-    ...sx,
-  }}
->
-  <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexDirection: { xs: "column", md: "row" }, }}>
-    {/* Mobile Filter Button (Small Icon with Text) */}
-    {showFilter && (
-      <Fade in={showFilter}>
-        <Box
-          onClick={() => setIsFilterOpen(true)}
-          sx={{
-            display: { xs: "flex", md: "none" },
-            alignItems: "center",
-            gap: 0.5,
-            position: "fixed",
-            top: { xs: 63, sm:130 }, // Positioned above the container
-            left: { xs: 1, sm: 4 },
-            cursor: "pointer",
-            bgcolor: "#07a966",
-            color: "#ffffff",
-            borderRadius: "8px",
-            padding: "2px 4px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-            transition: "all 0.3s ease-in-out",
-            "&:hover": {
-              bgcolor: "#07a966",
-              boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
-            },
-            zIndex: 1000,
-          }}
-        >
-          <FaFilter size={8} />
-          <Typography variant="caption" sx={{ fontWeight: "medium", fontSize: "0.75rem" }}>
-            Filter
-          </Typography>
-        </Box>
-      </Fade>
-    )}
-
-        {/* Filter Sidebar (Desktop) / Drawer (Mobile) */}
-        {showFilter && (
-          <>
-            <Drawer
-              anchor="left"
-              open={isFilterOpen}
-              onClose={() => setIsFilterOpen(false)}
-              sx={{
-                "& .MuiDrawer-paper": {
-                  width: { xs: "80vw", sm: "20vw", md: "40vw" },
-                  maxWidth: "200px",
-                  bgcolor: "#fafafa",
-                  p: 2,
-                  transition: "transform 0.3s ease-in-out",
-                },
-              }}
-            >
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                  Filters
+    <>
+      <h2 className="bg-gray-300 text-gray-900 text-lg py-1 px-4">Collections</h2>
+      <Box
+        sx={{
+          py: { xs: 1, md: 1 },
+          px: { xs: 1, md: 1 },
+          bgcolor: "#ffffff",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+          ...sx,
+        }}
+      >
+        <AllProductsPage
+          title={getDynamicTitle()}
+          productCount={sortedProducts.length}
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+          viewType={viewType}
+          onViewChange={setViewType}
+        />
+        <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, flexDirection: { xs: "column", md: "row" } }}>
+          {/* Mobile Filter Button */}
+          {showFilter && (
+            <Fade in={showFilter}>
+              <Box
+                onClick={() => setIsFilterOpen(true)}
+                sx={{
+                  display: { xs: "flex", md: "none" },
+                  alignItems: "center",
+                  gap: 0.5,
+                  position: "fixed",
+                  top: { xs: 63, sm: 130 },
+                  right: { xs: 2, sm: 4 },
+                  cursor: "pointer",
+                  bgcolor: "#07a966",
+                  color: "#ffffff",
+                  borderRadius: "8px",
+                  padding: "2px 4px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                  transition: "all 0.3s ease-in-out",
+                  "&:hover": {
+                    bgcolor: "#07a966",
+                    boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+                  },
+                  zIndex: 99,
+                }}
+              >
+                <FaFilter size={8} />
+                <Typography variant="caption" sx={{ fontWeight: "medium", fontSize: "0.75rem" }}>
+                  Filter
                 </Typography>
-                <IconButton onClick={() => setIsFilterOpen(false)} aria-label="Close filters">
-                  <FaTimes size={10} color="#333" />
-                </IconButton>
               </Box>
-              <FilterForm
-                filters={filters}
-                handleChange={handleFilterChange}
-                handleApplyFilters={handleApplyFilters}
-                handleResetFilters={handleResetFilters}
-                brands={brands}
-                productItems={productItems}
-                productData={productData}
-              />
-            </Drawer>
-
-            <Paper
-              sx={{
-                width: { md: 200 },
-                flexShrink: 0,
-                display: { xs: "none", md: "block" },
-                p: 3,
-                bgcolor: "#fafafa",
-                borderRadius: "12px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                border: "1px solid #e0e0e0",
-              }}
-            >
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#333" }}>
-                Filter Products
-              </Typography>
-              <FilterForm
-                filters={filters}
-                handleChange={handleFilterChange}
-                handleApplyFilters={handleApplyFilters}
-                handleResetFilters={handleResetFilters}
-                brands={brands}
-                productItems={productItems}
-                productData={productData}
-              />
-            </Paper>
-          </>
-        )}
-
-        {/* Products Section */}
-        <Box sx={{ flexGrow: 1 }}>
-          {filterLoading || productsLoading ? (
-            <Box sx={{ textAlign: "center", py: 10 }}>
-              <Typography variant="body1" color="textSecondary">
-                Loading...
-              </Typography>
-            </Box>
-          ) : filterError || productsError ? (
-            <Box sx={{ textAlign: "center", py: 6, color: "error.main" }}>
-              <Typography variant="body1">Error: {filterError || productsError}</Typography>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "repeat(auto-fill, minmax(150px, 1fr))",
-                  sm: "repeat(auto-fill, minmax(180px, 1fr))",
-                  md: "repeat(auto-fill, minmax(200px, 1fr))",
-                  lg: "repeat(auto-fill, minmax(220px, 1fr))",
-                },
-                gap: { xs: 1.5, sm: 2, md: 3, lg: 4 },
-                mb: 4,
-                p:4,
-              }}
-            >
-              {displayProducts.length > 0 ? (
-                displayProducts.map((product) => (
-                  <Box
-                    key={product.id}
-                    sx={{
-                      transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
-                      },
-                    }}
-                  >
-                    <CollectionCard
-                      id={product.id}
-                      imagea={product.imagea}
-                      category={product.catagory?.name || "Uncategorized"}
-                      product={product.product?.name}
-                      name={product.name}
-                      regularprice={product.regularprice}
-                      specialprice={product.specialprice}
-                      brandname={product.brand?.brandname}
-                      title={product.title}
-                      details={product.details}
-                      specification={product.specification}
-                      productitemname={product.productItem?.productitemname}
-                    />
-                  </Box>
-                ))
-              ) : (
-                <Typography
-                  sx={{ textAlign: "center", color: "text.secondary", gridColumn: "1 / -1", py: 6 }}
-                >
-                  No products found
-                </Typography>
-              )}
-            </Box>
+            </Fade>
           )}
+
+          {/* Filter Sidebar (Desktop) / Drawer (Mobile) */}
+          {showFilter && (
+            <>
+              <Drawer
+                anchor="left"
+                open={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                sx={{
+                  "& .MuiDrawer-paper": {
+                    width: { xs: "80vw", sm: "20vw", md: "40vw" },
+                    maxWidth: "200px",
+                    bgcolor: "#fafafa",
+                    p: 2,
+                    transition: "transform 0.3s ease-in-out",
+                  },
+                }}
+              >
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
+                    Filters
+                  </Typography>
+                  <IconButton onClick={() => setIsFilterOpen(false)} aria-label="Close filters">
+                    <FaTimes size={10} color="#333" />
+                  </IconButton>
+                </Box>
+                <FilterForm
+                  filters={filters}
+                  handleChange={handleFilterChange}
+                  handleApplyFilters={handleApplyFilters}
+                  handleResetFilters={handleResetFilters}
+                  brands={brands}
+                  productItems={productItems}
+                  productData={productData}
+                />
+              </Drawer>
+
+              <Paper
+                sx={{
+                  width: { md: 200 },
+                  flexShrink: 0,
+                  display: { xs: "none", md: "block" },
+                  p: 3,
+                  bgcolor: "#fafafa",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#333" }}>
+                  Filter Products
+                </Typography>
+                <FilterForm
+                  filters={filters}
+                  handleChange={handleFilterChange}
+                  handleApplyFilters={handleApplyFilters}
+                  handleResetFilters={handleResetFilters}
+                  brands={brands}
+                  productItems={productItems}
+                  productData={productData}
+                />
+              </Paper>
+            </>
+          )}
+
+          {/* Products Section */}
+          <Box sx={{ flexGrow: 1 }}>
+            {filterLoading || productsLoading ? (
+              <Box sx={{ textAlign: "center", py: 10 }}>
+                <Typography variant="body1" color="textSecondary">
+                  Loading...
+                </Typography>
+              </Box>
+            ) : filterError || productsError ? (
+              <Box sx={{ textAlign: "center", py: 6, color: "error.main" }}>
+                <Typography variant="body1">Error: {filterError || productsError}</Typography>
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  display: viewType === "grid" ? "grid" : "flex",
+                  flexDirection: viewType === "list" ? "column" : "unset",
+                  gridTemplateColumns: viewType === "grid" && {
+                    xs: "repeat(auto-fill, minmax(150px, 1fr))",
+                    sm: "repeat(auto-fill, minmax(180px, 1fr))",
+                    md: "repeat(auto-fill, minmax(200px, 1fr))",
+                    lg: "repeat(auto-fill, minmax(220px, 1fr))",
+                  },
+                  gap: { xs: 1.5, sm: 2, md: 3, lg: 4 },
+                  mb: 4,
+                  p: 4,
+                }}
+              >
+                {sortedProducts.length > 0 ? (
+                  sortedProducts.map((product) => (
+                    <Box
+                      key={product.id}
+                      sx={{
+                        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+                        },
+                        width: viewType === "list" ? "100%" : "unset",
+                      }}
+                    >
+                      <CollectionCard
+                        id={product.id}
+                        imagea={product.imagea}
+                        category={product.catagory?.name || "Uncategorized"}
+                        product={product.product?.name}
+                        name={product.name}
+                        regularprice={product.regularprice}
+                        specialprice={product.specialprice}
+                        brandname={product.brand?.brandname}
+                        title={product.title}
+                        details={product.details}
+                        specification={product.specification}
+                        productitemname={product.productItem?.productitemname}
+                        viewType={viewType}
+                      />
+                    </Box>
+                  ))
+                ) : (
+                  <Typography
+                    sx={{ textAlign: "center", color: "text.secondary", gridColumn: "1 / -1", py: 6 }}
+                  >
+                    No products found
+                  </Typography>
+                )}
+              </Box>
+            )}
+          </Box>
         </Box>
       </Box>
-    </Box>
-</>);
+    </>
+  );
 };
 
-// Updated FilterForm Component
+// FilterForm Component (Unchanged)
 const FilterForm = ({ filters, handleChange, handleApplyFilters, handleResetFilters, brands, productItems, productData }) => (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 220 }}>
     <FormControl fullWidth size="small">
@@ -828,7 +863,7 @@ const FilterForm = ({ filters, handleChange, handleApplyFilters, handleResetFilt
           transition: "all 0.2s ease-in-out",
         }}
       >
-       Filters
+        Filters
       </Button>
       <Button
         variant="outlined"

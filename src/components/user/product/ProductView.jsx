@@ -26,17 +26,14 @@ const ProductView = () => {
   const [mainImage, setMainImage] = useState("/images/fallback.jpg");
   const [zoomStyle, setZoomStyle] = useState({ display: "none" });
 
-  // Detect if device is touch-based
   const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-  // Fetch product details
   useEffect(() => {
     if (id) {
       dispatch(fetchProductDetailsById(id));
     }
   }, [dispatch, id]);
 
-  // Set main image when currentProduct changes
   useEffect(() => {
     if (currentProduct?.imagea) {
       setMainImage(currentProduct.imagea);
@@ -45,7 +42,6 @@ const ProductView = () => {
     }
   }, [currentProduct]);
 
-  // Memoize gallery images
   const galleryImages = useMemo(() => {
     if (!currentProduct) return [];
     return [
@@ -57,14 +53,12 @@ const ProductView = () => {
       .map((img) => img || "/images/fallback.jpg");
   }, [currentProduct]);
 
-  // Memoize quantity handlers
   const increaseQuantity = useCallback(() => setQuantity((prev) => prev + 1), []);
   const decreaseQuantity = useCallback(
     () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1)),
     []
   );
 
-  // Memoize mouse move handler (disabled on touch devices)
   const handleMouseMove = useCallback(
     (e) => {
       if (isTouchDevice) return;
@@ -82,13 +76,11 @@ const ProductView = () => {
     [mainImage, isTouchDevice]
   );
 
-  // Memoize mouse leave handler
   const handleMouseLeave = useCallback(() => {
     if (isTouchDevice) return;
     setZoomStyle({ display: "none" });
   }, [isTouchDevice]);
 
-  // Memoize place order handler
   const handlePlaceOrderClick = useCallback(() => {
     if (!user?.id || !profile?.email || !token) {
       toast.error("Please log in to place an order.", { duration: 1000 });
@@ -102,7 +94,6 @@ const ProductView = () => {
     });
   }, [user, profile, token, currentProduct, quantity, navigate, id]);
 
-  // Share functionality
   const shareUrl = window.location.href;
   const shareText = `Check out this product: ${currentProduct?.name || "Product"} - Tk ${currentProduct?.specialprice || ""}`;
 
@@ -133,7 +124,6 @@ const ProductView = () => {
     [shareUrl, shareText]
   );
 
-  // Render loading, error, or not found states
   if (loading)
     return (
       <Box sx={{ textAlign: "center", py: 4 }}>
@@ -156,13 +146,12 @@ const ProductView = () => {
   return (
     <Box
       sx={{
-        p: { xs: 2, sm: 4 }, // Reduced padding on mobile
+        p: { xs: 2, sm: 4 },
         display: "flex",
         flexDirection: { xs: "column", md: "row-reverse" },
         gap: 2,
       }}
     >
-      {/* Product Details */}
       <Box sx={{ flex: 1, px: { xs: 1, sm: 2, md: 4 } }}>
         <Typography
           variant="h6"
@@ -286,7 +275,6 @@ const ProductView = () => {
         </Box>
       </Box>
 
-      {/* Product Images */}
       <Box
         sx={{
           display: "flex",
@@ -331,7 +319,7 @@ const ProductView = () => {
             position: "relative",
             width: { xs: "100%", sm: "min(90vw, 420px)" },
             maxWidth: "420px",
-            aspectRatio: "4/3", // Maintain aspect ratio
+            aspectRatio: "4/3",
             border: "1px solid #ccc",
             overflow: "hidden",
           }}

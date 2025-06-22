@@ -504,7 +504,7 @@ const AddLaptop = () => {
         rows={4}
         value={formState.details}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
       />
       <TextField
         name="specification"
@@ -514,7 +514,7 @@ const AddLaptop = () => {
         rows={3}
         value={formState.specification}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
       />
       <TextField
         name="title"
@@ -523,7 +523,7 @@ const AddLaptop = () => {
         onChange={handleChange}
         multiline
         rows={4}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
       />
 
       <Box>

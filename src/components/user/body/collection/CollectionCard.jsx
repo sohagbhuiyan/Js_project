@@ -8,7 +8,7 @@ import { addToCompare } from "../../../../store/compareSlice";
 import toast, { Toaster } from "react-hot-toast";
 
 const CollectionCard = ({
-id,
+  id,
   imagea,
   category,
   name,
@@ -20,6 +20,7 @@ id,
   details,
   specification,
   productitemname,
+  viewType,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
@@ -43,11 +44,11 @@ id,
   // Function to format specification string as a list
   const formatSpecification = (spec) => {
     if (!spec) return <p className="text-sm text-gray-600">No specifications available.</p>;
-    const pairs = spec.split(',').map(item => item.trim());
+    const pairs = spec.split(",").map((item) => item.trim());
     return (
       <ul className="text-sm text-gray-600 list-disc pl-5">
         {pairs.map((pair, index) => {
-          const [key, value] = pair.split(':').map(part => part.trim());
+          const [key, value] = pair.split(":").map((part) => part.trim());
           return (
             <li key={index}>
               <strong>{key}</strong>: {value}
@@ -108,7 +109,7 @@ id,
       })
     )
       .then(() => {
-        toast.success("Added to cart!",);
+        toast.success("Added to cart!", { position: "top-right" });
       })
       .catch(() => {
         // Error toast is handled in the useEffect above
@@ -159,24 +160,26 @@ id,
       <Link to={`/product/${id}`} className="block" onClick={handleProductClick}>
         <div
           className={`border border-gray-400 rounded-lg p-3 shadow-md hover:shadow-xl transition-all duration-400 bg-white relative ${
-            isHovered ? "md:scale-105" : "scale-100"
-          }`}
+            viewType === "list"
+              ? "flex flex-row items-center gap-4"
+              : "flex flex-col"
+          } ${isHovered ? "md:scale-100" : "scale-100"}`}
           onMouseEnter={() => !isMobile && setIsHovered(true)}
           onMouseLeave={() => !isMobile && setIsHovered(false)}
         >
-          <div className="relative p-1 overflow-hidden rounded-md">
+          <div className={`relative p-1 overflow-hidden rounded-md ${viewType === "list" ? "w-1/3 md:w-1/6" : "w-full"}`}>
             <img
               src={imagea}
               alt={name}
-              className={`w-full h-40 md:h-48 object-cover rounded-md transition-transform duration-600 ${
-                isHovered ? "scale-118" : "scale-100"
+              className={`w-full ${viewType === "list" ? "h-32" : "h-40 md:h-48"} object-cover rounded-md transition-transform duration-600 ${
+                isHovered ? "scale-110" : "scale-100"
               }`}
               loading="lazy"
             />
             {(isHovered || (isMobile && showMobileIcons)) && (
               <div
                 ref={iconsRef}
-                className="absolute top-2 right-2 flex flex-col gap-2 rounded-lg"
+                className={`absolute top-2 right-2 flex ${viewType === "list" ? "flex-row gap-1" : "flex-col gap-2"} rounded-lg`}
               >
                 {["cart", "compare", "wishlist", "view"].map((action, idx) => (
                   <button
@@ -208,13 +211,18 @@ id,
             )}
           </div>
 
-          <div className="text-center mt-2 space-y-1">
+          <div
+            className={`mt-2 space-y-1 ${viewType === "list" ? "w-2/3 text-left" : "text-center"}`}
+          >
             <h3 className="text-sm font-semibold text-gray-700 truncate">{name}</h3>
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[2rem]">{category}</p>
-            <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{specification}</p>
             <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">{product}</p>
-            {/* {formatSpecification(specification)} */}
-            <div className="flex flex-col items-center justify-center">
+            <p className="text-xs text-gray-600 line-clamp-2 min-h-[1.5rem]">
+              {viewType === "list" && specification
+                ? specification.split(", ").slice(0, 2).join(", ")
+                : specification}
+            </p>
+            <div className={`${viewType === "list" ? "flex flex-row items-center gap-2" : "flex flex-col items-center"} justify-center`}>
               <span className="text-sm font-bold text-gray-900">{formatPrice(currentPrice)}</span>
               {hasDiscount && (
                 <div className="flex items-center gap-2">
@@ -270,7 +278,7 @@ id,
               </div>
             </div>
           </div>
-          <Toaster position="top-right"/>
+          <Toaster position="top-right" />
         </div>
       )}
     </>

@@ -230,8 +230,11 @@ const AddProduct = () => {
         name="name"
         label="Product Name"
         value={formState.name}
+        multiline
+        rows={2}
         onChange={handleChange}
         required
+        inputProps={{ maxLength: 5000 }} 
       />
 
       <FormControl fullWidth required>
@@ -344,7 +347,7 @@ const AddProduct = () => {
         value={formState.details}
         onChange={handleChange}
         required
-        inputProps={{ maxLength: 1000 }} 
+        inputProps={{ maxLength: 10000 }} 
       />
       <TextField
         name="specification"
@@ -355,7 +358,7 @@ const AddProduct = () => {
         value={formState.specification}
         onChange={handleChange}
         required
-        inputProps={{ maxLength: 1000 }} 
+        inputProps={{ maxLength: 10000 }} 
       />
       <TextField
         name="title"
@@ -365,7 +368,7 @@ const AddProduct = () => {
         required
         multiline
         rows={4} // You can change this number based on desired height
-        inputProps={{ maxLength: 1000 }}  
+        inputProps={{ maxLength: 10000 }}  
       />
       <TextField
         name="warranty"

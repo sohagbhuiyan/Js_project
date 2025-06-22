@@ -33,7 +33,7 @@ const Footer = () => {
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:gap-10 text-xs sm:text-sm text-center sm:text-left pb-5">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 border-l-2 border-gray-400 h-[13rem] px-2">
                 <Link to="/about-us">
                   <p className="cursor-pointer hover:text-gray-400">About Us</p>
                 </Link>
@@ -43,8 +43,28 @@ const Footer = () => {
                 <Link to="/contact">
                   <p className="cursor-pointer hover:text-gray-400">Contact</p>
                 </Link>
+                <Link to="/branches">
+                  <p className="cursor-pointer hover:text-gray-400"> Branches</p>
+                </Link>
+                <Link to="/warranty">
+                  <p className="cursor-pointer hover:text-gray-400"> Warranty</p>
+                </Link>
+                 <Link to="/Repair and Services">
+                  <p className="cursor-pointer hover:text-gray-400"> Repair and Services</p>
+                </Link>
+                <Link to="/EMI">
+                  <p className="cursor-pointer hover:text-gray-400"> EMI</p>
+                </Link>
+                <Link to="/Glossary">
+                  <p className="cursor-pointer hover:text-gray-400"> Glossary</p>
+                </Link>
+                <Link to="/Blog">
+                  <p className="cursor-pointer hover:text-gray-400"> Blog</p>
+                </Link>
+                
+
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 border-l-2 border-gray-400 h-[15rem] px-2">
                 <Link to="/about-ceo">
                   <p className="cursor-pointer hover:text-gray-400">About Our CEO</p>
                 </Link>
@@ -54,6 +74,31 @@ const Footer = () => {
                 <Link to="/service-center">
                   <p className="cursor-pointer hover:text-gray-400">Service Center</p>
                 </Link>
+
+                <Link to="/ Order Procedure">
+                  <p className="cursor-pointer hover:text-gray-400"> Order Procedure</p>
+                </Link>
+                <Link to="/Return, Refund & Cancelation">
+                  <p className="cursor-pointer hover:text-gray-400">Return, Refund & Cancelation</p>
+                </Link>
+                <Link to="/Payment Method">
+                  <p className="cursor-pointer hover:text-gray-400">Payment Method</p>
+                </Link>
+                       <Link to="/Cookie Policy">
+                  <p className="cursor-pointer hover:text-gray-400"> Cookie Policy</p>
+                </Link>
+                <Link to="/Terms & Conditions">
+                  <p className="cursor-pointer hover:text-gray-400">Terms & Conditions</p>
+                </Link>
+                <Link to="/Privacy policy">
+                  <p className="cursor-pointer hover:text-gray-400">Privacy policy</p>
+                </Link>
+               <Link to="/ডিজিটাল কমার্স নির্দেশিকা">
+                  <p className="cursor-pointer hover:text-gray-400">ডিজিটাল কমার্স নির্দেশিকা</p>
+                </Link>
+
+
+
               </div>
             </div>
             <ContactUs />

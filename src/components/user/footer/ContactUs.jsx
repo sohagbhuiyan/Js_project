@@ -22,7 +22,7 @@ const ContactUs = () => {
   }, [error, dispatch]);
 
   return (
-    <div className="md:px-6 mb-1 -mt-3 text-sm sm:text-base text-center md:text-left">
+    <div className="md:px-3 mb-1 text-sm sm:text-base text-center md:text-left md:border-l-2 border-gray-400 h-[8rem] px-2">
       <h1 className="text-lg font-medium ">Contact Us</h1>
       {error && (
         <div className="text-red-700 bg-red-100 p-2 mb-4 rounded">
@@ -35,13 +35,14 @@ const ContactUs = () => {
       ) : contacts.length === 0 ? (
         <div>No contact information available.</div>
       ) : (
-        <div className="space-y-1 text-sm px-4 sm:px-0 ">
+        <div className="space-y-1 text-sm px-4 sm:px-0">
           {contacts.map((contact) => (
-            <div key={contact.id}>
+            <div key={contact.id} className=''>
              <span className='flex'><MdLocationPin className='mt-0.5 mr-2'/><p>{contact.address}</p></span>
               <span className='flex'><MdCall className='mt-0.5 mr-2'/><p>{contact.phonenumbers}</p></span>
               <span className='flex'><MdEmail className='mt-0.5 mr-2'/><p>{contact.email}</p></span>
               <span className='flex'><TbClockHour4 className='mt-0.5 mr-2'/><p>{contact.saturday}</p></span>
+              <span>Maps: </span>
             </div>
           ))}
         </div>

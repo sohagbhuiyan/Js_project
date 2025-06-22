@@ -22,12 +22,12 @@ const TopBar = ()=> {
           News & Media
         </NavLink>
         <NavLink
-          to="/contact"
+          to="/customer-service"
           className={({ isActive }) =>
             isActive ? "text-gray-300 cursor-pointer" : "hover:text-gray-300 cursor-pointer"
           }
         >
-          Contact
+          Customer Service
         </NavLink>
       </div>
         </>

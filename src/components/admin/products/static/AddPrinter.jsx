@@ -460,7 +460,7 @@ const AddPrinter = () => {
         rows={4}
         value={formState.details}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
       />
       <TextField
         name="specification"
@@ -470,7 +470,7 @@ const AddPrinter = () => {
         rows={3}
         value={formState.specification}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
       />
       <TextField
         name="title"
@@ -480,7 +480,7 @@ const AddPrinter = () => {
         rows={4}
         value={formState.title}
         onChange={handleChange}
-        inputProps={{ maxLength: 1000 }}
+        inputProps={{ maxLength: 5000 }}
       />
 
       <Box>

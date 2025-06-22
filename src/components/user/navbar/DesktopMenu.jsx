@@ -277,7 +277,7 @@ const DesktopMenu = ({ menuItems }) => {
             {item.name}
           </Link>
           {item.products?.length > 0 && hoverIndex === index && (
-            <div className="absolute top-full left-0 w-72 bg-gray-300 text-black shadow-lg rounded-md border border-gray-200 z-50 animate-fadeIn">
+            <div className="absolute left-0 w-screen bg-gray-300 text-black shadow-lg rounded-md border border-gray-200 z-50 animate-fadeIn">
               {item.products.map((product, productIndex) => (
                 <div
                   key={product.id}
@@ -294,7 +294,7 @@ const DesktopMenu = ({ menuItems }) => {
                   {product.items?.length > 0 && hoverProductIndex === productIndex && (
                     <div
                       ref={(el) => (megamenuRefs.current[productIndex] = el)}
-                      className="absolute top-0 left-full w-64 bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn"
+                      className="block top-0 left-0  right-0 w-screen bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn"
                     >
                       {product.items.map((subItem) => (
                         <Link

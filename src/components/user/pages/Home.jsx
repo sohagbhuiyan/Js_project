@@ -5,6 +5,7 @@ import UserInfo from "../body/UserInfo";
 import BrandSection from "../body/BrandSection";
 import Branch from "../body/Branch";
 import { Box } from "@mui/material";
+import AllProductsPage from "../body/collection/AllProductsPage";
 
 const Home = () => {
   return (
