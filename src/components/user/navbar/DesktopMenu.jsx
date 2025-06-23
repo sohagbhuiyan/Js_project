@@ -186,7 +186,6 @@
 // export default DesktopMenu;
 
 
-// components/user/navbar/DesktopMenu.jsx
 import { Link } from "react-router-dom";
 import { FaAngleDoubleRight, FaHome } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
@@ -197,11 +196,27 @@ const DesktopMenu = ({ menuItems }) => {
   const [showMoreItems, setShowMoreItems] = useState(false);
   const [hoverMoreItemIndex, setHoverMoreItemIndex] = useState(null);
   const [hoverMoreProductIndex, setHoverMoreProductIndex] = useState(null);
+  const [showLaptopSubmenu, setShowLaptopSubmenu] = useState(false); // New state for laptop submenu
   const megamenuRefs = useRef([]);
 
   const firstTwelveItems = menuItems.slice(0, 7);
   const remainingItems = menuItems.slice(7);
   const columnClass = remainingItems.length > 6 ? "grid-cols-3" : "grid-cols-2";
+
+  const laptopSubMenuItem = [
+    { name: "Acer", path: "/laptops/acer" },
+    { name: "Dell", path: "/laptops/dell" },
+    { name: "ASUS", path: "/laptops/asus" },
+    { name: "HP", path: "/laptops/hp" },
+    { name: "Lenovo", path: "/laptops/lenovo" },
+    { name: "Toshiba", path: "/laptops/toshiba" },
+    { name: "MSI", path: "/laptops/msi" },
+    { name: "Apple", path: "/laptops/apple" },
+    { name: "Infinix", path: "/laptops/infinix" },
+    { name: "Microsoft", path: "/laptops/microsoft" },
+    { name: "Gigabyte", path: "/laptops/gigabyte" },
+    { name: "Accesorries", path: "/laptops/accesorries" },
+  ];
 
   const adjustMegamenuPosition = (element) => {
     if (!element) return;
@@ -228,9 +243,41 @@ const DesktopMenu = ({ menuItems }) => {
       <div className="relative cursor-pointer group">
         <Link to="/" className="flex items-center px-3 py-1 rounded-md hover:text-[#c5c5c5]">
           <FaHome className="mr-1" />
-        
         </Link>
       </div>
+
+      {/* Laptop Menu Item with Submenu */}
+      <div
+  className="relative cursor-pointer group"
+  onMouseEnter={() => setShowLaptopSubmenu(true)}
+  onMouseLeave={() => setShowLaptopSubmenu(false)}
+>
+  <Link
+    to="/laptops"
+    className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]"
+  >
+    Laptop
+  </Link>
+
+  {showLaptopSubmenu && (
+    <div
+      className="absolute left-0 max-w-[1200px] mx-auto right-0 bg-gray-300 text-black z-50 rounded border-t border-gray-200 shadow-md animate-fadeIn"
+      style={{ top: '100%', width: '100vw',}}
+    >
+      <div className=" mx-auto grid grid-cols-4 gap-4 px-8 py-4">
+        {laptopSubMenuItem.map((item) => (
+          <Link
+            key={item.name}
+            to={item.path}
+            className="block px-4 py-2 hover:bg-gray-200 rounded transition-colors duration-150"
+          >
+            {item.name}
+          </Link>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
       {/* Desktops Menu Item */}
       <div className="relative cursor-pointer group">
@@ -238,28 +285,32 @@ const DesktopMenu = ({ menuItems }) => {
           Desktop
         </Link>
       </div>
-      <div className="relative cursor-pointer group">
-        <Link to="/laptops" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
-          laptop
-        </Link>
-      </div>
+
+
+
+
+      {/* Printer Menu Item */}
       <div className="relative cursor-pointer group">
         <Link to="/printers" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
           Printer
         </Link>
       </div>
+
+      {/* Camera Menu Item */}
       <div className="relative cursor-pointer group">
         <Link to="/camera" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
           Camera
         </Link>
       </div>
+
+      {/* Network Menu Item */}
       <div className="relative cursor-pointer group">
         <Link to="/network" className="px-3 py-1 rounded-md transition-colors duration-200 hover:text-[#c5c5c5]">
           Network
         </Link>
       </div>
 
-      {/* Category Items (First 12) */}
+      {/* Category Items (First 7) */}
       {firstTwelveItems.map((item, index) => (
         <div
           key={item.id}
@@ -294,7 +345,7 @@ const DesktopMenu = ({ menuItems }) => {
                   {product.items?.length > 0 && hoverProductIndex === productIndex && (
                     <div
                       ref={(el) => (megamenuRefs.current[productIndex] = el)}
-                      className="block top-0 left-0  right-0 w-screen bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn"
+                      className="block top-0 left-0 right-0 w-screen bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn"
                     >
                       {product.items.map((subItem) => (
                         <Link
@@ -326,7 +377,8 @@ const DesktopMenu = ({ menuItems }) => {
           }}
         >
           <div className="flex items-center px-3 py-2 rounded-md transition-colors duration-200">
-            More Items<FaAngleDoubleRight className="ml-1" />
+            More Items
+            <FaAngleDoubleRight className="ml-1" />
           </div>
           {showMoreItems && (
             <div className="absolute top-full right-0 w-96 bg-gray-300 text-black shadow-lg rounded-md border border-gray-500 z-50 animate-fadeIn">

@@ -522,7 +522,7 @@ export const deletePCPart = createAsyncThunk(
 );
 
 // Async thunk to place a PC part order
-export const placePCPartOrder = createAsyncThunk(
+export const    placePCPartOrder = createAsyncThunk(
   "pcBuilder/placePCPartOrder",
   async (orderData, { rejectWithValue, getState }) => {
     try {

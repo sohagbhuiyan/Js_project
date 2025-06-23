@@ -59,6 +59,19 @@ const ProductView = () => {
     []
   );
 
+  const getSpecifications = (specString) => {
+    if (!specString) return [];
+    // Trim, normalize commas, and split
+    const normalized = specString
+      .trim()
+      .replace(/,\s*,+/g, ", ")
+      .replace(/\s+/g, " ");
+    return normalized
+      .split(", ")
+      .filter((item) => item.trim().length > 0); // Remove empty items
+  };
+
+  const specifications = getSpecifications(currentProduct?.specification);
   const handleMouseMove = useCallback(
     (e) => {
       if (isTouchDevice) return;
@@ -198,12 +211,17 @@ const ProductView = () => {
         >
           Quick Overview
         </Typography>
+        {specifications.length > 0 ? (
         <ul className="list-disc pl-5 text-gray-600" style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}>
-          {currentProduct.details &&
-            currentProduct.details.split(", ").map((detail, index) => (
-              <li key={index}>{detail}</li>
-            ))}
+          {specifications.map((detail, index) => (
+            <li key={index} className="py-1">
+              {detail}
+            </li>
+          ))}
         </ul>
+      ) : (
+        <p className="text-gray-600 text-sm">No specifications available.</p>
+      )}
         <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

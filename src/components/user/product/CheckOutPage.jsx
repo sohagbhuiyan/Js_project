@@ -7,6 +7,10 @@ import { placePCPartOrder } from "../../../store/pcbuilderSlice";
 import { placeCCPartOrder } from "../../../store/ccbuilderSlice";
 import { API_BASE_URL } from "../../../store/api";
 import { DesktopPlaceOrder } from "../../../store/static/desktopSlice";
+import { LaptopPlaceOrder } from "../../../store/static/laptopSlice";
+import { cameraPlaceOrder } from "../../../store/static/cameraSlice";
+import { PrinterPlaceOrder } from "../../../store/static/printerSlice";
+import { networkPlaceOrder } from "../../../store/static/networkSlice";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -135,6 +139,14 @@ const CheckoutPage = () => {
         ? { ccBuilderItemDitelsList: itemsList }
         : orderType === "desktopOrder"
         ? { desktopPcAllList: itemsList }
+        :orderType === "laptopOrder"
+        ? { allLaptopList: itemsList}
+        :orderType === "cameraOrder"
+        ? { allCameraList: itemsList}
+        :orderType === "printerOrder"
+        ? { allPrinterList: itemsList}
+        :orderType === "networkOrder"
+        ? { allNetworkList: itemsList}
         : { productDetailsList: itemsList }),
     };
 
@@ -147,6 +159,14 @@ const CheckoutPage = () => {
         ? placeCCPartOrder
         : orderType === "desktopOrder"
         ? DesktopPlaceOrder
+        : orderType === "laptopOrder"
+        ? LaptopPlaceOrder
+        : orderType === "cameraOrder"
+        ? cameraPlaceOrder
+        : orderType === "printerOrder"
+        ? PrinterPlaceOrder
+        : orderType === "networkOrder"
+        ? networkPlaceOrder
         : placeOrder;
 
     dispatch(placeOrderAction(orderPayload))

@@ -208,7 +208,12 @@ const AddProduct = () => {
       alert('Failed to add product: ' + (error || 'Unknown error'));
     }
   };
-
+const handleBlur = (e) => {
+    let value = e.target.value.trim();
+    // Normalize commas: replace multiple commas/spaces with a single ", "
+    value = value.replace(/,\s*,+/g, ", ").replace(/\s+/g, " ");
+    setFormState((prev) => ({ ...prev, specification: value }));
+  };
   return (
     <Box
       component="form"
@@ -235,8 +240,7 @@ const AddProduct = () => {
         onChange={handleChange}
         required
         inputProps={{ maxLength: 5000 }} 
-      />
-
+      /> 
       <FormControl fullWidth required>
         <InputLabel>Category (Menu)</InputLabel>
         <Select
@@ -349,17 +353,20 @@ const AddProduct = () => {
         required
         inputProps={{ maxLength: 10000 }} 
       />
-      <TextField
-        name="specification"
-        label="Specification"
-        fullWidth
-        multiline
-        rows={3}
-        value={formState.specification}
-        onChange={handleChange}
-        required
-        inputProps={{ maxLength: 10000 }} 
-      />
+<TextField
+      name="specification"
+      label="Specification"
+      fullWidth
+      multiline
+      rows={3}
+      value={formState.specification || ""}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      required
+      inputProps={{ maxLength: 10000 }}
+      helperText="Enter specifications separated by commas (e.g., Spec 1, Spec 2, Spec 3)"
+      sx={{ mb: 2 }}
+    />
       <TextField
         name="title"
         label="Additional Information"

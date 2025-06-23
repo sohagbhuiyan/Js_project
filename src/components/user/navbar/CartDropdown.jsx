@@ -885,9 +885,7 @@ const CartDropdown = ({ isOpen, onClose, position = "desktop" }) => {
                     }
                     alt={item.name || 'Product'}
                     className="w-12 h-12 object-cover rounded"
-                    onError={(e) => {
-                      e.target.src = '/images/fallback-image.jpg';
-                    }}
+           
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-800 truncate">

@@ -154,7 +154,7 @@ const laptopSlice = createSlice({
           imageb: laptop.imageb ? `${API_BASE_URL}/images/${laptop.imageb}` : null,
           imagec: laptop.imagec ? `${API_BASE_URL}/images/${laptop.imagec}` : null,
         }));
-      })
+      }) 
       .addCase(fetchLaptops.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

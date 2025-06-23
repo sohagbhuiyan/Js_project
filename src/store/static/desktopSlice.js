@@ -145,6 +145,31 @@ export const DesktopPlaceOrder = createAsyncThunk(
   }
 );
 
+export const addToCartAsync = createAsyncThunk(
+  'cart/addToCartAsync',
+  async ({ productDetailsId, quantity, name, price, imagea }, { getState, rejectWithValue, dispatch }) => {
+    const state = getState();
+    const token = state.auth.token || localStorage.getItem('authToken');
+    const userId = state.auth.profile?.id;
+
+    if (!token || !userId) {
+      return { productDetailsId, quantity, name, price, imagea, isGuest: true };
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/productdetails/AddTocart/save?userId=${userId}&productDetailsId=${productDetailsId}&quantity=${quantity}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log('addToCart response:', response.data);
+      dispatch(fetchCartItemsAsync());
+      return { ...response.data, productDetailsId, name, price, imagea };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to add to cart');
+    }
+  }
+);
 
 const desktopSlice = createSlice({
   name: 'desktops',

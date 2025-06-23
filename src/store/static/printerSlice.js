@@ -111,6 +111,62 @@ export const fetchPrintersByCategory = createAsyncThunk(
   }
 );
 
+
+// Place Order
+export const PrinterPlaceOrder = createAsyncThunk(
+  "printers/printerOrder",
+  async (orderData, { rejectWithValue, getState }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem("authToken");
+      const profile = state.auth.profile;
+      const user = state.auth.user;
+
+      if (!token || !profile?.email || !user?.id) {
+        return rejectWithValue("User not authenticated. Please log in.");
+      }
+
+      // Construct the order payload to match the Postman structure
+      const orderPayload = {
+        user: {
+          id: user.id,
+        },
+        quantity: orderData.quantity,
+        districts: orderData.districts,
+        upazila: orderData.upazila,
+        address: orderData.address,
+        printerAllList: orderData.printerAllList,
+      };
+
+      console.log("Sending order payload to backend:", orderPayload);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/printer/order/save`,
+        orderPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Order response from backend:", response.data);
+
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || "Order failed";
+      console.error("Order error:", {
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+
 const printerSlice = createSlice({
   name: 'printers',
   initialState: {
@@ -190,7 +246,20 @@ const printerSlice = createSlice({
       .addCase(fetchPrintersByCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(PrinterPlaceOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+          })
+      .addCase(PrinterPlaceOrder.fulfilled, (state, action) => {
+      state.loading = false;
+      state.orders.push(action.payload);
+      state.userOrders.push(action.payload);
+          })
+      .addCase(PrinterPlaceOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
   },
 });
 

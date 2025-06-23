@@ -92,7 +92,6 @@ import CameraViewPage from './components/user/static/camera/CameraViewPage';
 import CameraView from './components/user/static/camera/CameraView';
 import NetworkView from './components/user/static/network/NetworkView';
 import NetworkViewPage from './components/user/static/network/NetworkViewPage';
- 
 
 function App() { 
   const dispatch = useDispatch();
