@@ -205,17 +205,238 @@
 
 // export default ViewProduct;
 
+
+// import React, { useEffect, useState } from 'react';
+// import {
+//   Box, Typography, Table, TableBody, TableCell, TableContainer,
+//   TableHead, TableRow, Paper, Avatar, CircularProgress,
+//   Button, IconButton, Dialog, DialogActions, DialogContent,
+//   DialogContentText, DialogTitle, TextField, MenuItem, Checkbox, FormControlLabel
+// } from '@mui/material';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { useNavigate } from 'react-router-dom';
+// import { Edit, Trash } from 'lucide-react';
+// import { fetchProducts, deleteProductDetails } from '../../../store/productSlice';
+
+// const ViewProduct = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const { products, loading, error, successMessage } = useSelector((state) => state.products);
+//   const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
+
+//   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+//   const [productToDelete, setProductToDelete] = useState(null);
+//   const [selectedProducts, setSelectedProducts] = useState([]);
+//   const [filters, setFilters] = useState({ name: '', brand: '', category: '' });
+
+//   useEffect(() => {
+//     dispatch(fetchProducts());
+//   }, [dispatch]);
+
+//   const handleEditClick = (id) => navigate(`/admin/products/edit/${id}`);
+//   const handleAddProduct = () => navigate('/admin/products/add-product');
+
+//   const handleDeleteClick = (id) => {
+//     setProductToDelete(id);
+//     setDeleteDialogOpen(true);
+//   };
+
+//   const handleDeleteConfirm = () => {
+//     if (productToDelete) {
+//       dispatch(deleteProductDetails({ id: productToDelete, token }));
+//     } else if (selectedProducts.length) {
+//       selectedProducts.forEach(id => {
+//         dispatch(deleteProductDetails({ id, token }));
+//       });
+//     }
+//     setDeleteDialogOpen(false);
+//     setProductToDelete(null);
+//     setSelectedProducts([]);
+//   };
+
+//   const handleDeleteCancel = () => {
+//     setDeleteDialogOpen(false);
+//     setProductToDelete(null);
+//   };
+
+//   const handleSelectProduct = (id) => {
+//     setSelectedProducts((prev) =>
+//       prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+//     );
+//   };
+
+//   const filteredProducts = products.filter((product) =>
+//     product.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+//     (!filters.brand || product.product?.name === filters.brand) &&
+//     (!filters.category || product.catagory?.name === filters.category)
+//   );
+
+//   const brandOptions = [...new Set(products.map(p => p.product?.name).filter(Boolean))];
+//   const categoryOptions = [...new Set(products.map(p => p.catagory?.name).filter(Boolean))];
+
+//   return (
+//     <Box className="min-h-screen p-6 bg-gray-50">
+//       <Box className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+//         <Typography variant="h4" className="font-bold text-gray-800">Product Management</Typography>
+//         <Box className="flex gap-4 flex-wrap">
+//           {selectedProducts.length > 0 && (
+//             <Button
+//               variant="outlined"
+//               color="error"
+//               onClick={() => setDeleteDialogOpen(true)}
+//             >
+//               Delete Selected ({selectedProducts.length})
+//             </Button>
+//           )}
+//           <Button
+//             variant="contained"
+//             onClick={handleAddProduct}
+//             className="bg-blue-600 text-white hover:bg-blue-700"
+//           >
+//             + Add New Product
+//           </Button>
+//         </Box>
+//       </Box>
+
+//       {/* Filters */}
+//       <Box className="grid sm:grid-cols-3 gap-4 mb-6">
+//         <TextField
+//           label="Search by Name"
+//           value={filters.name}
+//           onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+//           fullWidth
+//         />
+//         <TextField
+//           select
+//           label="Filter by Brand"
+//           value={filters.brand}
+//           onChange={(e) => setFilters({ ...filters, brand: e.target.value })}
+//           fullWidth
+//         >
+//           <MenuItem value="">All Brands</MenuItem>
+//           {brandOptions.map((brand, idx) => (
+//             <MenuItem key={idx} value={brand}>{brand}</MenuItem>
+//           ))}
+//         </TextField>
+//         <TextField
+//           select
+//           label="Filter by Category"
+//           value={filters.category}
+//           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+//           fullWidth
+//         >
+//           <MenuItem value="">All Categories</MenuItem>
+//           {categoryOptions.map((cat, idx) => (
+//             <MenuItem key={idx} value={cat}>{cat}</MenuItem>
+//           ))}
+//         </TextField>
+//       </Box>
+
+//       {loading ? (
+//         <Box className="flex justify-center py-20">
+//           <CircularProgress />
+//         </Box>
+//       ) : error ? (
+//         <Typography color="error" className="mb-4">{error}</Typography>
+//       ) : filteredProducts.length === 0 ? (
+//         <Typography className="text-gray-600 text-center p-8 bg-white rounded-lg shadow">
+//           No products match your filters.
+//         </Typography>
+//       ) : (
+//         <TableContainer component={Paper} className="shadow-lg rounded-lg">
+//           <Table>
+//             <TableHead>
+//               <TableRow className="bg-blue-100">
+//                 <TableCell />
+//                 <TableCell>Image</TableCell>
+//                 <TableCell>Product ID</TableCell>
+//                 <TableCell>Name</TableCell>
+//                 <TableCell>Category</TableCell>
+//                 <TableCell>Brand</TableCell>
+//                 <TableCell>Quantity</TableCell>
+//                 <TableCell>Price</TableCell>
+//                 <TableCell align="center">Actions</TableCell>
+//               </TableRow>
+//             </TableHead>
+//             <TableBody>
+//               {filteredProducts.map((product) => (
+//                 <TableRow key={product.id}>
+//                   <TableCell padding="checkbox">
+//                     <Checkbox
+//                       checked={selectedProducts.includes(product.id)}
+//                       onChange={() => handleSelectProduct(product.id)}
+//                     />
+//                   </TableCell>
+//                   <TableCell>
+//                     {product.imagea ? (
+//                       <Avatar src={product.imagea} variant="rounded" />
+//                     ) : (
+//                       <Box className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded text-xs text-gray-500">
+//                         No Image
+//                       </Box>
+//                     )}
+//                   </TableCell>
+//                   <TableCell>{product.productid}</TableCell>
+//                   <TableCell>{product.name}</TableCell>
+//                   <TableCell>{product.catagory?.name || 'N/A'}</TableCell>
+//                   <TableCell>{product.product?.name || 'N/A'}</TableCell>
+//                   <TableCell>{product.quantity}</TableCell>
+//                   <TableCell>${product.specialprice?.toFixed(2)}</TableCell>
+//                   <TableCell align="center">
+//                     <IconButton onClick={() => handleEditClick(product.id)} color="primary">
+//                       <Edit size={18} />
+//                     </IconButton>
+//                     <IconButton onClick={() => handleDeleteClick(product.id)} color="error">
+//                       <Trash size={18} />
+//                     </IconButton>
+//                   </TableCell>
+//                 </TableRow>
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </TableContainer>
+//       )}
+
+//       {/* Delete Confirmation Dialog */}
+//       <Dialog
+//         open={deleteDialogOpen}
+//         onClose={handleDeleteCancel}
+//         PaperProps={{ className: "rounded-xl shadow-xl" }}
+//       >
+//         <DialogTitle>Confirm Deletion</DialogTitle>
+//         <DialogContent>
+//           <DialogContentText>
+//             {productToDelete
+//               ? "Are you sure you want to delete this product?"
+//               : `Are you sure you want to delete ${selectedProducts.length} selected products?`}
+//           </DialogContentText>
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={handleDeleteCancel}>Cancel</Button>
+//           <Button onClick={handleDeleteConfirm} variant="contained" color="error">
+//             Delete
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+//     </Box>
+//   );
+// };
+
+// export default ViewProduct;
+
+
 import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Avatar, CircularProgress,
   Button, IconButton, Dialog, DialogActions, DialogContent,
-  DialogContentText, DialogTitle, TextField, MenuItem, Checkbox, FormControlLabel
+  DialogContentText, DialogTitle, TextField, MenuItem, Checkbox, 
+  FormControlLabel, Switch, Menu
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Edit, Trash } from 'lucide-react';
-import { fetchProducts, deleteProductDetails } from '../../../store/productSlice';
+import { fetchProducts, deleteProductDetails, publishProduct, unpublishProduct } from '../../../store/productSlice';
 
 const ViewProduct = () => {
   const dispatch = useDispatch();
@@ -227,6 +448,9 @@ const ViewProduct = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [filters, setFilters] = useState({ name: '', brand: '', category: '' });
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishAction, setPublishAction] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -264,6 +488,47 @@ const ViewProduct = () => {
     );
   };
 
+  const handlePublishToggle = (id, isPublished) => {
+    if (isPublished) {
+      dispatch(unpublishProduct({ id, token }));
+    } else {
+      dispatch(publishProduct({ id, token }));
+    }
+  };
+
+  const handleBulkPublish = (shouldPublish) => {
+    setPublishAction(shouldPublish);
+    setPublishDialogOpen(true);
+    setAnchorEl(null);
+  };
+
+  const handlePublishConfirm = () => {
+    selectedProducts.forEach(id => {
+      if (publishAction) {
+        dispatch(publishProduct({ id, token }));
+      } else {
+        dispatch(unpublishProduct({ id, token }));
+      }
+    });
+    setPublishDialogOpen(false);
+    setSelectedProducts([]);
+    setPublishAction(null);
+  };
+
+  const handlePublishCancel = () => {
+    setPublishDialogOpen(false);
+    setPublishAction(null);
+  };
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Filter products for admin view (show all products)
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(filters.name.toLowerCase()) &&
     (!filters.brand || product.product?.name === filters.brand) &&
@@ -279,13 +544,29 @@ const ViewProduct = () => {
         <Typography variant="h4" className="font-bold text-gray-800">Product Management</Typography>
         <Box className="flex gap-4 flex-wrap">
           {selectedProducts.length > 0 && (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              Delete Selected ({selectedProducts.length})
-            </Button>
+            <>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete Selected ({selectedProducts.length})
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleMenuClick}
+              >
+                Bulk Actions
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={() => handleBulkPublish(true)}>Publish Selected</MenuItem>
+                <MenuItem onClick={() => handleBulkPublish(false)}>Unpublish Selected</MenuItem>
+              </Menu>
+            </>
           )}
           <Button
             variant="contained"
@@ -354,6 +635,7 @@ const ViewProduct = () => {
                 <TableCell>Brand</TableCell>
                 <TableCell>Quantity</TableCell>
                 <TableCell>Price</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -381,6 +663,14 @@ const ViewProduct = () => {
                   <TableCell>{product.product?.name || 'N/A'}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>${product.specialprice?.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={product.isPublished}
+                      onChange={() => handlePublishToggle(product.id, product.isPublished)}
+                      color="primary"
+                    />
+                    {product.isPublished ? 'Published' : 'Unpublished'}
+                  </TableCell>
                   <TableCell align="center">
                     <IconButton onClick={() => handleEditClick(product.id)} color="primary">
                       <Edit size={18} />
@@ -417,8 +707,327 @@ const ViewProduct = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Publish/Unpublish Confirmation Dialog */}
+      <Dialog
+        open={publishDialogOpen}
+        onClose={handlePublishCancel}
+        PaperProps={{ className: "rounded-xl shadow-xl" }}
+      >
+        <DialogTitle>Confirm {publishAction ? 'Publish' : 'Unpublish'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to {publishAction ? 'publish' : 'unpublish'} {selectedProducts.length} selected products?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handlePublishCancel}>Cancel</Button>
+          <Button onClick={handlePublishConfirm} variant="contained" color="primary">
+            {publishAction ? 'Publish' : 'Unpublish'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
 
 export default ViewProduct;
+
+// import React, { useEffect, useState } from 'react';
+// import {
+//   Box, Typography, Table, TableBody, TableCell, TableContainer,
+//   TableHead, TableRow, Paper, Avatar, CircularProgress,
+//   Button, IconButton, Dialog, DialogActions, DialogContent,
+//   DialogContentText, DialogTitle, TextField, MenuItem, Checkbox, 
+//   FormControlLabel, Switch, Menu
+// } from '@mui/material';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { useNavigate } from 'react-router-dom';
+// import { Edit, Trash, } from 'lucide-react';
+// import { fetchProducts, deleteProductDetails } from '../../../store/productSlice';
+
+// const ViewProduct = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const { products, loading, error, successMessage } = useSelector((state) => state.products);
+//   const token = useSelector((state) => state.auth.token) || localStorage.getItem('authToken');
+
+//   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+//   const [productToDelete, setProductToDelete] = useState(null);
+//   const [selectedProducts, setSelectedProducts] = useState([]);
+//   const [filters, setFilters] = useState({ name: '', brand: '', category: '' });
+//   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+//   const [publishAction, setPublishAction] = useState(null);
+//   const [anchorEl, setAnchorEl] = useState(null);
+
+//   useEffect(() => {
+//     dispatch(fetchProducts());
+//   }, [dispatch]);
+
+//   const handleEditClick = (id) => navigate(`/admin/products/edit/${id}`);
+//   const handleAddProduct = () => navigate('/admin/products/add-product');
+
+//   const handleDeleteClick = (id) => {
+//     setProductToDelete(id);
+//     setDeleteDialogOpen(true);
+//   };
+
+//   const handleDeleteConfirm = () => {
+//     if (productToDelete) {
+//       dispatch(deleteProductDetails({ id: productToDelete, token }));
+//     } else if (selectedProducts.length) {
+//       selectedProducts.forEach(id => {
+//         dispatch(deleteProductDetails({ id, token }));
+//       });
+//     }
+//     setDeleteDialogOpen(false);
+//     setProductToDelete(null);
+//     setSelectedProducts([]);
+//   };
+
+//   const handleDeleteCancel = () => {
+//     setDeleteDialogOpen(false);
+//     setProductToDelete(null);
+//   };
+
+//   const handleSelectProduct = (id) => {
+//     setSelectedProducts((prev) =>
+//       prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+//     );
+//   };
+
+//   const handlePublishToggle = (id, isPublished) => {
+//     dispatch(updateProductPublishStatus({ id, isPublished: !isPublished, token }));
+//   };
+
+//   const handleBulkPublish = (shouldPublish) => {
+//     setPublishAction(shouldPublish);
+//     setPublishDialogOpen(true);
+//     setAnchorEl(null);
+//   };
+
+//   const handlePublishConfirm = () => {
+//     selectedProducts.forEach(id => {
+//       dispatch(updateProductPublishStatus({ id, isPublished: publishAction, token }));
+//     });
+//     setPublishDialogOpen(false);
+//     setSelectedProducts([]);
+//     setPublishAction(null);
+//   };
+
+//   const handlePublishCancel = () => {
+//     setPublishDialogOpen(false);
+//     setPublishAction(null);
+//   };
+
+//   const handleMenuClick = (event) => {
+//     setAnchorEl(event.currentTarget);
+//   };
+
+//   const handleMenuClose = () => {
+//     setAnchorEl(null);
+//   };
+
+//   const filteredProducts = products.filter((product) =>
+//     product.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+//     (!filters.brand || product.product?.name === filters.brand) &&
+//     (!filters.category || product.catagory?.name === filters.category)
+//   );
+
+//   const brandOptions = [...new Set(products.map(p => p.product?.name).filter(Boolean))];
+//   const categoryOptions = [...new Set(products.map(p => p.catagory?.name).filter(Boolean))];
+
+//   return (
+//     <Box className="min-h-screen p-6 bg-gray-50">
+//       <Box className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+//         <Typography variant="h4" className="font-bold text-gray-800">Product Management</Typography>
+//         <Box className="flex gap-4 flex-wrap">
+//           {selectedProducts.length > 0 && (
+//             <>
+//               <Button
+//                 variant="outlined"
+//                 color="error"
+//                 onClick={() => setDeleteDialogOpen(true)}
+//               >
+//                 Delete Selected ({selectedProducts.length})
+//               </Button>
+//               <Button
+//                 variant="outlined"
+//                 onClick={handleMenuClick}
+//               >
+//                 Bulk Actions
+//               </Button>
+//               <Menu
+//                 anchorEl={anchorEl}
+//                 open={Boolean(anchorEl)}
+//                 onClose={handleMenuClose}
+//               >
+//                 <MenuItem onClick={() => handleBulkPublish(true)}>Publish Selected</MenuItem>
+//                 <MenuItem onClick={() => handleBulkPublish(false)}>Unpublish Selected</MenuItem>
+//               </Menu>
+//             </>
+//           )}
+//           <Button
+//             variant="contained"
+//             onClick={handleAddProduct}
+//             className="bg-blue-600 text-white hover:bg-blue-700"
+//           >
+//             + Add New Product
+//           </Button>
+//         </Box>
+//       </Box>
+
+//       {/* Filters */}
+//       <Box className="grid sm:grid-cols-3 gap-4 mb-6">
+//         <TextField
+//           label="Search by Name"
+//           value={filters.name}
+//           onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+//           fullWidth
+//         />
+//         <TextField
+//           select
+//           label="Filter by Brand"
+//           value={filters.brand}
+//           onChange={(e) => setFilters({ ...filters, brand: e.target.value })}
+//           fullWidth
+//         >
+//           <MenuItem value="">All Brands</MenuItem>
+//           {brandOptions.map((brand, idx) => (
+//             <MenuItem key={idx} value={brand}>{brand}</MenuItem>
+//           ))}
+//         </TextField>
+//         <TextField
+//           select
+//           label="Filter by Category"
+//           value={filters.category}
+//           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+//           fullWidth
+//         >
+//           <MenuItem value="">All Categories</MenuItem>
+//           {categoryOptions.map((cat, idx) => (
+//             <MenuItem key={idx} value={cat}>{cat}</MenuItem>
+//           ))}
+//         </TextField>
+//       </Box>
+
+//       {loading ? (
+//         <Box className="flex justify-center py-20">
+//           <CircularProgress />
+//         </Box>
+//       ) : error ? (
+//         <Typography color="error" className="mb-4">{error}</Typography>
+//       ) : filteredProducts.length === 0 ? (
+//         <Typography className="text-gray-600 text-center p-8 bg-white rounded-lg shadow">
+//           No products match your filters.
+//         </Typography>
+//       ) : (
+//         <TableContainer component={Paper} className="shadow-lg rounded-lg">
+//           <Table>
+//             <TableHead>
+//               <TableRow className="bg-blue-100">
+//                 <TableCell />
+//                 <TableCell>Image</TableCell>
+//                 <TableCell>Product ID</TableCell>
+//                 <TableCell>Name</TableCell>
+//                 <TableCell>Category</TableCell>
+//                 <TableCell>Brand</TableCell>
+//                 <TableCell>Quantity</TableCell>
+//                 <TableCell>Price</TableCell>
+//                 <TableCell>Status</TableCell>
+//                 <TableCell align="center">Actions</TableCell>
+//               </TableRow>
+//             </TableHead>
+//             <TableBody>
+//               {filteredProducts.map((product) => (
+//                 <TableRow key={product.id}>
+//                   <TableCell padding="checkbox">
+//                     <Checkbox
+//                       checked={selectedProducts.includes(product.id)}
+//                       onChange={() => handleSelectProduct(product.id)}
+//                     />
+//                   </TableCell>
+//                   <TableCell>
+//                     {product.imagea ? (
+//                       <Avatar src={product.imagea} variant="rounded" />
+//                     ) : (
+//                       <Box className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded text-xs text-gray-500">
+//                         No Image
+//                       </Box>
+//                     )}
+//                   </TableCell>
+//                   <TableCell>{product.productid}</TableCell>
+//                   <TableCell>{product.name}</TableCell>
+//                   <TableCell>{product.catagory?.name || 'N/A'}</TableCell>
+//                   <TableCell>{product.product?.name || 'N/A'}</TableCell>
+//                   <TableCell>{product.quantity}</TableCell>
+//                   <TableCell>${product.specialprice?.toFixed(2)}</TableCell>
+//                   <TableCell>
+//                     <Switch
+//                       checked={product.isPublished}
+//                       onChange={() => handlePublishToggle(product.id, product.isPublished)}
+//                       color="primary"
+//                     />
+//                     {product.isPublished ? 'Published' : 'Unpublished'}
+//                   </TableCell>
+//                   <TableCell align="center">
+//                     <IconButton onClick={() => handleEditClick(product.id)} color="primary">
+//                       <Edit size={18} />
+//                     </IconButton>
+//                     <IconButton onClick={() => handleDeleteClick(product.id)} color="error">
+//                       <Trash size={18} />
+//                     </IconButton>
+//                   </TableCell>
+//                 </TableRow>
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </TableContainer>
+//       )}
+
+//       {/* Delete Confirmation Dialog */}
+//       <Dialog
+//         open={deleteDialogOpen}
+//         onClose={handleDeleteCancel}
+//         PaperProps={{ className: "rounded-xl shadow-xl" }}
+//       >
+//         <DialogTitle>Confirm Deletion</DialogTitle>
+//         <DialogContent>
+//           <DialogContentText>
+//             {productToDelete
+//               ? "Are you sure you want to delete this product?"
+//               : `Are you sure you want to delete ${selectedProducts.length} selected products?`}
+//           </DialogContentText>
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={handleDeleteCancel}>Cancel</Button>
+//           <Button onClick={handleDeleteConfirm} variant="contained" color="error">
+//             Delete
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+
+//       {/* Publish/Unpublish Confirmation Dialog */}
+//       <Dialog
+//         open={publishDialogOpen}
+//         onClose={handlePublishCancel}
+//         PaperProps={{ className: "rounded-xl shadow-xl" }}
+//       >
+//         <DialogTitle>Confirm {publishAction ? 'Publish' : 'Unpublish'}</DialogTitle>
+//         <DialogContent>
+//           <DialogContentText>
+//             Are you sure you want to {publishAction ? 'publish' : 'unpublish'} {selectedProducts.length} selected products?
+//           </DialogContentText>
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={handlePublishCancel}>Cancel</Button>
+//           <Button onClick={handlePublishConfirm} variant="contained" color="primary">
+//             {publishAction ? 'Publish' : 'Unpublish'}
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+//     </Box>
+//   );
+// };
+
+// export default ViewProduct;

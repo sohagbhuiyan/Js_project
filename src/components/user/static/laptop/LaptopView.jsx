@@ -15,6 +15,7 @@ import { FaFilter, FaTimes } from "react-icons/fa";
 import { API_BASE_URL } from "../../../../store/api";
 import { fetchFilteredLaptops, resetFilters, setFilters } from "../../../../store/filters/allFilterSlice";
 import FilterForm from "../Filter/FilterForm";
+import AllProductsPage from "../../body/collection/AllProductsPage";
 
 const LaptopView = () => {
   const [searchParams] = useSearchParams();
@@ -106,6 +107,14 @@ const LaptopView = () => {
         boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
       }}
     >
+        <AllProductsPage
+          // title={getDynamicTitle()}
+          // productCount={sortedProducts.length}
+          // sortOption={sortOption}
+          // onSortChange={setSortOption}
+          // viewType={viewType}
+          // onViewChange={setViewType}
+        />
       <Box
         sx={{
           display: "flex",

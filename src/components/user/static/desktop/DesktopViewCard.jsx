@@ -244,10 +244,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { FaShoppingCart, FaExchangeAlt, FaHeart, FaEye } from "react-icons/fa";
 import { addToWishlist } from "../../../../store/wishlistSlice";
-import { addToCartAsync } from "../../../../store/cartSlice";
 import { addToCompare } from "../../../../store/compareSlice";
 import toast, { Toaster } from "react-hot-toast";
 import QuickViewModal from "../../product/QuickViewModal";
+import { desktopAddToCartAsync } from "../../../../store/static/desktopSlice";
 
 const DesktopViewCard = ({
   id,
@@ -322,7 +322,7 @@ const DesktopViewCard = ({
 
   const handleAddToCart = handleIconAction(() => {
     dispatch(
-      addToCartAsync({
+      desktopAddToCartAsync({
         productDetailsId: id,
         quantity: 1,
         name,

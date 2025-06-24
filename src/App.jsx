@@ -115,6 +115,8 @@ function App() {
           <Route path="/collections" element={<Collections />} />
           <Route path="/desktops" element={<DesktopView />}/>
           <Route path="/laptops" element={<LaptopView />} />
+          <Route path="/laptops/:productName" element={<LaptopView />} />
+          <Route path="/laptops/accessories/:productItemName" element={<LaptopView />} />
           <Route path="/printers" element={<PrinterView />} />
           <Route path="/camera" element={<CameraView />} />
           <Route path="/network" element={<NetworkView/>} />

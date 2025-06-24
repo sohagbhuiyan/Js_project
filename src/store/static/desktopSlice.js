@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import { fetchCartItemsAsync } from '../cartSlice';
 
 
 // Async thunk to fetch all desktops
@@ -145,26 +146,26 @@ export const DesktopPlaceOrder = createAsyncThunk(
   }
 );
 
-export const addToCartAsync = createAsyncThunk(
-  'cart/addToCartAsync',
-  async ({ productDetailsId, quantity, name, price, imagea }, { getState, rejectWithValue, dispatch }) => {
+export const desktopAddToCartAsync = createAsyncThunk(
+  'desktops/desktopAddToCartAsync',
+  async ({ desktopId, quantity, name, price, imagea }, { getState, rejectWithValue, dispatch }) => {
     const state = getState();
     const token = state.auth.token || localStorage.getItem('authToken');
     const userId = state.auth.profile?.id;
 
     if (!token || !userId) {
-      return { productDetailsId, quantity, name, price, imagea, isGuest: true };
+      return { desktopId, quantity, name, price, imagea, isGuest: true };
     }
 
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/productdetails/AddTocart/save?userId=${userId}&productDetailsId=${productDetailsId}&quantity=${quantity}`,
+        `${API_BASE_URL}/api/desktop/AddToCart/save?userId=${userId}&desktopId=${desktopId}&quantity=${quantity}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log('addToCart response:', response.data);
       dispatch(fetchCartItemsAsync());
-      return { ...response.data, productDetailsId, name, price, imagea };
+      return { ...response.data, desktopId, name, price, imagea };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to add to cart');
     }

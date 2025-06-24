@@ -378,7 +378,7 @@ const handleBlur = (e) => {
         inputProps={{ maxLength: 10000 }}  
       />
       <TextField
-        name="warranty"
+        name="warranty"   
         type="number"
         label="Warranty (Months)"
         value={formState.warranty}
